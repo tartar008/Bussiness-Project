@@ -1,0 +1,20 @@
+<section class="card bg-white rounded-xl p-6 ring-1 ring-slate-200 shadow-sm">
+    <h2 class="text-indigo-600 font-semibold mb-4">5️⃣ Transport การขนส่ง</h2>
+    <form id="form-transport" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <input name="tpNo" placeholder="TP-YYYYMMDD-###" class="border p-2 rounded-lg" required />
+        <input name="date" type="date" class="border p-2 rounded-lg" required />
+        <input name="truck" placeholder="Truck Code" class="border p-2 rounded-lg" />
+        <input name="capacity" type="number" placeholder="Capacity (kg)" class="border p-2 rounded-lg" />
+
+        <div class="md:col-span-2">
+            <h4 class="font-medium text-slate-600 mb-1">เลือก Do_No ที่จะขนส่ง</h4>
+            <div id="doList" class="flex flex-wrap gap-2 text-sm"></div>
+            <div class="mt-1 text-xs text-slate-500">รวมโหลด: <b id="sumLoad">0</b> kg</div>
+            <div id="warn" class="text-rose-600 text-xs hidden">เกินความจุรถ!</div>
+        </div>
+
+        <div class="md:col-span-2 text-right">
+            <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg">บันทึก Transport →</button>
+        </div>
+    </form>
+</section>

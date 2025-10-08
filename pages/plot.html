@@ -1,0 +1,18 @@
+<section class="card bg-white rounded-xl p-6 ring-1 ring-slate-200 shadow-sm">
+    <h2 class="text-indigo-600 font-semibold mb-4">2️⃣ สร้าง Plot (แปลง)</h2>
+    <form id="form-plot" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <select name="farmerId" required class="border p-2 rounded-lg"></select>
+        <input name="plotCode" placeholder="รหัสแปลง (P0001)" class="border p-2 rounded-lg" required />
+        <select name="deed" class="border p-2 rounded-lg">
+            <option value="CHANOTE">โฉนด</option>
+            <option value="NS3">นส.3</option>
+            <option value="NO_DOC">ไม่มีเอกสาร</option>
+        </select>
+        <input name="areaRai" type="number" placeholder="ขนาด (ไร่)" class="border p-2 rounded-lg" />
+        <input name="lat" placeholder="Lat" class="border p-2 rounded-lg" />
+        <input name="lng" placeholder="Long" class="border p-2 rounded-lg" />
+        <div class="md:col-span-2 text-right">
+            <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg">บันทึก Plot →</button>
+        </div>
+    </form>
+</section>

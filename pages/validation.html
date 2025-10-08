@@ -1,0 +1,28 @@
+<section class="card bg-white rounded-xl p-6 ring-1 ring-slate-200 shadow-sm">
+    <h2 class="text-indigo-600 font-semibold mb-4">3️⃣ Validation รอบตรวจแปลง</h2>
+
+    <form id="form-validation" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <select name="plotId" required class="border p-2 rounded-lg">
+            <option value="">เลือก Plot</option>
+        </select>
+        <select name="result" required class="border p-2 rounded-lg">
+            <option value="PASS">ผ่าน</option>
+            <option value="PENDING">รอ</option>
+            <option value="FAIL">ไม่ผ่าน</option>
+        </select>
+
+        <input name="geom" placeholder="Geometry (WKT/UTM)" class="border p-2 rounded-lg md:col-span-2" />
+        <input name="effective" type="datetime-local" class="border p-2 rounded-lg md:col-span-2" />
+
+        <div class="md:col-span-2 flex justify-between pt-2">
+            <button id="btn-revalidate" type="button" class="bg-slate-200 px-3 py-2 rounded-lg hover:bg-slate-300">⟲
+                เปิดรอบใหม่</button>
+            <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg">บันทึก Validation →</button>
+        </div>
+    </form>
+
+    <div class="mt-4">
+        <h3 class="font-semibold text-slate-600 mb-1">ประวัติการตรวจของ Plot</h3>
+        <div id="val-history" class="text-sm text-slate-600 space-y-2"></div>
+    </div>
+</section>
