@@ -1,0 +1,36 @@
+<section id="dashboard" class="space-y-6">
+    <header class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+            📊 Dashboard
+        </h1>
+        <p class="text-slate-500 text-sm">ภาพรวมระบบ EUDR Traceability</p>
+    </header>
+
+    <!-- Cards สรุปข้อมูล -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
+            <h3 class="text-slate-600 text-sm font-medium">👩‍🌾 เกษตรกรทั้งหมด</h3>
+            <p id="dash-farmer" class="text-3xl font-bold text-indigo-600 mt-2">0</p>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
+            <h3 class="text-slate-600 text-sm font-medium">🗺️ แปลงที่ดิน</h3>
+            <p id="dash-plot" class="text-3xl font-bold text-indigo-600 mt-2">0</p>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
+            <h3 class="text-slate-600 text-sm font-medium">✅ ผ่านตรวจสอบ</h3>
+            <p id="dash-valid" class="text-3xl font-bold text-green-600 mt-2">0</p>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
+            <h3 class="text-slate-600 text-sm font-medium">🚛 ขนส่งทั้งหมด</h3>
+            <p id="dash-transport" class="text-3xl font-bold text-orange-600 mt-2">0</p>
+        </div>
+    </div>
+
+    <!-- กราฟสรุป / แผนภาพ -->
+    <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-6">
+        <h2 class="text-lg font-semibold text-slate-700 mb-4">📈 กิจกรรมล่าสุด</h2>
+        <ul id="dash-activity" class="text-sm text-slate-600 space-y-2">
+            <li>🔄 กำลังโหลดข้อมูล...</li>
+        </ul>
+    </div>
+</section>
