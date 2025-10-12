@@ -1,7 +1,11 @@
 import { getDB, saveDB } from './db.js';
 
-export function init() {
-    const db = getDB();
+export async function init() {
+    console.log("📆 Daily page loaded");
+    const db = await getDB();
+    db.validations ??= [];
+    db.daily ??= [];
+
     const form = document.getElementById('form-daily');
     const list = document.getElementById('daily-list');
     const sel = form.querySelector('select[name="plotValidationId"]');

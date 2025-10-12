@@ -1,16 +1,23 @@
 import { getDB } from './db.js';
 
-export function init() {
-    const db = getDB();
-    const div = document.getElementById('appraisal-summary');
+export async function init() {
+  console.log("📈 Appraisal page loaded");
+  const db = await getDB();
+  db.farmers ??= [];
+  db.plots ??= [];
+  db.validations ??= [];
+  db.daily ??= [];
+  db.transports ??= [];
 
-    const totalFarmers = db.farmers.length;
-    const totalPlots = db.plots.length;
-    const passCount = db.validations.filter(v => v.Result === 'PASS').length;
-    const dailyTotal = db.daily.reduce((a, d) => a + d.DailyWeight, 0);
-    const tpTotal = db.transports.length;
+  const div = document.getElementById('appraisal-summary');
 
-    div.innerHTML = `
+  const totalFarmers = db.farmers.length;
+  const totalPlots = db.plots.length;
+  const passCount = db.validations.filter(v => v.Result === 'PASS').length;
+  const dailyTotal = db.daily.reduce((a, d) => a + d.DailyWeight, 0);
+  const tpTotal = db.transports.length;
+
+  div.innerHTML = `
     <p>👩‍🌾 Farmers: <b>${totalFarmers}</b></p>
     <p>🌾 Plots: <b>${totalPlots}</b></p>
     <p>✅ Validations PASS: <b>${passCount}</b></p>

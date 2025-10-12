@@ -1,10 +1,17 @@
 import { getDB, saveDB } from './db.js';
 
-export function init() {
-    const db = getDB();
+export async function init() {
+    console.log("📊 Plot page loaded");
+    const db = await getDB();
+    db.farmers ??= [];
+    db.plots ??= [];
+
     const form = document.getElementById('form-plot');
     const sel = form.querySelector('select[name="farmerId"]');
-    sel.innerHTML = db.farmers.map(f => `<option value="${f.FarmerID}">${f.FarmerID} – ${f.Name} ${f.SurName}</option>`).join('');
+
+    sel.innerHTML = db.farmers.length
+        ? db.farmers.map(f => `<option value="${f.FarmerID}">${f.FarmerID} – ${f.Name} ${f.SurName}</option>`).join('')
+        : `<option disabled>❗ ไม่มีข้อมูลเกษตรกร</option>`;
 
     form.addEventListener('submit', e => {
         e.preventDefault();

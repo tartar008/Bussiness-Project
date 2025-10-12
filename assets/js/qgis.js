@@ -1,7 +1,11 @@
 import { getDB, saveDB } from './db.js';
 
-export function init() {
-    const db = getDB();
+export async function init() {
+    console.log("🗺️ QGIS page loaded");
+    const db = await getDB();
+    db.plots ??= [];
+    db.qgis ??= [];
+
     const form = document.getElementById('form-qgis');
     const list = document.getElementById('qgis-list');
     const sel = form.querySelector('select[name="plotId"]');

@@ -1,0 +1,33 @@
+<aside
+    class="fixed top-14 left-0 w-64 h-[calc(100vh-3.5rem)] bg-white border-r border-slate-200 p-4 overflow-y-auto shadow-sm">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-bold text-indigo-600">🌾 ระบบเกษตร</h2>
+        <span class="text-xs text-slate-400">v1.0</span>
+    </div>
+
+    <!-- สรุปข้อมูล -->
+    <section class="mb-6">
+        <h3 class="font-semibold text-slate-700 mb-2 text-sm">📊 สรุปข้อมูลล่าสุด</h3>
+        <ul class="text-sm space-y-1 text-slate-600 bg-slate-50 rounded-lg p-3 border border-slate-100">
+            <li>👩‍🌾 เกษตรกร: <span id="stat-farmer-count" class="font-semibold text-indigo-600">0</span></li>
+            <li>🗺️ แปลงที่ดิน: <span id="stat-plot-count" class="font-semibold text-indigo-600">0</span></li>
+            <li>✅ ผ่านตรวจสอบ: <span id="stat-valid-count" class="font-semibold text-indigo-600">0</span></li>
+        </ul>
+    </section>
+
+    <!-- จัดการเพิ่มเติม -->
+    <div class="mt-6 border-t border-slate-100 pt-3">
+        <h3 class="font-semibold text-slate-700 mb-2 text-sm">⚙️ การจัดการ</h3>
+        <nav class="flex flex-col gap-1 text-sm">
+            <a href="#" data-page="insert"
+                class="sidebar-link text-slate-600 hover:text-indigo-600 px-2 py-1 rounded-md">➕ เพิ่มข้อมูล</a>
+            <a href="#" data-page="list"
+                class="sidebar-link text-slate-600 hover:text-indigo-600 px-2 py-1 rounded-md">📋 รายการข้อมูล</a>
+            <a href="#" data-page="update"
+                class="sidebar-link text-slate-600 hover:text-indigo-600 px-2 py-1 rounded-md">🔄 อัปเดตข้อมูล</a>
+            <a href="#" data-page="settings"
+                class="sidebar-link text-slate-600 hover:text-indigo-600 px-2 py-1 rounded-md">⚙️ ตั้งค่า</a>
+        </nav>
+    </div>
+</aside>

@@ -1,7 +1,11 @@
 import { getDB, saveDB } from './db.js';
 
-export function init() {
-    const db = getDB();
+export async function init() {
+    console.log("🚛 Transport page loaded");
+    const db = await getDB();
+    db.daily ??= [];
+    db.transports ??= [];
+
     const form = document.getElementById('form-transport');
     const doList = document.getElementById('doList');
     const sumLoad = document.getElementById('sumLoad');
