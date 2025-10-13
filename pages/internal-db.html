@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <title>💾 Internal Database View</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border: 1px solid #e2e8f0;
+            padding: 6px 10px;
+            font-size: 0.85rem;
+        }
+
+        th {
+            background: #f1f5f9;
+            text-align: left;
+        }
+
+        tr:nth-child(even) {
+            background: #f9fafb;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800 min-h-screen">
+    <main class="max-w-7xl mx-auto py-6 px-4">
+        <h1 class="text-2xl font-bold text-indigo-700 mb-4 flex items-center gap-2">
+            💾 Internal Database Viewer
+        </h1>
+        <p class="text-slate-500 mb-6">
+            หน้านี้สำหรับผู้ดูแลระบบเท่านั้น — แสดงข้อมูลทั้งหมดจาก <code>db.json</code>
+            (จำลองเหมือนฐานข้อมูลจริง)
+        </p>
+
+        <div id="db-container" class="space-y-10"></div>
+    </main>
+
+    <script type="module">
+        // ===== โหลดฐานข้อมูลจำลอง =====
+        async function loadDB() {
+            const res = await fetch("../data/db.json");
+            return await res.json();
+        }
+
+        // ===== แสดงผลแต่ละตาราง =====
+        function renderTable(title, dataArray) {
+            const container = document.createElement("section");
+            container.innerHTML = `
+        <h2 class="text-lg font-semibold text-slate-700 mb-2">${title}</h2>
+        ${dataArray.length === 0
+                    ? `<div class="text-slate-400 text-sm mb-6">ไม่มีข้อมูล</div>`
+                    : `<div class="overflow-x-auto border border-slate-200 rounded-lg shadow-sm mb-6">
+              <table>
+                <thead><tr>${Object.keys(dataArray[0])
+                        .map(k => `<th>${k}</th>`).join("")}</tr></thead>
+                <tbody>${dataArray.map(row => `
+                  <tr>${Object.values(row)
+                                .map(v => `<td>${escapeHTML(String(v))}</td>`).join("")}</tr>`).join("")}
+                </tbody>
+              </table>
+            </div>`
+                }
+      `;
+            return container;
+        }
+
+        // ===== ป้องกัน XSS เวลา render raw data =====
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, c =>
+                ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[c]));
+        }
+
+        // ===== โหลดและ render ทั้งหมด =====
+        const dbContainer = document.getElementById("db-container");
+        const db = await loadDB();
+        console.log("📦 Internal DB loaded:", db);
+
+        for (const [tableName, rows] of Object.entries(db)) {
+            dbContainer.appendChild(renderTable(tableName, rows));
+        }
+    </script>
+</body>
+
+</html>
