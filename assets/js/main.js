@@ -35,7 +35,7 @@ export async function loadPage(name, DB) {
       await init(DB);
     } else {
       // ✅ ใช้ path assets/js/ เสมอ
-      const module = await import(`/assets/js/${name}.js`);
+      const module = await import(`./${name}.js`);
       if (module.init) module.init(DB);
     }
   } catch (err) {
