@@ -31,3 +31,8 @@
         @apply rounded-md px-2 py-0.5 text-[11px] font-medium bg-slate-100 text-slate-600;
     }
 }
+
+.nav-btn.active {
+    @apply bg-indigo-50 text-indigo-600 font-semibold border border-indigo-100;
+}
+

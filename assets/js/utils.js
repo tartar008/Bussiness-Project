@@ -3,3 +3,10 @@ export function nowLocal() {
     .toISOString()
     .slice(0, 16);
 }
+
+// assets/js/utils.js
+export function formatDate(date) {
+  const options = { year: "numeric", month: "short", day: "numeric" };
+  return date.toLocaleDateString("th-TH", options);
+}
+

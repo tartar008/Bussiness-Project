@@ -1,36 +1,89 @@
-<section id="dashboard" class="space-y-6">
-    <header class="flex items-center justify-between">
-        <h1 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
-            📊 Dashboard
-        </h1>
-        <p class="text-slate-500 text-sm">ภาพรวมระบบ EUDR Traceability</p>
-    </header>
+<body class="bg-slate-50">
 
-    <!-- Cards สรุปข้อมูล -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
-            <h3 class="text-slate-600 text-sm font-medium">👩‍🌾 เกษตรกรทั้งหมด</h3>
-            <p id="dash-farmer" class="text-3xl font-bold text-indigo-600 mt-2">0</p>
-        </div>
-        <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
-            <h3 class="text-slate-600 text-sm font-medium">🗺️ แปลงที่ดิน</h3>
-            <p id="dash-plot" class="text-3xl font-bold text-indigo-600 mt-2">0</p>
-        </div>
-        <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
-            <h3 class="text-slate-600 text-sm font-medium">✅ ผ่านตรวจสอบ</h3>
-            <p id="dash-valid" class="text-3xl font-bold text-green-600 mt-2">0</p>
-        </div>
-        <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
-            <h3 class="text-slate-600 text-sm font-medium">🚛 ขนส่งทั้งหมด</h3>
-            <p id="dash-transport" class="text-3xl font-bold text-orange-600 mt-2">0</p>
-        </div>
-    </div>
+    <!-- ===== Dashboard Section ===== -->
+    <section id="dashboard" class="space-y-6">
+        <header class="flex items-center justify-between">
+            <h1 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                📊 Dashboard
+            </h1>
+            <p class="text-slate-500 text-sm">ภาพรวมระบบ EUDR Traceability</p>
+        </header>
 
-    <!-- กราฟสรุป / แผนภาพ -->
-    <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-6">
-        <h2 class="text-lg font-semibold text-slate-700 mb-4">📈 กิจกรรมล่าสุด</h2>
-        <ul id="dash-activity" class="text-sm text-slate-600 space-y-2">
-            <li>🔄 กำลังโหลดข้อมูล...</li>
-        </ul>
-    </div>
-</section>
+        <!-- Cards สรุปข้อมูล -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+            <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
+                <h3 class="text-slate-600 text-sm font-medium">👩‍🌾 เกษตรกรทั้งหมด</h3>
+                <p id="dash-farmer" class="text-3xl font-bold text-indigo-600 mt-2">0</p>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
+                <h3 class="text-slate-600 text-sm font-medium">🗺️ แปลงที่ดิน</h3>
+                <p id="dash-plot" class="text-3xl font-bold text-indigo-600 mt-2">0</p>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
+                <h3 class="text-slate-600 text-sm font-medium">✅ ผ่านตรวจสอบ</h3>
+                <p id="dash-valid" class="text-3xl font-bold text-green-600 mt-2">0</p>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
+                <h3 class="text-slate-600 text-sm font-medium">🚛 ขนส่งทั้งหมด</h3>
+                <p id="dash-transport" class="text-3xl font-bold text-orange-600 mt-2">0</p>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
+                <h3 class="text-slate-600 text-sm font-medium">📍 พื้นที่อ้างอิง</h3>
+                <p id="dash-ref" class="text-3xl font-bold text-violet-600 mt-2">0</p>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-5">
+                <h3 class="text-slate-600 text-sm font-medium">📈 อัตราผ่านตรวจ (%)</h3>
+                <p id="dash-passrate" class="text-3xl font-bold text-emerald-600 mt-2">0%</p>
+            </div>
+        </div>
+
+        <!-- กราฟ -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-6">
+                <h2 class="text-lg font-semibold text-slate-700 mb-4">📊 สรุปผลการตรวจสอบ</h2>
+                <canvas id="dash-chart" height="150"></canvas>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-6">
+                <h2 class="text-lg font-semibold text-slate-700 mb-4">🗺️ สรุปพื้นที่อ้างอิง (Reference Layers)</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                    <div class="text-center border border-slate-100 rounded-lg p-4 shadow-sm">
+                        <p class="text-sm text-slate-500">จำนวนพื้นที่ทั้งหมด</p>
+                        <p id="area-total" class="text-2xl font-bold text-violet-600 mt-1">0</p>
+                    </div>
+                    <div class="text-center border border-slate-100 rounded-lg p-4 shadow-sm">
+                        <p class="text-sm text-slate-500">ขนาดพื้นที่รวม (ประมาณ)</p>
+                        <p id="area-hectare" class="text-2xl font-bold text-emerald-600 mt-1">0 ha</p>
+                    </div>
+                    <div class="text-center border border-slate-100 rounded-lg p-4 shadow-sm">
+                        <p class="text-sm text-slate-500">เฉลี่ยต่อพื้นที่</p>
+                        <p id="area-avg" class="text-2xl font-bold text-indigo-600 mt-1">0 ha</p>
+                    </div>
+                </div>
+                <canvas id="area-chart" height="150"></canvas>
+            </div>
+        </div>
+
+        <!-- ตารางกิจกรรมล่าสุด -->
+        <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-6">
+            <h2 class="text-lg font-semibold text-slate-700 mb-4">🕓 กิจกรรมล่าสุด</h2>
+            <ul id="dash-activity" class="text-sm text-slate-600 divide-y divide-slate-100">
+                <li class="py-2 text-slate-400">🔄 กำลังโหลดข้อมูล...</li>
+            </ul>
+        </div>
+
+        <!-- รายการพื้นที่ล่าสุด -->
+        <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-6">
+            <h3 class="text-slate-700 font-semibold mb-2">📋 รายการพื้นที่ล่าสุด</h3>
+            <ul id="area-list" class="text-sm text-slate-600 divide-y divide-slate-100">
+                <li class="py-2 text-slate-400">🔄 กำลังโหลดข้อมูล...</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- ✅ โหลด Chart.js และ Dashboard -->
+    <script type="module" src="../assets/js/dashboard.js"></script>
+
+</body>
+
+</html>

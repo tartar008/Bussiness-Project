@@ -6,14 +6,18 @@
         <p class="text-slate-500 text-sm">(เลือกลำดับจาก Navbar ด้านล่าง)</p>
     </header>
 
-    <!-- ✅ Navbar จะอยู่คงที่ -->
+    <!-- ✅ Header Bar สถานะระบบ -->
+    <div id="insert-status-bar"></div>
+
+    <!-- ✅ Navbar จะถูกแทรกอัตโนมัติด้วย JS -->
     <div id="navbar-placeholder" class="mb-4"></div>
 
-    <!-- ✅ พื้นที่ render เนื้อหาภายใน -->
-    <main id="insert-content" class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm min-h-[300px]">
-        <p class="text-slate-600 text-center py-10">กรุณาเลือกหัวข้อจาก Navbar ด้านบน</p>
-    </main>
+    <!-- ✅ พื้นที่แสดงเนื้อหาแต่ละโมดูล -->
+    <div id="insert-content" class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+        <p class="text-slate-600 text-center">เลือกรายการจาก Navbar ด้านบนเพื่อเริ่มบันทึกข้อมูล</p>
+    </div>
 
+    <!-- ✅ สรุปข้อมูล -->
     <div class="bg-slate-50 border border-slate-200 rounded-lg p-4">
         <h2 class="text-slate-800 font-semibold mb-2">📊 สรุปข้อมูลปัจจุบัน</h2>
         <ul class="text-sm text-slate-600 space-y-1">

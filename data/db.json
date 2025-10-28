@@ -3,5 +3,6 @@
     "plots": [],
     "validations": [],
     "daily": [],
-    "transports": []
+    "transports": [],
+    "referenceLayers": []
 }
