@@ -1,18 +1,58 @@
-<section class="card bg-white rounded-xl p-6 ring-1 ring-slate-200 shadow-sm">
-    <h2 class="text-indigo-600 font-semibold mb-4">2️⃣ สร้าง Plot (แปลง)</h2>
-    <form id="form-plot" class="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <select name="farmerId" required class="border p-2 rounded-lg"></select>
-        <input name="plotCode" placeholder="รหัสแปลง (P0001)" class="border p-2 rounded-lg" required />
-        <select name="deed" class="border p-2 rounded-lg">
-            <option value="CHANOTE">โฉนด</option>
-            <option value="NS3">นส.3</option>
-            <option value="NO_DOC">ไม่มีเอกสาร</option>
-        </select>
-        <input name="areaRai" type="number" placeholder="ขนาด (ไร่)" class="border p-2 rounded-lg" />
-        <input name="lat" placeholder="Lat" class="border p-2 rounded-lg" />
-        <input name="lng" placeholder="Long" class="border p-2 rounded-lg" />
-        <div class="md:col-span-2 text-right">
-            <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg">บันทึก Plot →</button>
-        </div>
-    </form>
-</section>
+<form id="form-plot" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+
+  <!-- เลือกเกษตรกร -->
+  <select name="farmerId" required class="border p-2 rounded-lg"></select>
+
+  <!-- รหัสที่ดิน -->
+  <input name="landCode" placeholder="รหัสที่ดิน" class="border p-2 rounded-lg" required />
+
+  <!-- จังหวัด -->
+  <input name="province" placeholder="จังหวัดของแปลง" class="border p-2 rounded-lg" required />
+
+  <!-- อำเภอ -->
+  <input name="district" placeholder="อำเภอของแปลง" class="border p-2 rounded-lg" required />
+
+  <!-- ประเภทเอกสาร -->
+  <select name="deed" class="border p-2 rounded-lg" required>
+    <option value="CHANOTE">โฉนด</option>
+    <option value="NS3">นส.3</option>
+    <option value="NO_DOC">ไม่มีเอกสาร</option>
+  </select>
+
+  <!-- ขนาดพื้นที่ -->
+  <div class="grid grid-cols-3 gap-2">
+    <input name="rai" type="number" placeholder="ไร่" class="border p-2 rounded-lg" />
+    <input name="ngan" type="number" placeholder="งาน" class="border p-2 rounded-lg" />
+    <input name="wah" type="number" placeholder="ตารางวา" class="border p-2 rounded-lg" />
+  </div>
+
+  <!-- ประเภทพิกัด -->
+  <select name="geometryType" class="border p-2 rounded-lg">
+    <option value="Point">Point</option>
+    <option value="Polygon">Polygon</option>
+  </select>
+
+  <!-- ถ้าเลือก Polygon ให้เพิ่มหรือลบจุดได้ -->
+  <div id="coordContainer" class="md:col-span-2 space-y-2 hidden">
+    <div class="flex justify-between items-center">
+      <span class="font-medium text-slate-600">📍 จุดพิกัด (x, y)</span>
+      <button type="button" id="addPoint" class="bg-gray-100 px-3 py-1 rounded border hover:bg-gray-200">
+        ➕ เพิ่มจุด
+      </button>
+    </div>
+    <div id="points" class="space-y-2"></div>
+  </div>
+
+  <!-- Checkbox -->
+  <label class="flex items-center space-x-2 md:col-span-2">
+    <input type="checkbox" name="ownedBefore2020" />
+    <span>เป็นเจ้าของก่อนปี 2020</span>
+  </label>
+
+  <div class="md:col-span-2 text-right">
+    <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
+      บันทึก Plot →
+    </button>
+  </div>
+
+</form>

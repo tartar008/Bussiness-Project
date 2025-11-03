@@ -1,22 +1,93 @@
 {
   "provinces": [
     {
-      "name_th": "กรุงเทพมหานคร",
-      "districts": ["บางกะปิ", "ลาดพร้าว", "บางนา", "พระโขนง"]
+      "ProvinceID": 10,
+      "NameTH": "กรุงเทพมหานคร",
+      "Districts": [
+        {
+          "DistrictID": 1001,
+          "NameTH": "บางกะปิ"
+        },
+        {
+          "DistrictID": 1002,
+          "NameTH": "ลาดพร้าว"
+        },
+        {
+          "DistrictID": 1003,
+          "NameTH": "บางนา"
+        },
+        {
+          "DistrictID": 1004,
+          "NameTH": "พระโขนง"
+        }
+      ]
     },
     {
-      "name_th": "เชียงใหม่",
-      "districts": ["เมืองเชียงใหม่", "สันทราย", "หางดง", "แม่ริม"]
+      "ProvinceID": 50,
+      "NameTH": "เชียงใหม่",
+      "Districts": [
+        {
+          "DistrictID": 5001,
+          "NameTH": "เมืองเชียงใหม่"
+        },
+        {
+          "DistrictID": 5002,
+          "NameTH": "สันทราย"
+        },
+        {
+          "DistrictID": 5003,
+          "NameTH": "หางดง"
+        },
+        {
+          "DistrictID": 5004,
+          "NameTH": "แม่ริม"
+        }
+      ]
     },
     {
-      "name_th": "สงขลา",
-      "districts": ["เมืองสงขลา", "หาดใหญ่", "จะนะ", "เทพา"]
+      "ProvinceID": 90,
+      "NameTH": "สงขลา",
+      "Districts": [
+        {
+          "DistrictID": 9001,
+          "NameTH": "เมืองสงขลา"
+        },
+        {
+          "DistrictID": 9002,
+          "NameTH": "หาดใหญ่"
+        },
+        {
+          "DistrictID": 9003,
+          "NameTH": "จะนะ"
+        },
+        {
+          "DistrictID": 9004,
+          "NameTH": "เทพา"
+        }
+      ]
     }
   ],
-
   "farmers": [],
   "farmbooks": [],
   "plots": [],
+  "farmbookPlots": [],
+  "statuses": [
+    {
+      "StatusID": 1,
+      "Name": "ถือครองก่อนปี 2020",
+      "Description": "แปลงที่ดินถือครองก่อนปี 2020"
+    },
+    {
+      "StatusID": 2,
+      "Name": "อยู่ระหว่างตรวจสอบ",
+      "Description": "อยู่ในขั้นตอนการยืนยันสิทธิ์"
+    },
+    {
+      "StatusID": 3,
+      "Name": "ยืนยันสิทธิ์แล้ว",
+      "Description": "ผ่านการตรวจสอบโดยหน่วยงานแล้ว"
+    }
+  ],
   "validations": [],
   "daily": [],
   "transports": [],
