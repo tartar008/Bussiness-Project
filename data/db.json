@@ -1,8 +1,24 @@
 {
-    "farmers": [],
-    "plots": [],
-    "validations": [],
-    "daily": [],
-    "transports": [],
-    "referenceLayers": []
+  "provinces": [
+    {
+      "name_th": "กรุงเทพมหานคร",
+      "districts": ["บางกะปิ", "ลาดพร้าว", "บางนา", "พระโขนง"]
+    },
+    {
+      "name_th": "เชียงใหม่",
+      "districts": ["เมืองเชียงใหม่", "สันทราย", "หางดง", "แม่ริม"]
+    },
+    {
+      "name_th": "สงขลา",
+      "districts": ["เมืองสงขลา", "หาดใหญ่", "จะนะ", "เทพา"]
+    }
+  ],
+
+  "farmers": [],
+  "farmbooks": [],
+  "plots": [],
+  "validations": [],
+  "daily": [],
+  "transports": [],
+  "referenceLayers": []
 }
