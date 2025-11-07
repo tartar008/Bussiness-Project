@@ -1,31 +1,9 @@
-<!-- Navbar สำหรับการนำเข้าข้อมูล -->
-<nav
-    class="w-full bg-white border border-slate-200 rounded-lg shadow-sm px-4 py-2 flex flex-wrap items-center justify-between gap-3">
-    <!-- ชื่อหัวข้อ -->
-    <div class="flex items-center gap-2">
-        <span class="text-indigo-600 text-lg font-bold">📥 การนำเข้าข้อมูล</span>
-    </div>
+<!-- components/navbar.html -->
+<nav class="w-full bg-white border border-slate-200 rounded-lg shadow-sm p-4 flex flex-col gap-3">
+  <div class="flex items-center justify-between">
+    <span class="text-indigo-600 text-lg font-bold">📥 การนำเข้าข้อมูล</span>
+  </div>
 
-    <!-- เมนูการทำงาน -->
-    <div class="flex flex-wrap gap-2 text-sm font-medium">
-        <a href="#" data-page="farmer"
-            class="nav-btn px-3 py-1.5 rounded-md text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">
-            1. เกษตรกร
-        </a>
-
-        <a href="#" data-page="plot"
-            class="nav-btn px-3 py-1.5 rounded-md text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">
-            2. แปลงที่ดิน
-        </a>
-
-        <a href="#" data-page="validation"
-            class="nav-btn px-3 py-1.5 rounded-md text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">
-            3. ตรวจสอบข้อมูล
-        </a>
-
-        <a href="#" data-page="qgis"
-            class="nav-btn px-3 py-1.5 rounded-md text-slate-600 hover:bg-indigo-50 hover:text-indigo-600 transition">
-            3b. QGIS
-        </a>
-    </div>
+  <!-- Progress bar -->
+  <div id="insert-progress" class="relative flex justify-between items-center w-full max-w-3xl mx-auto mt-2"></div>
 </nav>

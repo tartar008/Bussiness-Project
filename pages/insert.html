@@ -9,21 +9,34 @@
     <!-- ✅ Header Bar สถานะระบบ -->
     <div id="insert-status-bar"></div>
 
-    <!-- ✅ Navbar จะถูกแทรกอัตโนมัติด้วย JS -->
-    <div id="navbar-placeholder" class="mb-4"></div>
+    <!-- ✅ Navbar (จะถูก JS แทรกเข้ามา) -->
+    <div id="navbar-placeholder" class="mb-4">
+        <!-- เมื่อโหลด navbar.html จะถูกแทนที่ตรงนี้ -->
+    </div>
 
-    <!-- ✅ พื้นที่แสดงเนื้อหาแต่ละโมดูล -->
+    <!-- ✅ เนื้อหาโมดูล -->
     <div id="insert-content" class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
-        <p class="text-slate-600 text-center">เลือกรายการจาก Navbar ด้านบนเพื่อเริ่มบันทึกข้อมูล</p>
+        <p class="text-slate-600 text-center">
+            เลือกรายการจาก Navbar ด้านบนเพื่อเริ่มบันทึกข้อมูล
+        </p>
     </div>
 
     <!-- ✅ สรุปข้อมูล -->
     <div class="bg-slate-50 border border-slate-200 rounded-lg p-4">
         <h2 class="text-slate-800 font-semibold mb-2">📊 สรุปข้อมูลปัจจุบัน</h2>
         <ul class="text-sm text-slate-600 space-y-1">
-            <li>👩‍🌾 เกษตรกรทั้งหมด: <span id="ins-farmer" class="font-semibold text-indigo-600">0</span></li>
-            <li>🗺️ แปลงที่ดินทั้งหมด: <span id="ins-plot" class="font-semibold text-indigo-600">0</span></li>
-            <li>✅ ผ่านตรวจสอบแล้ว: <span id="ins-valid" class="font-semibold text-indigo-600">0</span></li>
+            <li>
+                👩‍🌾 เกษตรกรทั้งหมด:
+                <span id="ins-farmer" class="font-semibold text-indigo-600">0</span>
+            </li>
+            <li>
+                🗺️ แปลงที่ดินทั้งหมด:
+                <span id="ins-plot" class="font-semibold text-indigo-600">0</span>
+            </li>
+            <li>
+                ✅ ผ่านตรวจสอบแล้ว:
+                <span id="ins-valid" class="font-semibold text-indigo-600">0</span>
+            </li>
         </ul>
     </div>
 </section>
