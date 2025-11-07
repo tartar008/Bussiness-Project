@@ -29,7 +29,6 @@ export function renderProgressBar(currentStep = 1) {
         const stepNum = s.id;
         const isActive = currentStep === stepNum;
         const isDone = currentStep > stepNum;
-        const isLocked = currentStep < stepNum - 1;
 
         const stepEl = document.createElement("div");
         stepEl.className =
@@ -45,21 +44,19 @@ export function renderProgressBar(currentStep = 1) {
                 : isDone
                     ? "bg-indigo-100 border-indigo-400 text-indigo-700"
                     : "bg-white border-slate-300 text-slate-400"}
-      ${isLocked ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:scale-105"}
+      cursor-pointer hover:scale-105
     `;
         circle.textContent = typeof s.id === "number" ? s.id : "3b";
 
-        // 🧭 คลิกได้เฉพาะ step ที่ถึงแล้ว
-        if (!isLocked) {
-            circle.addEventListener("click", () => {
-                const stepsMap = ["farmer", "plot", "validation", "qgis"];
-                const page = stepsMap[i];
-                if (window.loadStep) {
-                    console.log("🧭 Jump to:", page);
-                    window.loadStep(page, window.DB || {}, document.getElementById("insert-content"));
-                }
-            });
-        }
+        // 🧭 คลิกได้ทุก step
+        circle.addEventListener("click", () => {
+            const stepsMap = ["farmer", "plot", "validation", "qgis"];
+            const page = stepsMap[i];
+            if (window.loadStep) {
+                console.log("🧭 Jump to:", page);
+                window.loadStep(page, window.DB || {}, document.getElementById("insert-content"));
+            }
+        });
 
         // 🔹 Label
         const label = document.createElement("div");
