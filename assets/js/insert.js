@@ -84,8 +84,15 @@ export async function loadStep(page, DB, content) {
     // ✅ อัปเดตสถานะ
     renderStatusBar(DB);
 
-    // ✅ แจ้ง navbar ให้ progress bar ขยับ step ปัจจุบัน
+    // ✅ อัปเดต step ให้ตรงกับหน้าใหม่ก่อน render progress bar
+    if (page === "farmer") currentSession.step = 1;
+    else if (page === "plot") currentSession.step = 2;
+    else if (page === "validation") currentSession.step = 3;
+    else if (page === "qgis") currentSession.step = 3.5;
+
+    // ✅ แสดง progress bar ตาม step ปัจจุบัน
     if (window.renderProgressBar) window.renderProgressBar(currentSession.step);
+
 
   } catch (err) {
     console.error(`❌ โหลดหน้า ${page} ล้มเหลว`, err);

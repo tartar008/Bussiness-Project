@@ -1,39 +1,89 @@
 import { getDB, saveDB } from "./db.js";
+import { saveDraft, loadDraft } from "./draft.js";
 
 export async function init() {
   console.log("📥 Farmer page initialized");
 
-  const db = await getDB(); // ✅ รอโหลด DB ก่อน
+  const db = await getDB();
   const form = document.getElementById("form-farmer");
   const provinceSelect = document.getElementById("provinceSelect");
   const districtSelect = document.getElementById("districtSelect");
+  const importInput = document.getElementById("importFarmer");
+
+  let currentFarmBooks = [];
+  const draft = loadDraft();
 
   // ----------------------------
-  // 📍 โหลดข้อมูลจังหวัด/อำเภอ
+  // 📘 โหลดจังหวัด/อำเภอจาก DB
   // ----------------------------
-  try {
-    const provincesData = db.provinces || [];
+  const provinces = db.provinces || [];
+  const districts = db.districts || [];
 
-    provincesData.forEach(p => {
+  // เติมจังหวัดทั้งหมด
+  provinceSelect.innerHTML = '<option value="">-- เลือกจังหวัด --</option>';
+  provinces.forEach(p => {
+    const opt = document.createElement("option");
+    opt.value = p.ProvinceID;
+    opt.textContent = p.NameTH;
+    provinceSelect.appendChild(opt);
+  });
+
+  // เมื่อเลือกจังหวัด → โหลดอำเภอที่ตรงกับ ProvinceID
+  provinceSelect.addEventListener("change", e => {
+    const selectedProvinceId = Number(e.target.value);
+    const filteredDistricts = districts.filter(d => d.ProvinceID === selectedProvinceId);
+
+    districtSelect.innerHTML = '<option value="">-- เลือกอำเภอ --</option>';
+    filteredDistricts.forEach(d => {
       const opt = document.createElement("option");
-      opt.value = p.name_th;
-      opt.textContent = p.name_th;
-      provinceSelect.appendChild(opt);
+      opt.value = d.DistrictID;
+      opt.textContent = d.NameTH;
+      districtSelect.appendChild(opt);
     });
 
-    provinceSelect.addEventListener("change", e => {
-      const selected = provincesData.find(p => p.name_th === e.target.value);
-      districtSelect.innerHTML = '<option value="">-- เลือกอำเภอ --</option>';
-      selected?.districts.forEach(d => {
-        const opt = document.createElement("option");
-        opt.value = d;
-        opt.textContent = d;
-        districtSelect.appendChild(opt);
-      });
-      districtSelect.disabled = !selected;
+    districtSelect.disabled = filteredDistricts.length === 0;
+  });
+
+  // ----------------------------
+  // ♻️ โหลด Draft ถ้ามี
+  // ----------------------------
+  if (draft.farmer) {
+    console.log("🧩 โหลด draft เกษตรกร:", draft.farmer);
+
+    // เติมค่าพื้นฐาน
+    form.querySelector('[name="name"]').value = draft.farmer.Name || "";
+    form.querySelector('[name="surname"]').value = draft.farmer.SurName || "";
+    form.querySelector('[name="citizenId"]').value = draft.farmer.CitizenID || "";
+    form.querySelector('[name="phone"]').value = draft.farmer.Phone || "";
+    form.querySelector('[name="address"]').value = draft.farmer.Address || "";
+
+    // โหลดจังหวัด + อำเภอจาก draft
+    provinceSelect.value = draft.farmer.ProvinceID || "";
+    const filteredDistricts = districts.filter(
+      d => String(d.ProvinceID) === String(draft.farmer.ProvinceID)
+    );
+    districtSelect.innerHTML = '<option value="">-- เลือกอำเภอ --</option>';
+    filteredDistricts.forEach(d => {
+      const opt = document.createElement("option");
+      opt.value = d.DistrictID;
+      opt.textContent = d.NameTH;
+      districtSelect.appendChild(opt);
     });
-  } catch (err) {
-    console.error("❌ โหลดจังหวัดไม่สำเร็จ:", err);
+    districtSelect.value = draft.farmer.DistrictID || "";
+
+    // โหลด FarmBooks
+    currentFarmBooks = draft.farmer.FarmBooks || [];
+
+    // แสดง Notice ด้านบน
+    const notice = document.createElement("div");
+    notice.className =
+      "bg-yellow-50 border border-yellow-300 text-yellow-700 rounded-md p-2 mb-3 text-sm";
+    notice.innerHTML = `
+      ⚠️ โหลดข้อมูลเกษตรกรที่ยังไม่ได้บันทึกไว้แล้ว<br/>
+      จังหวัด: <b>${draft.farmer.ProvinceName || "-"}</b> |
+      อำเภอ: <b>${draft.farmer.DistrictName || "-"}</b>
+    `;
+    form.prepend(notice);
   }
 
   // ----------------------------
@@ -43,8 +93,6 @@ export async function init() {
   const addFarmBookBtn = document.getElementById("addFarmBookBtn");
   const farmbookType = document.getElementById("farmbookType");
   const farmbookNumber = document.getElementById("farmbookNumber");
-
-  let currentFarmBooks = [];
 
   const renderFarmBooks = () => {
     farmbookList.innerHTML = "";
@@ -63,6 +111,7 @@ export async function init() {
       farmbookList.appendChild(li);
     });
   };
+  renderFarmBooks();
 
   addFarmBookBtn?.addEventListener("click", e => {
     e.preventDefault();
@@ -79,7 +128,6 @@ export async function init() {
       Type: type,
       Number: number,
     };
-
     currentFarmBooks.push(newBook);
     renderFarmBooks();
     farmbookType.value = "";
@@ -97,7 +145,6 @@ export async function init() {
   // ----------------------------
   // 📂 Import ข้อมูลเกษตรกร
   // ----------------------------
-  const importInput = document.getElementById("importFarmer");
   importInput?.addEventListener("change", async e => {
     const file = e.target.files[0];
     if (!file) return;
@@ -113,65 +160,40 @@ export async function init() {
   });
 
   // ----------------------------
-  // 💾 บันทึกเกษตรกรใหม่
+  // 💾 บันทึก Draft แล้วไปหน้า Plot
   // ----------------------------
   form.addEventListener("submit", async e => {
-  e.preventDefault();
-
-  try {
+    e.preventDefault();
     const fd = new FormData(form);
-    const citizenId = fd.get("citizenId");
 
-    if (!/^\d{13}$/.test(citizenId)) {
-      alert("🚫 เลขบัตรประชาชนไม่ถูกต้อง");
-      return;
-    }
-
-    const freshDB = await getDB();
-    freshDB.farmers = freshDB.farmers || [];
-    freshDB.farmbooks = freshDB.farmbooks || [];
-
-    // ✅ คำนวณ FarmerID ใหม่เป็นตัวเลขรันต่อเนื่อง
-    const nextId =
-      freshDB.farmers.length > 0
-        ? Math.max(...freshDB.farmers.map(f => Number(f.FarmerID))) + 1
-        : 0;
-    const farmerId = String(nextId);
+    const provinceId = fd.get("province");
+    const districtId = fd.get("district");
+    const provinceObj = db.provinces.find(p => String(p.ProvinceID) === String(provinceId));
+    const districtObj = db.districts.find(d => String(d.DistrictID) === String(districtId));
 
     const farmer = {
-      FarmerID: farmerId,
       Name: fd.get("name"),
       SurName: fd.get("surname"),
-      CitizenID: citizenId,
+      CitizenID: fd.get("citizenId"),
       Phone: fd.get("phone"),
-      Province: fd.get("province"),
-      District: fd.get("district"),
+      ProvinceID: provinceId,
+      ProvinceName: provinceObj ? provinceObj.NameTH : "",
+      DistrictID: districtId,
+      DistrictName: districtObj ? districtObj.NameTH : "",
       Address: fd.get("address"),
-      FarmBooks: currentFarmBooks.map(b => b.FarmBookID),
+      FarmBooks: currentFarmBooks
     };
 
-    freshDB.farmers.push(farmer);
+    saveDraft("farmer", farmer);
+    alert("✅ เก็บข้อมูลเกษตรกรไว้ชั่วคราวแล้ว (ยังไม่บันทึกจริง)");
 
-    currentFarmBooks.forEach(b => {
-      freshDB.farmbooks.push({
-        ...b,
-        FarmerID: farmerId,
-      });
-    });
-
-    saveDB(freshDB);
-    alert(`✅ บันทึก Farmer ${farmer.Name} ${farmer.SurName} แล้ว`);
-
-    form.reset();
-    currentFarmBooks = [];
-    renderFarmBooks();
-  } catch (err) {
-    console.error("❌ เกิดข้อผิดพลาดตอนบันทึก:", err);
-    alert("❌ เกิดข้อผิดพลาดตอนบันทึกข้อมูล");
-  }
-});
-
+    // 🔄 ไปหน้า plot ต่อ (ใช้ระบบ multi-step)
+    if (window.loadStep && window.DB) {
+      await window.loadStep("plot", window.DB, document.getElementById("insert-content"));
+    }
+  });
 }
+
 
 // ------------------------------------------------------------
 // ⚙️ Logic สำคัญภายใน
