@@ -2,10 +2,6 @@ import { getDB, saveDB } from './db.js';
 
 export async function init() {
     console.log("📊 Plot page loaded");
-    console.log("🧩 Plot script loaded, checking DOM structure...");
-    console.log("app exists?", !!document.getElementById("app"));
-    console.log("sidebar exists?", !!document.getElementById("sidebar"));
-    console.log("page-container exists?", !!document.getElementById("page-container"));
     const db = await getDB();
     db.farmers ??= [];
     db.plots ??= [];
