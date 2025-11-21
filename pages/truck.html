@@ -1,0 +1,26 @@
+<section class="card bg-white rounded-xl p-6 ring-1 ring-slate-200 shadow-sm">
+    <h2 class="text-indigo-600 font-semibold mb-4">🚛 3️⃣ ข้อมูลรถบรรทุก</h2>
+
+    <form id="form-truck" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+
+        <input name="truck_code" placeholder="รหัสรถ (Truck Code)" class="border p-2 rounded-lg" required />
+        <input name="license" placeholder="ทะเบียนรถ (License Plate)" class="border p-2 rounded-lg" required />
+
+        <input name="owner" placeholder="ชื่อเจ้าของรถ" class="border p-2 rounded-lg" />
+        <input name="dealer" placeholder="Dealer ID (ถ้ามี)" class="border p-2 rounded-lg" />
+
+        <input name="cartype" placeholder="ประเภทรถ (เช่น 6 ล้อ)" class="border p-2 rounded-lg" />
+        <input name="enginetype" placeholder="ประเภทเครื่องยนต์" class="border p-2 rounded-lg" />
+
+        <input name="fueltype" placeholder="เชื้อเพลิง (ดีเซล, B7, ฯลฯ)" class="border p-2 rounded-lg" />
+        <input name="capacity" type="number" placeholder="ความจุ (kg)" class="border p-2 rounded-lg" />
+
+        <input name="distance" type="number" placeholder="ระยะจาก Dealer (km)" class="border p-2 rounded-lg" />
+
+        <div class="md:col-span-2 text-right mt-2">
+            <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg">
+                บันทึกข้อมูลรถ →
+            </button>
+        </div>
+    </form>
+</section>

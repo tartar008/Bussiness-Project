@@ -1,119 +1,130 @@
-<form id="form-plot" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-slate-700">
+<div class="space-y-6">
 
-  <!-- 🆔 รหัสแปลงที่ดิน (สร้างอัตโนมัติ) -->
-  <input name="plotId" readonly placeholder="รหัสแปลงที่ดินจะสร้างอัตโนมัติเมื่อบันทึก"
-    class="border p-2 rounded-lg bg-slate-100 text-slate-500 focus:ring-0 md:col-span-2 cursor-not-allowed" />
+  <!-- Template สำหรับบล็อกแปลง (Plot Block) -->
+  <template id="plot-template">
+    <div class="plot-block border border-slate-300 rounded-xl p-4 bg-white shadow-sm relative" data-index="0">
 
-  <!-- 🧑‍🌾 เลือกเกษตรกร -->
-  <select name="farmerId" required class="border p-2 rounded-lg focus:ring-1 focus:ring-slate-300 focus:outline-none">
-  </select>
-
-  <!-- รหัสที่ดิน -->
-  <input name="landCode" placeholder="รหัสที่ดิน"
-    class="border p-2 rounded-lg focus:ring-1 focus:ring-slate-300 focus:outline-none" required />
-
-  <!-- จังหวัด -->
-  <input name="province" placeholder="จังหวัดของแปลง"
-    class="border p-2 rounded-lg focus:ring-1 focus:ring-slate-300 focus:outline-none" required />
-
-  <!-- อำเภอ -->
-  <input name="district" placeholder="อำเภอของแปลง"
-    class="border p-2 rounded-lg focus:ring-1 focus:ring-slate-300 focus:outline-none" required />
-
-  <!-- ประเภทเอกสาร -->
-  <select name="deed" class="border p-2 rounded-lg focus:ring-1 focus:ring-slate-300 focus:outline-none" required>
-    <option value="CHANOTE">โฉนด</option>
-    <option value="NS3">นส.3</option>
-    <option value="NO_DOC">ไม่มีเอกสาร</option>
-  </select>
-
-  <!-- ขนาดพื้นที่ -->
-  <div class="grid grid-cols-3 gap-2">
-    <input name="rai" type="number" placeholder="ไร่"
-      class="border p-2 rounded-lg text-center focus:ring-1 focus:ring-slate-300" />
-    <input name="ngan" type="number" placeholder="งาน"
-      class="border p-2 rounded-lg text-center focus:ring-1 focus:ring-slate-300" />
-    <input name="wah" type="number" placeholder="ตารางวา"
-      class="border p-2 rounded-lg text-center focus:ring-1 focus:ring-slate-300" />
-  </div>
-
-  <!-- ประเภทพิกัด -->
-  <select name="geometryType" class="border p-2 rounded-lg focus:ring-1 focus:ring-slate-300 focus:outline-none">
-    <option value="Point">Point</option>
-    <option value="Polygon">Polygon</option>
-  </select>
-
-  <!-- ✅ ถ้าเลือก Point -->
-  <div id="pointContainer" class="md:col-span-2 grid grid-cols-2 gap-2">
-    <input name="pointLat" placeholder="Lat (ละติจูด)"
-      class="border p-2 rounded-lg focus:ring-1 focus:ring-slate-300" />
-    <input name="pointLng" placeholder="Lng (ลองจิจูด)"
-      class="border p-2 rounded-lg focus:ring-1 focus:ring-slate-300" />
-  </div>
-
-  <!-- ✅ ถ้าเลือก Polygon -->
-  <div id="coordContainer" class="md:col-span-2 space-y-2 hidden">
-    <div class="flex justify-between items-center">
-      <span class="font-medium text-slate-600">📍 จุดพิกัด (x, y)</span>
-      <button type="button" id="addPoint" class="text-slate-500 hover:text-slate-700 text-sm">
-        ➕ เพิ่มจุด
+      <!-- ✕ ปุ่มลบ -->
+      <button type="button" class="remove-plot absolute top-2 right-2 text-red-500 text-sm hover:underline">
+        ✕ ลบแปลงนี้
       </button>
-    </div>
-    <div id="points" class="space-y-2"></div>
-  </div>
 
-  <!-- ✅ การอัปโหลดเอกสารและรูปภาพ -->
-  <div class="md:col-span-2 border border-slate-200 rounded-xl p-4 space-y-4 bg-white shadow-sm">
-    <h3 class="font-semibold text-slate-700">📂 เอกสารและรูปภาพ</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-slate-700">
 
-    <!-- อัปโหลดเอกสาร -->
-    <div>
-      <label class="block font-medium mb-2 text-slate-600">อัปโหลดเอกสารตรวจเช็ค</label>
-      <div id="docPreview" class="flex flex-wrap gap-2">
-        <label for="docFileInput"
-          class="flex items-center justify-center border-2 border-dashed border-slate-300 rounded-lg w-32 h-24 cursor-pointer hover:bg-slate-50">
-          +
-        </label>
+        <!-- PlotID -->
+        <input name="plotId" readonly placeholder="สร้างอัตโนมัติ"
+          class="border p-2 rounded-lg bg-slate-100 text-slate-500 md:col-span-2" />
+
+        <!-- รหัสที่ดิน -->
+        <input name="landCode" placeholder="รหัสที่ดิน" class="border p-2 rounded-lg" required />
+
+        <input name="province" placeholder="จังหวัด" class="border p-2 rounded-lg" required />
+        <input name="district" placeholder="อำเภอ" class="border p-2 rounded-lg" required />
+
+        <select name="deed" class="border p-2 rounded-lg">
+          <option value="CHANOTE">โฉนด</option>
+          <option value="NS3">นส.3</option>
+          <option value="NO_DOC">ไม่มีเอกสาร</option>
+        </select>
+
+        <!-- พื้นที่ -->
+        <div class="grid grid-cols-3 gap-2">
+          <input name="rai" type="number" placeholder="ไร่" class="border p-2 rounded-lg text-center" />
+          <input name="ngan" type="number" placeholder="งาน" class="border p-2 rounded-lg text-center" />
+          <input name="wah" type="number" placeholder="ตารางวา" class="border p-2 rounded-lg text-center" />
+        </div>
+
+        <!-- Geometry -->
+        <select name="geometryType" class="border p-2 rounded-lg geometry-select">
+          <option value="Point">Point</option>
+          <option value="Polygon">Polygon</option>
+        </select>
+
+        <!-- Point -->
+        <div class="point-container grid grid-cols-2 gap-2">
+          <input name="pointLat" placeholder="Lat" class="border p-2 rounded-lg" />
+          <input name="pointLng" placeholder="Lng" class="border p-2 rounded-lg" />
+        </div>
+
+        <!-- Polygon -->
+        <div class="coord-container md:col-span-2 space-y-2 hidden">
+          <div class="flex justify-between items-center">
+            <span class="font-medium">📍 จุดพิกัด (x,y)</span>
+            <button type="button" class="add-point text-slate-500 hover:text-slate-700 text-sm">
+              ➕ เพิ่มจุด
+            </button>
+          </div>
+          <div class="points space-y-2"></div>
+        </div>
+
       </div>
-      <input id="docFileInput" type="file" name="docFile" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.png"
-        class="hidden" />
-    </div>
 
-    <!-- อัปโหลดรูปสวน -->
-    <div>
-      <label class="block font-medium mb-2 text-slate-600">อัปโหลดรูป (สวน)</label>
-      <div id="gardenPreview" class="flex flex-wrap gap-2">
-        <label for="gardenImagesInput"
-          class="flex items-center justify-center border-2 border-dashed border-slate-300 rounded-lg w-32 h-24 cursor-pointer hover:bg-slate-50">
-          +
-        </label>
+      <!-- 📂 Upload Section -->
+      <div class="upload-section border border-slate-200 rounded-xl p-4 space-y-4 bg-white shadow-sm">
+
+        <h3 class="font-semibold text-slate-700">📂 เอกสารและรูปภาพ</h3>
+
+        <!-- 📄 Document Upload -->
+        <div>
+          <label class="block font-medium mb-2 text-slate-600">อัปโหลดเอกสารตรวจเช็ค</label>
+
+          <div class="doc-preview flex flex-wrap gap-2">
+            <label
+              class="add-doc flex items-center justify-center border-2 border-dashed border-slate-300 rounded-lg w-32 h-24 cursor-pointer hover:bg-slate-50">
+              +
+            </label>
+          </div>
+
+          <input type="file" class="doc-input hidden" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.png" />
+        </div>
+
+        <!-- 🖼 Garden Images -->
+        <div>
+          <label class="block font-medium mb-2 text-slate-600">อัปโหลดรูป (สวน)</label>
+
+          <div class="garden-preview flex flex-wrap gap-2">
+            <label
+              class="add-img flex items-center justify-center border-2 border-dashed border-slate-300 rounded-lg w-32 h-24 cursor-pointer hover:bg-slate-50">
+              +
+            </label>
+          </div>
+
+          <input type="file" class="garden-input hidden" accept="image/*" multiple />
+        </div>
+
       </div>
-      <input id="gardenImagesInput" type="file" name="gardenImages" accept="image/*" multiple class="hidden" />
+
+
+      <!-- Checkbox -->
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
+        <label><input type="checkbox" name="status_relegan" /> relegan</label>
+        <label><input type="checkbox" name="status_human_right" /> human right</label>
+        <label><input type="checkbox" name="status_transport" /> ขนส่ง</label>
+        <label><input type="checkbox" name="status_environment" /> Environment</label>
+        <label><input type="checkbox" name="status_tax" /> ภาษี</label>
+      </div>
+
+      <label class="flex items-center space-x-2">
+        <input type="checkbox" name="ownedBefore2020" />
+        <span>เป็นเจ้าของก่อนปี 2020</span>
+      </label>
     </div>
 
-    <!-- Checkbox สถานะ -->
-    <div class="grid grid-cols-2 md:grid-cols-3 gap-2 text-slate-600 text-sm mt-2">
-      <label class="flex items-center space-x-2"><input type="checkbox" name="status_relegan" /> <span>เป็น
-          relegan</span></label>
-      <label class="flex items-center space-x-2"><input type="checkbox" name="status_human_right" /> <span>Human
-          right</span></label>
-      <label class="flex items-center space-x-2"><input type="checkbox" name="status_transport" />
-        <span>ขนส่ง</span></label>
-      <label class="flex items-center space-x-2"><input type="checkbox" name="status_environment" />
-        <span>Environment</span></label>
-      <label class="flex items-center space-x-2"><input type="checkbox" name="status_tax" /> <span>ภาษี</span></label>
-    </div>
-  </div>
+</div>
+</template>
 
-  <!-- Checkbox -->
-  <label class="flex items-center space-x-2 md:col-span-2">
-    <input type="checkbox" name="ownedBefore2020" />
-    <span>เป็นเจ้าของก่อนปี 2020</span>
-  </label>
+<!-- 🟦 ที่เก็บหลายแปลง -->
+<div id="plots-wrap" class="space-y-6"></div>
 
-  <div class="md:col-span-2 text-right">
-    <button type="submit" class="bg-slate-800 text-white px-4 py-2 rounded-lg hover:bg-slate-700 transition-all">
-      บันทึก Plot →
-    </button>
-  </div>
-</form>
+<!-- ปุ่มควบคุม -->
+<div class="flex gap-3 mt-4">
+  <button id="addPlotBlock" class="bg-slate-200 px-4 py-2 rounded-lg">
+    ➕ เพิ่มแปลงใหม่
+  </button>
+
+  <button id="btn-next" class="bg-indigo-600 text-white px-4 py-2 rounded-lg">
+    ต่อไป →
+  </button>
+</div>
+
+</div>
