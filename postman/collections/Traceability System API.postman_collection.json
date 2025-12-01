@@ -1,0 +1,425 @@
+{
+  "info": {
+    "_postman_id": "614a58de-8b90-4c1e-a1b0-8562356e09a6",
+    "name": "Traceability System API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "37203087"
+  },
+  "item": [
+    {
+      "name": "Farmers",
+      "item": [
+        {
+          "name": "Get Farmers",
+          "id": "d394b2d2-84dd-4a0d-badb-8080079a7079",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/farmers",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "farmers"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Farmer",
+          "id": "26cffaa7-ed06-43db-92b7-2b03fc0ec82c",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"\",\n  \"phone\": \"\",\n  \"province\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/farmers",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "farmers"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Farmer Detail",
+          "id": "d742bc7f-c625-44a2-9d92-dbebfbc11008",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/farmers/:farmerId",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "farmers",
+                ":farmerId"
+              ],
+              "variable": [
+                {
+                  "key": "farmerId"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Farmer",
+          "id": "6425da89-cfca-47f5-8e28-1737232af9f2",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/farmers/:farmerId",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "farmers",
+                ":farmerId"
+              ],
+              "variable": [
+                {
+                  "key": "farmerId"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "bf1c4dd8-a751-43ac-ab03-a20e7da66c79"
+    },
+    {
+      "name": "Plots",
+      "item": [
+        {
+          "name": "Get Plots",
+          "id": "aadde8cc-47ba-43ae-be1f-ad39334f6272",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/plots",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "plots"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Plot",
+          "id": "260505c5-cf9d-484b-a3a3-e24f6f169ceb",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"farfarmerId\": \"\",\n  \"area\": 0\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/plots",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "plots"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Plot Detail",
+          "id": "71de19c3-e75e-4190-b045-84eae78b90da",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/plots/:plotId",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "plots",
+                ":plotId"
+              ],
+              "variable": [
+                {
+                  "key": "plotId"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "3d0d5eea-6cb9-4d1f-8d17-6f408710a86d"
+    },
+    {
+      "name": "GIS",
+      "item": [
+        {
+          "name": "Export Polygons",
+          "id": "d3dab335-d0cc-4b7d-b8f0-25ed80c1d2e6",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/gis/export/polygons",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "gis",
+                "export",
+                "polygons"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Import GIS Result",
+          "id": "6c9b1732-8f7d-4930-a224-c4267654e476",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"plotId\": \"\",\n    \"status\": \"OK\"\n  }\n]"
+            },
+            "url": {
+              "raw": "{{base_url}}/gis/import",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "gis",
+                "import"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "ff30eee0-39a4-4cb6-a7b6-54eaa9d15325"
+    },
+    {
+      "name": "Receiving",
+      "item": [
+        {
+          "name": "Import Excel",
+          "id": "0cd01d53-b691-4c5d-b3cc-34d22c79c2d1",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/receiving/import",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "receiving",
+                "import"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Match Farmer",
+          "id": "4013d4b1-793d-4d61-95ed-a0bc307cebb1",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"excelName\": \"\",\n    \"farmerId\": \"\"\n  }\n]"
+            },
+            "url": {
+              "raw": "{{base_url}}/receiving/match",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "receiving",
+                "match"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Calculate",
+          "id": "b8f1e7ba-5600-43f5-b6ac-5b76d8d135fb",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"farmerId\": \"\",\n  \"date\": \"\",\n  \"actualWeight\": 0\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/receiving/calculate",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "receiving",
+                "calculate"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Split Weight",
+          "id": "9535d670-64e0-4569-ac1a-9ff1749b8571",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"farmerId\": \"\",\n  \"allocations\": []\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/receiving/split",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "receiving",
+                "split"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Save Receiving",
+          "id": "4f6223c6-acce-470c-a3ca-868f5a0019c9",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/receiving/save",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "receiving",
+                "save"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "4553f989-db48-4e16-b02b-5d81bd20b136"
+    },
+    {
+      "name": "Reports",
+      "item": [
+        {
+          "name": "Daily Report",
+          "id": "db375c87-382c-440f-9c68-743974c00b32",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reports/receiving/daily",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports",
+                "receiving",
+                "daily"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Monthly Report",
+          "id": "fe10569b-470a-4404-a75f-ea5b527d76ca",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reports/receiving/monthly",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports",
+                "receiving",
+                "monthly"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GIS Report",
+          "id": "5ae16eb3-df53-498a-bd87-801e81c34b1a",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reports/gis",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports",
+                "gis"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "EUDR Export",
+          "id": "5badc961-be89-417d-b508-39aadd988854",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reports/eudr/export",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reports",
+                "eudr",
+                "export"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "06ea5102-4279-4071-a65f-a89f71614917"
+    }
+  ]
+}
