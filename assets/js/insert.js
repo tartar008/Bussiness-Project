@@ -39,8 +39,9 @@ export async function init() {
 }
 
 
+
 // ------------------------------------------------------------
-// 🔄 โหลดแต่ละขั้นตอน (Farmer → Plot → Validation → QGIS)
+// 🔄 โหลดแต่ละขั้นตอน (Farmer → Plot → Truck → Summary → Success)
 // ------------------------------------------------------------
 export async function loadStep(page, DB, content) {
   if (!content) content = document.getElementById("insert-content");
@@ -58,33 +59,37 @@ export async function loadStep(page, DB, content) {
 
     const module = await import(`./${page}.js`);
 
-    // ✅ ให้แต่ละหน้าเรียก callback หลัง save เสร็จ
     if (module.init) {
       module.init(DB, async (result) => {
-        console.log(`✅ ${page} saved:`, result);
 
         if (page === "farmer") {
           currentSession.farmer = result;
           currentSession.step = 2;
           await loadStep("plot", DB, content);
-        } else if (page === "plot") {
+        }
+        else if (page === "plot") {
           currentSession.plot = result;
           currentSession.step = 3;
-          await loadStep("validation", DB, content);
-        } else if (page === "validation") {
-          currentSession.validation = result;
-          currentSession.step = 3.5;
-          await loadStep("qgis", DB, content);
-        } else if (page === "qgis") {
+          await loadStep("truck", DB, content);
+        }
+        else if (page === "truck") {
+          currentSession.truck = result;
+          currentSession.step = 4;
+          await loadStep("summary", DB, content);
+        }
+        else if (page === "summary") {
           await finalizeTransaction(DB);
         }
       });
     }
 
-    // ✅ อัปเดตสถานะ
-    renderStatusBar(DB);
+    // ---- update progress bar ----
+    if (page === "farmer") currentSession.step = 1;
+    else if (page === "plot") currentSession.step = 2;
+    else if (page === "truck") currentSession.step = 3;
+    else if (page === "summary") currentSession.step = 4;
+    else currentSession.step = 5;
 
-    // ✅ แจ้ง navbar ให้ progress bar ขยับ step ปัจจุบัน
     if (window.renderProgressBar) window.renderProgressBar(currentSession.step);
 
   } catch (err) {
@@ -96,10 +101,12 @@ export async function loadStep(page, DB, content) {
   }
 }
 
+
 // ------------------------------------------------------------
 // 📦 สรุปและบันทึก Transaction หลังครบทุกขั้นตอน
 // ------------------------------------------------------------
 async function finalizeTransaction(DB) {
+
   const txId = `TX${Date.now()}`;
   const now = new Date().toISOString();
 
@@ -107,12 +114,12 @@ async function finalizeTransaction(DB) {
     TransactionID: txId,
     FarmerID: currentSession.farmer?.FarmerID,
     PlotID: currentSession.plot?.PlotID,
-    ValidationID: currentSession.validation?.ValidationID,
+    TruckID: currentSession.truck?.TransportRowID,
     Steps: [
       { step: "REGISTER_FARMER", at: currentSession.farmer?.CreatedAt },
       { step: "CREATE_PLOT", at: currentSession.plot?.CreatedAt },
-      { step: "VALIDATE_PLOT", at: currentSession.validation?.CreatedAt },
-      { step: "FINALIZE_QGIS", at: now },
+      { step: "REGISTER_TRUCK", at: currentSession.truck?.CreatedAt },
+      { step: "SUMMARY_CONFIRMED", at: now }
     ],
     CompletedAt: now,
     Version: DB.transactions ? DB.transactions.length + 1 : 1,
@@ -122,23 +129,12 @@ async function finalizeTransaction(DB) {
   DB.transactions.push(tx);
   saveDB(DB);
 
-  document.getElementById("insert-content").innerHTML = `
-    <div class="text-center text-green-700 py-10 space-y-2">
-      <div class="text-2xl font-semibold">🎉 บันทึก Transaction สำเร็จ!</div>
-      <p>รหัสธุรกรรม: <b>${txId}</b></p>
-      <button id="btn-new" class="mt-4 bg-indigo-600 text-white px-4 py-2 rounded-lg">
-        ➕ เริ่มรายการใหม่
-      </button>
-    </div>`;
+  // ส่งไปหน้า success พร้อม Transaction
+  window.currentSession.finalTx = tx;
 
-  document.getElementById("btn-new").addEventListener("click", async () => {
-    currentSession = { farmer: null, plot: null, validation: null, step: 1 };
-    await loadStep("farmer", DB, document.getElementById("insert-content"));
-  });
-
-  renderStatusBar(DB);
-  if (window.renderProgressBar) window.renderProgressBar(4);
+  await loadStep("success", DB, document.getElementById("insert-content"));
 }
+
 
 // ------------------------------------------------------------
 // ✅ Header Bar แสดงสถานะระบบ
@@ -156,9 +152,9 @@ function renderStatusBar(DB) {
   const stepLabel =
     currentSession.step === 1 ? "🧑‍🌾 ลงทะเบียนเกษตรกร" :
       currentSession.step === 2 ? "🗺️ เพิ่มแปลงที่ดิน" :
-        currentSession.step === 3 ? "🔍 ตรวจสอบข้อมูล" :
-          currentSession.step === 3.5 ? "🧭 ตรวจสอบแผนที่ (QGIS)" :
-            "✅ เสร็จสิ้น";
+        currentSession.step === 3 ? "🚛 ลงทะเบียนรถบรรทุก" :
+          currentSession.step === 4 ? "📄 ตรวจสอบข้อมูล" :
+            "🎉 เสร็จสิ้น";
 
   barContainer.innerHTML = `
     <div class="flex flex-wrap items-center justify-between bg-indigo-50 border border-indigo-100 rounded-md px-4 py-2 text-sm text-indigo-700 mb-3">

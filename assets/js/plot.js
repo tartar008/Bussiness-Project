@@ -1,316 +1,335 @@
-import { getDB, saveDB } from './db.js';
+import { getDB, saveDB } from "./db.js";
 
-export async function init() {
-    console.log("📊 Plot page loaded");
-    const db = await getDB();
-    db.farmers ??= [];
-    db.plots ??= [];
+let plots = []; // เก็บข้อมูลของแต่ละ plot-block
 
-    const form = document.getElementById('form-plot');
-    const sel = form.querySelector('select[name="farmerId"]');
-    const coordContainer = document.getElementById('coordContainer');
-    const pointContainer = document.getElementById('pointContainer');
-    const addPointBtn = document.getElementById('addPoint');
-    const pointsDiv = document.getElementById('points');
+export async function init(DB, onDone) {
+    console.log("🌾 Plot page loaded");
 
-    // 🧑‍🌾 โหลดรายชื่อเกษตรกร
-    sel.innerHTML = db.farmers.length
-        ? db.farmers.map(f => `<option value="${f.FarmerID}">${f.FarmerID} – ${f.Name} ${f.SurName}</option>`).join('')
-        : `<option disabled>❗ ไม่มีข้อมูลเกษตรกร</option>`;
+    plots = []; // reset ทุกครั้งที่เข้า page
 
-    // 🔺 สลับการแสดง input พิกัด (Point / Polygon)
-    form.querySelector('[name="geometryType"]').addEventListener('change', e => {
-        const type = e.target.value;
-        coordContainer.classList.toggle('hidden', type !== 'Polygon');
-        pointContainer.classList.toggle('hidden', type !== 'Point');
-    });
+    const wrap = document.getElementById("plots-wrap");
+    const template = document.getElementById("plot-template");
+    const btnAdd = document.getElementById("addPlotBlock");
+    const btnNext = document.getElementById("btn-next");
 
-    // ➕ เพิ่มจุดพิกัด (ใช้กับ Polygon)
-    addPointBtn.addEventListener('click', () => {
-        const i = pointsDiv.children.length + 1;
-        const div = document.createElement("div");
-        div.className = "grid grid-cols-2 gap-2 items-center";
-        div.innerHTML = `
-      <input name="lat_${i}" placeholder="Lat" class="border p-2 rounded-lg" />
-      <input name="lng_${i}" placeholder="Lng" class="border p-2 rounded-lg" />
-      <button type="button" class="text-red-500 text-sm hover:underline col-span-2 text-right">ลบจุดนี้</button>
-    `;
-        div.querySelector("button").addEventListener("click", () => div.remove());
-        pointsDiv.appendChild(div);
-    });
+    // เพิ่มบล็อกแรกอัตโนมัติ
+    addPlotBlock();
 
-    // ------------------------------------------------------------
-    // 📄 อัปโหลดเอกสารตรวจเช็ค
-    // ------------------------------------------------------------
-    const docInput = document.getElementById("docFileInput");
-    const docPreview = document.getElementById("docPreview");
-    let docFiles = [];
+    btnAdd.addEventListener("click", () => addPlotBlock());
 
-    docInput.addEventListener("change", e => {
-        const files = Array.from(e.target.files);
-        files.forEach(file => {
-            const reader = new FileReader();
-            reader.onload = ev => {
-                // ✅ เก็บทั้งชื่อไฟล์, type และ URL (เฉพาะรูป)
-                docFiles.push({
+    // =====================================================================
+    // 🧱 ฟังก์ชันเพิ่ม plot-block ใหม่
+    // =====================================================================
+    function addPlotBlock() {
+        const clone = template.content.cloneNode(true);
+        const block = clone.querySelector(".plot-block");
+        const index = plots.length;
+        block.dataset.index = index;
+
+        // เตรียมโครงข้อมูลใน plots[]
+        plots.push({
+            docs: [],
+            images: [],
+            coords: [],
+        });
+
+        bindBlockEvents(block, index);
+        wrap.appendChild(block);
+    }
+
+    // =====================================================================
+    // 🎛 Bind Event สำหรับแต่ละ Plot Block
+    // =====================================================================
+    function bindBlockEvents(block, index) {
+
+        // ----------------------------
+        // ✕ ลบบล็อก
+        // ----------------------------
+        block.querySelector(".remove-plot").addEventListener("click", () => {
+            plots[index] = null;
+            block.remove();
+        });
+
+        // ----------------------------
+        // 📍 Geometry type (Point / Polygon)
+        // ----------------------------
+        const geomSelect = block.querySelector(".geometry-select");
+        const pointContainer = block.querySelector(".point-container");
+        const coordContainer = block.querySelector(".coord-container");
+        const addPointBtn = block.querySelector(".add-point");
+        const pointsDiv = block.querySelector(".points");
+
+        geomSelect.addEventListener("change", () => {
+            const type = geomSelect.value;
+            pointContainer.classList.toggle("hidden", type !== "Point");
+            coordContainer.classList.toggle("hidden", type !== "Polygon");
+        });
+
+        addPointBtn.addEventListener("click", () => {
+            const row = document.createElement("div");
+            row.className = "grid grid-cols-2 gap-2 relative";
+
+            row.innerHTML = `
+                <input placeholder="Lat" class="border p-2 rounded-lg" />
+                <input placeholder="Lng" class="border p-2 rounded-lg" />
+                <button type="button"
+                    class="absolute -top-2 -right-2 bg-red-500 text-white w-5 h-5 rounded-full text-xs flex items-center justify-center">
+                    ✕
+                </button>
+            `;
+
+            row.querySelector("button").addEventListener("click", () => row.remove());
+            pointsDiv.appendChild(row);
+        });
+
+        // ----------------------------
+        // 📄 Document Upload
+        // ----------------------------
+        const docInput = block.querySelector(".doc-input");
+        const docPreview = block.querySelector(".doc-preview");
+        block.querySelector(".add-doc").addEventListener("click", () => docInput.click());
+
+        docInput.addEventListener("change", e => {
+            const files = Array.from(e.target.files);
+
+            files.forEach(file => {
+                const ext = file.name.split(".").pop().toLowerCase();
+                const isImage = ["jpg", "jpeg", "png"].includes(ext);
+
+                const docItem = {
                     name: file.name,
                     type: file.type,
-                    url: file.type.startsWith("image/") ? ev.target.result : null
-                });
-                renderDocPreview();
-            };
-            // อ่านเฉพาะรูปเป็น DataURL, ส่วนไฟล์อื่นไม่ต้อง
-            if (file.type.startsWith("image/")) reader.readAsDataURL(file);
-            else reader.onload();
-        });
-        e.target.value = ""; // reset เพื่อเลือกไฟล์ซ้ำได้
-    });
+                    isImage,
+                    url: null,
+                };
 
-    window.removeDocFile = i => {
-        docFiles.splice(i, 1);
-        renderDocPreview();
-    };
-
-    function renderDocPreview() {
-        docPreview.innerHTML = "";
-
-        docFiles.forEach((f, i) => {
-            const div = document.createElement("div");
-            div.className =
-                "relative flex items-center justify-center border rounded-lg w-32 h-24 overflow-hidden bg-slate-50";
-
-            // ✅ ถ้าเป็นภาพ ให้แสดง thumbnail
-            if (f.url) {
-                div.innerHTML = `
-        <img src="${f.url}" alt="${f.name}" class="object-cover w-full h-full" />
-        <button type="button"
-          class="absolute top-0 right-0 bg-black/50 text-white text-xs px-1 rounded-bl"
-          onclick="removeDocFile(${i})">✕</button>
-      `;
-            } else {
-                // ✅ ถ้าไม่ใช่ภาพ เช่น PDF, Word, Excel → แสดง icon
-                const ext = f.name.split('.').pop().toLowerCase();
-                const icon =
-                    ext === 'pdf' ? '📕' :
-                        ['doc', 'docx'].includes(ext) ? '📘' :
-                            ['xls', 'xlsx', 'csv'].includes(ext) ? '📗' :
-                                '📄';
-                div.innerHTML = `
-        <div class="flex flex-col items-center justify-center text-center px-1 text-xs text-slate-600">
-          <span class="text-2xl">${icon}</span>
-          <span class="truncate w-full">${f.name}</span>
-        </div>
-        <button type="button"
-          class="absolute top-0 right-0 bg-black/50 text-white text-xs px-1 rounded-bl"
-          onclick="removeDocFile(${i})">✕</button>
-      `;
-            }
-
-            docPreview.appendChild(div);
-        });
-
-        // ✅ กล่องเพิ่มไฟล์ใหม่
-        const addBox = document.createElement("label");
-        addBox.setAttribute("for", "docFileInput");
-        addBox.className =
-            "flex items-center justify-center border-2 border-dashed border-slate-300 rounded-lg w-32 h-24 cursor-pointer hover:bg-slate-50";
-        addBox.textContent = "+";
-        docPreview.appendChild(addBox);
-    }
-
-
-    // ------------------------------------------------------------
-    // 🖼️ อัปโหลดรูปสวน
-    // ------------------------------------------------------------
-    const gardenInput = document.getElementById("gardenImagesInput");
-    const gardenPreview = document.getElementById("gardenPreview");
-    let gardenImages = [];
-
-    gardenInput.addEventListener("change", e => {
-        const files = Array.from(e.target.files);
-        files.forEach(file => {
-            const reader = new FileReader();
-            reader.onload = ev => {
-                gardenImages.push({ name: file.name, url: ev.target.result });
-                renderGardenPreview();
-            };
-            reader.readAsDataURL(file);
-        });
-        e.target.value = "";
-    });
-
-    window.removeGardenImage = i => {
-        gardenImages.splice(i, 1);
-        renderGardenPreview();
-    };
-
-    function renderGardenPreview() {
-        gardenPreview.innerHTML = "";
-        gardenImages.forEach((img, i) => {
-            const div = document.createElement("div");
-            div.className = "relative w-32 h-24 rounded-lg overflow-hidden border";
-            div.innerHTML = `
-      <img src="${img.url}" class="object-cover w-full h-full" />
-      <button type="button"
-        class="absolute top-0 right-0 bg-black/50 text-white px-1 text-xs rounded-bl"
-        onclick="removeGardenImage(${i})">✕</button>
-    `;
-            gardenPreview.appendChild(div);
-        });
-
-        // กล่อง + เพิ่มรูปใหม่
-        const addBox = document.createElement("label");
-        addBox.setAttribute("for", "gardenImagesInput");
-        addBox.className =
-            "flex items-center justify-center border-2 border-dashed border-slate-300 rounded-lg w-32 h-24 cursor-pointer hover:bg-slate-50";
-        addBox.textContent = "+";
-        gardenPreview.appendChild(addBox);
-    }
-
-    // ------------------------------------------------------------
-    // 💾 เมื่อ submit
-    // ------------------------------------------------------------
-    form.addEventListener('submit', e => {
-        e.preventDefault();
-        const fd = new FormData(form);
-
-        // ✅ ตรวจ duplicate (Composite Key)
-        const province = fd.get('province');
-        const district = fd.get('district');
-        const landCode = fd.get('landCode');
-        const deed = fd.get('deed');
-        const duplicate = db.plots.find(p =>
-            p.Province === province &&
-            p.District === district &&
-            p.LandCode === landCode &&
-            p.DeedType === deed
-        );
-        if (duplicate) {
-            alert("❌ แปลงนี้มีอยู่แล้วในระบบ (จังหวัด/อำเภอ/รหัสที่ดิน/ประเภทที่ดิน ซ้ำ)");
-            return;
-        }
-
-        // ✅ แปลงหน่วยไร่-งาน-วา → เอเคอร์
-        const rai = Number(fd.get('rai') || 0);
-        const ngan = Number(fd.get('ngan') || 0);
-        const wah = Number(fd.get('wah') || 0);
-        const totalWah = (rai * 400) + (ngan * 100) + wah;
-        const areaAcre = (totalWah * 4) / 4046.85642;
-
-        // ✅ เก็บพิกัด (Point / Polygon)
-        const geometryType = fd.get('geometryType');
-        let coords = [];
-
-        if (geometryType === 'Polygon') {
-            for (let [key, val] of fd.entries()) {
-                if (key.startsWith('lat_')) {
-                    const index = key.split('_')[1];
-                    const lat = val;
-                    const lng = fd.get('lng_' + index);
-                    if (lat && lng) coords.push({ lat: Number(lat), lng: Number(lng) });
+                if (isImage) {
+                    const reader = new FileReader();
+                    reader.onload = ev => {
+                        docItem.url = ev.target.result;
+                        plots[index].docs.push(docItem);
+                        renderDocs();
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    plots[index].docs.push(docItem);
                 }
-            }
-        } else {
-            const lat = fd.get('pointLat');
-            const lng = fd.get('pointLng');
-            if (lat && lng) coords.push({ lat: Number(lat), lng: Number(lng) });
+            });
+
+            renderDocs();
+            docInput.value = "";
+        });
+
+        function renderDocs() {
+            docPreview.innerHTML = "";
+
+            plots[index].docs.forEach((f, i) => {
+                const box = document.createElement("div");
+                box.className =
+                    "relative flex items-center justify-center border rounded-lg w-32 h-24 bg-slate-50 overflow-hidden";
+
+                if (f.isImage && f.url) {
+                    box.innerHTML = `
+                        <img src="${f.url}" class="object-cover w-full h-full" />
+                        <button type="button"
+                            class="absolute top-0 right-0 bg-black/50 text-white text-xs px-1 rounded-bl remove-doc"
+                            data-idx="${i}">✕</button>
+                    `;
+                } else {
+                    const icon =
+                        f.type.includes("pdf") ? "📕" :
+                            f.type.includes("sheet") ? "📗" :
+                                f.type.includes("word") ? "📘" :
+                                    "📄";
+
+                    box.innerHTML = `
+                        <div class="flex flex-col text-center p-1 text-xs text-slate-600">
+                            <span class="text-2xl">${icon}</span>
+                            <span class="truncate w-full">${f.name}</span>
+                        </div>
+                        <button type="button"
+                            class="absolute top-0 right-0 bg-black/50 text-white text-xs px-1 rounded-bl remove-doc"
+                            data-idx="${i}">✕</button>
+                    `;
+                }
+
+                docPreview.appendChild(box);
+            });
+
+            // ปุ่ม +
+            const addBtn = document.createElement("label");
+            addBtn.className =
+                "add-doc flex items-center justify-center border-2 border-dashed border-slate-300 rounded-lg w-32 h-24 cursor-pointer";
+            addBtn.textContent = "+";
+            docPreview.appendChild(addBtn);
+
+            addBtn.addEventListener("click", () => docInput.click());
+
+            // ปุ่มลบเอกสาร
+            docPreview.querySelectorAll(".remove-doc").forEach(btn => {
+                const idx = Number(btn.dataset.idx);
+                btn.addEventListener("click", () => {
+                    plots[index].docs.splice(idx, 1);
+                    renderDocs();
+                });
+            });
         }
 
-        // ✅ คำนวณเลขรัน PlotID (0,1,2,...)
-        const nextPlotId =
-            db.plots.length > 0
-                ? Math.max(...db.plots.map(p => Number(p.PlotID))) + 1
-                : 0;
+        // ----------------------------
+        // 🖼 Garden Images Upload
+        // ----------------------------
+        const imgInput = block.querySelector(".garden-input");
+        const imgPreview = block.querySelector(".garden-preview");
+        block.querySelector(".add-img").addEventListener("click", () => imgInput.click());
 
-        // ✅ เก็บสถานะ checkbox
-        const statuses = {
-            relegan: fd.get("status_relegan") === "on",
-            humanRight: fd.get("status_human_right") === "on",
-            transport: fd.get("status_transport") === "on",
-            environment: fd.get("status_environment") === "on",
-            tax: fd.get("status_tax") === "on"
-        };
+        imgInput.addEventListener("change", e => {
+            const files = Array.from(e.target.files);
 
-        // ✅ สร้าง Plot ใหม่
-        const plot = {
-            PlotID: String(nextPlotId),
-            FarmerID: fd.get('farmerId'),
-            LandCode: landCode,
-            Province: province,
-            District: district,
-            DeedType: deed,
-            Area: { rai, ngan, wah },
-            AreaAcre: Number(areaAcre.toFixed(4)),
-            GeometryType: geometryType,
-            Coordinates: coords,
-            IsOwnedBefore2020: fd.get('ownedBefore2020') === 'on',
-            StatusFlags: statuses,
-            DocFiles: docFiles.map(f => f.name),
-            GardenImages: gardenImages.map(g => g.url)
-        };
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = ev => {
+                    plots[index].images.push(ev.target.result);
+                    renderImages();
+                };
+                reader.readAsDataURL(file);
+            });
 
-        db.plots.push(plot);
-        saveDB(db);
-        alert(`✅ บันทึก Plot ${plot.PlotID} แล้ว (≈ ${plot.AreaAcre} acre)`);
+            imgInput.value = "";
+        });
 
-        form.reset();
-        pointsDiv.innerHTML = '';
-        gardenImages = [];
-        docFiles = [];
-        renderDocPreview();
-        renderGardenPreview();
+        function renderImages() {
+            imgPreview.innerHTML = "";
+
+            plots[index].images.forEach((url, i) => {
+                const box = document.createElement("div");
+                box.className =
+                    "relative w-32 h-24 rounded-lg overflow-hidden border";
+
+                box.innerHTML = `
+                    <img src="${url}" class="object-cover w-full h-full" />
+                    <button type="button"
+                        class="absolute top-0 right-0 bg-black/50 text-white text-xs px-1 rounded-bl remove-img"
+                        data-idx="${i}">✕</button>
+                `;
+
+                imgPreview.appendChild(box);
+            });
+
+            const addBtn = document.createElement("label");
+            addBtn.className =
+                "add-img flex items-center justify-center border-2 border-dashed border-slate-300 rounded-lg w-32 h-24 cursor-pointer";
+            addBtn.textContent = "+";
+            imgPreview.appendChild(addBtn);
+
+            addBtn.addEventListener("click", () => imgInput.click());
+
+            imgPreview.querySelectorAll(".remove-img").forEach(btn => {
+                const idx = Number(btn.dataset.idx);
+                btn.addEventListener("click", () => {
+                    plots[index].images.splice(idx, 1);
+                    renderImages();
+                });
+            });
+        }
+    }
+
+    // =====================================================================
+    // ▶ เมื่อกดปุ่ม "ถัดไป"
+    // =====================================================================
+    btnNext.addEventListener("click", () => {
+        const results = [];
+
+        document.querySelectorAll(".plot-block").forEach((block, idx) => {
+            const fd = {};
+
+            fd.plotId = `P${Date.now()}_${idx}`;
+            fd.landCode = block.querySelector("[name='landCode']").value;
+            fd.province = block.querySelector("[name='province']").value;
+            fd.district = block.querySelector("[name='district']").value;
+            fd.deed = block.querySelector("[name='deed']").value;
+
+            // พื้นที่
+            fd.rai = Number(block.querySelector("[name='rai']").value || 0);
+            fd.ngan = Number(block.querySelector("[name='ngan']").value || 0);
+            fd.wah = Number(block.querySelector("[name='wah']").value || 0);
+
+            const totalWah = fd.rai * 400 + fd.ngan * 100 + fd.wah;
+            fd.areaAcre = Number(((totalWah * 4) / 4046.85642).toFixed(4));
+
+            // Geometry
+            fd.geometryType = block.querySelector("[name='geometryType']").value;
+
+            if (fd.geometryType === "Point") {
+                fd.coords = [{
+                    lat: Number(block.querySelector("[name='pointLat']").value),
+                    lng: Number(block.querySelector("[name='pointLng']").value)
+                }];
+            } else {
+                fd.coords = Array.from(block.querySelectorAll(".points > div")).map(row => {
+                    const [latInput, lngInput] = row.querySelectorAll("input");
+                    return {
+                        lat: Number(latInput.value),
+                        lng: Number(lngInput.value)
+                    };
+                });
+            }
+
+            fd.docs = plots[idx]?.docs || [];
+            fd.images = plots[idx]?.images || [];
+
+            fd.status = {
+                relegan: block.querySelector("[name='status_relegan']").checked,
+                humanRight: block.querySelector("[name='status_human_right']").checked,
+                transport: block.querySelector("[name='status_transport']").checked,
+                environment: block.querySelector("[name='status_environment']").checked,
+                tax: block.querySelector("[name='status_tax']").checked,
+            };
+
+            fd.ownedBefore2020 = block.querySelector("[name='ownedBefore2020']").checked;
+
+            results.push(fd);
+        });
+
+        console.log("📦 ส่งผล plots[]:", results);
+
+        if (onDone) onDone(results);
     });
 }
 
+
+
 // ------------------------------------------------------------
-// ⚙️ Logic สำคัญภายใน
+// ⚙️ Logic สำคัญภายใน (Plot.js – Multi Plot Blocks)
 // ------------------------------------------------------------
 //
-// - โหลดรายชื่อเกษตรกรทั้งหมดจากฐานข้อมูล (db.farmers)
-//   • ใช้เพื่อให้เลือก FarmerID ที่จะผูกกับ Plot ได้
+// - ระบบรองรับการเพิ่มหลายแปลง (หลาย Plot Block) ในหน้าเดียว
+//   • ใช้ <template> ในการ clone บล็อกใหม่
+//   • ลบแปลงได้เป็นรายบล็อก
 //
-// - สลับการแสดง input พิกัดตามประเภท Geometry (Point / Polygon)
-//   • หากเลือก Point → ให้กรอกพิกัดเดียว (Lat/Lng)
-//   • หากเลือก Polygon → สามารถกด “เพิ่มจุด (x,y)” ได้หลายจุด
+// - แต่ละบล็อกมี state แยกใน plots[index]
+//   • เก็บ docs[], images[], coords[] ไม่ปะปนกัน
 //
-// - ระบบอัปโหลดเอกสารตรวจเช็ค (File Upload)
-//   • รองรับได้หลายชนิดไฟล์ เช่น PDF, Word, Excel, PNG, JPG
-//   • หากเป็นไฟล์ภาพ → แสดง thumbnail ตัวอย่าง
-//   • หากเป็นเอกสารทั่วไป → แสดงไอคอนแทน (📕, 📘, 📗, 📄)
-//   • สามารถเพิ่มหลายไฟล์ได้ และลบออกได้ทีละรายการ
+// - สลับการแสดง Point / Polygon ต่อบล็อก
+//   • Point → กรอก Lat/Lng เดี่ยว
+//   • Polygon → เพิ่มจุดหลายคู่ และลบได้
 //
-// - ระบบอัปโหลดรูปภาพสวน (Image Upload)
-//   • รองรับการเลือกหลายรูปพร้อมกัน
-//   • แสดง preview ของรูปทั้งหมด
-//   • มีปุ่ม “✕” เพื่อลบรูปใดรูปหนึ่งออก
-//   • มีช่อง “+” ให้เพิ่มรูปได้ตลอดเวลา
+// - ระบบอัปโหลดเอกสาร (Documents)
+//   • รองรับหลายชนิดไฟล์
+//   • แสดง preview + ลบไฟล์ได้
+//   • ผูกกับบล็อกแต่ละ plot แยกกัน
 //
-// - ตรวจสอบแปลงซ้ำ (Duplicate Check)
-//   • ใช้ Composite Key: จังหวัด + อำเภอ + รหัสที่ดิน + ประเภทเอกสาร
-//   • ป้องกันการเพิ่มข้อมูลซ้ำในระบบ
+// - ระบบอัปโหลดรูปสวน (Images)
+//   • รองรับหลายรูปพร้อมกัน
+//   • แสดง thumbnail + ลบได้
+//   • เก็บ base64 ใน plots[index].images
 //
-// - แปลงหน่วยพื้นที่จาก ไร่ / งาน / ตารางวา → เอเคอร์ (acre)
-//   • 1 ไร่ = 400 ตารางวา
-//   • 1 ตารางวา ≈ 4 ตารางเมตร
-//   • 1 เอเคอร์ = 4046.85642 ตารางเมตร
+// - คำนวณพื้นที่ ไร่–งาน–วา → เอเคอร์ ต่อบล็อก
 //
-// - เก็บพิกัดทั้งหมดที่ผู้ใช้ระบุ (lat, lng)
-//   • Point → 1 จุด, Polygon → หลายจุด
+// - รวมข้อมูลทั้งหมดจากแต่ละบล็อกเมื่อกด “ถัดไป”
+//   • สร้าง plotId แบบ unique (timestamp + index)
+//   • รวม coords, docs, images, flags, area, geometryType
 //
-// - จัดเก็บสถานะ checkbox (StatusFlags)
-//   • เก็บเป็น Boolean 5 ค่า: relegan, humanRight, transport, environment, tax
-//
-// - สร้าง PlotID แบบเลขรันต่อเนื่อง (0, 1, 2, ...)
-//   • ใช้ Math.max(...map()) + 1 เพื่อให้รันต่อจาก Plot ล่าสุด
-//
-// - สร้างอ็อบเจ็กต์ Plot ใหม่พร้อมข้อมูลครบถ้วน
-//   • เก็บข้อมูลจังหวัด, อำเภอ, พื้นที่, พิกัด, สถานะ, ไฟล์เอกสาร, รูปภาพ
-//
-// - บันทึกข้อมูล Plot ลงฐานข้อมูล (db.plots) และ saveDB()
-//   • บันทึกข้อมูลถาวรลง Local Storage
-//
-// - เคลียร์ฟอร์มหลังบันทึกสำเร็จ
-//   • รีเซ็ตค่า input ทั้งหมด
-//   • ล้าง preview ของเอกสารและรูปสวน
+// - ส่งผลลัพธ์ทั้งหมดออกผ่าน onDone(results)
+//   • ยังไม่บันทึกลงฐานจริงในหน้านี้
 //
 // ------------------------------------------------------------
