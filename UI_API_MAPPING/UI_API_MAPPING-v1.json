@@ -1,0 +1,167 @@
+{
+    "1) Dashboard": {
+        "1.1) System Summary": {
+            "api": [
+                "GET /farmers",
+                "GET /plots",
+                "GET /gis/report",
+                "GET /receiving/daily"
+            ]
+        },
+        "1.2) Recent Activities": {
+            "api": [
+                "GET /logs/recent"
+            ]
+        }
+    },
+    "2) Farmer": {
+        "2.1) Farmer List": {
+            "api": [
+                "GET /farmers"
+            ]
+        },
+        "2.2) Create Farmer": {
+            "api": [
+                "POST /farmers"
+            ]
+        },
+        "2.3) Farmer Detail - Info": {
+            "api": [
+                "GET /farmers/{id}"
+            ]
+        },
+        "2.3) Farmer Detail - Plots": {
+            "api": [
+                "GET /plots?farmerId={id}"
+            ]
+        },
+        "2.3) Farmer Detail - Receiving": {
+            "api": [
+                "GET /receiving/by-farmer/{id}"
+            ]
+        },
+        "2.3) Farmer Detail - Documents": {
+            "api": [
+                "GET /farmbooks?farmerId={id}",
+                "POST /farmbooks"
+            ]
+        }
+    },
+    "3) Plot": {
+        "3.1) Plot List": {
+            "api": [
+                "GET /plots"
+            ]
+        },
+        "3.2) Create Plot": {
+            "api": [
+                "POST /plots"
+            ]
+        },
+        "3.3) Plot Detail - Info": {
+            "api": [
+                "GET /plots/{id}"
+            ]
+        },
+        "3.3) Plot Detail - Geometry": {
+            "api": [
+                "GET /plots/{id}/geometry",
+                "POST /plots/{id}/geometry"
+            ]
+        },
+        "3.3) Plot Detail - Documents": {
+            "api": [
+                "GET /plot-documents?plotId={id}",
+                "POST /plot-documents"
+            ]
+        },
+        "3.3) Plot Detail - GIS Result": {
+            "api": [
+                "GET /gis/result?plotId={id}"
+            ]
+        },
+        "3.3) Plot Detail - Receiving Split": {
+            "api": [
+                "GET /receiving/split?plotId={id}"
+            ]
+        }
+    },
+    "4) GIS": {
+        "4.1) Export Polygon": {
+            "api": [
+                "GET /gis/export/polygon"
+            ]
+        },
+        "4.2) Import Overlay Result": {
+            "api": [
+                "POST /gis/import"
+            ]
+        },
+        "4.3) GIS Report": {
+            "api": [
+                "GET /gis/report"
+            ]
+        }
+    },
+    "5) Receiving (Wizard)": {
+        "5.1) Import Excel": {
+            "api": [
+                "POST /receiving/import-excel"
+            ]
+        },
+        "5.2) Match Farmer": {
+            "api": [
+                "POST /receiving/match-farmer",
+                "GET /farmers"
+            ]
+        },
+        "5.3) Calculate Area & Quota": {
+            "api": [
+                "POST /receiving/calc-area"
+            ]
+        },
+        "5.4) Split to Plots": {
+            "api": [
+                "POST /receiving/split"
+            ]
+        },
+        "5.5) Save Receiving": {
+            "api": [
+                "POST /receiving/save",
+                "GET /receiving/daily"
+            ]
+        }
+    },
+    "6) Reports": {
+        "6.1) Farmer Report": {
+            "api": [
+                "GET /reports/farmers"
+            ]
+        },
+        "6.2) Plot Report": {
+            "api": [
+                "GET /reports/plots"
+            ]
+        },
+        "6.3) Daily Report": {
+            "api": [
+                "GET /reports/daily?date=YYYY-MM-DD"
+            ]
+        },
+        "6.4) Monthly Report": {
+            "api": [
+                "GET /reports/monthly?month=YYYY-MM"
+            ]
+        },
+        "6.5) GIS Report": {
+            "api": [
+                "GET /gis/report"
+            ]
+        },
+        "6.6) EUDR Export": {
+            "api": [
+                "GET /reports/eudr/export"
+            ]
+        }
+    }
+}
