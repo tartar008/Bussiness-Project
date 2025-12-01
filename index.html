@@ -3,29 +3,39 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Traceability System – Full UI Mock</title>
+    <title>Traceability System – Full UI</title>
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
-        /* ------------------------------
-       GLOBAL STYLE
-    ------------------------------ */
         body {
             margin: 0;
-            font-family: Arial, sans-serif;
+            font-family: 'Inter', Arial, sans-serif;
             background: #f5f6fa;
             color: #333;
         }
 
-        h1 {
-            margin-top: 0;
-            font-size: 26px;
+        .page {
+            display: none;
         }
 
-        h2 {
-            margin: 5px 0 15px;
-            font-size: 20px;
+        /* ACTIVE HIGHLIGHT IN SIDEBAR */
+        .sidebar a.active {
+            background: #e8f0ff;
+            border-left: 4px solid #2563eb;
+            color: #2563eb;
+            font-weight: 600;
         }
 
+        /* TABS HIGHLIGHT */
+        .tab-active {
+            border-bottom: 3px solid #2563eb;
+            color: #2563eb;
+            font-weight: 700;
+        }
+
+        /* BOX STYLE */
         .box {
             background: white;
             padding: 20px;
@@ -33,278 +43,189 @@
             margin-bottom: 25px;
             border: 1px solid #e5e7eb;
         }
-
-        button {
-            padding: 10px 18px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            background: #2563eb;
-            color: white;
-            font-size: 14px;
-        }
-
-        button.gray {
-            background: #e5e7eb;
-            color: #333;
-        }
-
-        /* ------------------------------
-       LAYOUT
-    ------------------------------ */
-        .sidebar {
-            width: 250px;
-            height: 100vh;
-            background: white;
-            color: #1e293b;
-            position: fixed;
-            border-right: 1px solid #e2e8f0;
-            padding-top: 20px;
-            overflow-y: auto;
-        }
-
-        .sidebar h2 {
-            text-align: center;
-            margin-bottom: 25px;
-            font-size: 20px;
-            font-weight: bold;
-            color: #2563eb;
-        }
-
-        .sidebar a {
-            display: block;
-            padding: 14px 22px;
-            color: #1e293b;
-            text-decoration: none;
-            font-size: 15px;
-            border-left: 4px solid transparent;
-        }
-
-        .sidebar a:hover {
-            background: #f1f5f9;
-            border-left: 4px solid #2563eb;
-        }
-
-        .content {
-            margin-left: 250px;
-            padding: 35px;
-            min-height: 100vh;
-        }
-
-        .page {
-            display: none;
-        }
-
-        /* ------------------------------
-       TABLE
-    ------------------------------ */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-
-        th,
-        td {
-            padding: 12px;
-            border-bottom: 1px solid #e2e8f0;
-            text-align: left;
-        }
-
-        th {
-            background: #f8fafc;
-            font-weight: bold;
-        }
-
-        /* ------------------------------
-       TABS
-    ------------------------------ */
-        .tabs {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .tabs div {
-            padding: 10px 14px;
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-        }
-
-        .tabs div.active {
-            border-bottom: 3px solid #2563eb;
-            color: #2563eb;
-            font-weight: bold;
-        }
-
-        .tab-content {
-            display: none;
-        }
     </style>
 
     <script>
-        /* Change Main Section */
-        function show(page) {
+        /* ----------------------------------------
+           NAVIGATION SYSTEM (FULL ACTIVE MODE)
+        ------------------------------------------ */
+
+        function show(pageId) {
+            // hide all pages
             document.querySelectorAll(".page").forEach(p => p.style.display = "none");
-            document.getElementById(page).style.display = "block";
+
+            // show selected
+            document.getElementById(pageId).style.display = "block";
+
+            // highlight sidebar
+            document.querySelectorAll(".sidebar a").forEach(a => a.classList.remove("active"));
+            const link = document.querySelector(`.sidebar a[data-page="${pageId}"]`);
+            if (link) link.classList.add("active");
         }
 
-        /* Tabs (Farmer / Plot / Reports) */
+        /* ----------------------------------------
+           TAB SYSTEM (MULTI SECTION)
+        ------------------------------------------ */
+
         function showTab(section, tab) {
-            document.querySelectorAll("." + section + "-tab").forEach(t => t.classList.remove("active"));
-            document.querySelectorAll("." + section + "-content").forEach(c => c.style.display = "none");
+            // hide all content in this module
+            document.querySelectorAll(`.${section}-content`).forEach(c => c.style.display = "none");
 
+            // remove old active
+            document.querySelectorAll(`.${section}-tab`).forEach(t => t.classList.remove("tab-active"));
+
+            // activate new
             document.getElementById(tab).style.display = "block";
-            document.getElementById(tab + "-tab").classList.add("active");
+            document.getElementById(tab + "-tab").classList.add("tab-active");
         }
 
-
+        window.onload = function () {
+            show("dashboard"); // default
+        };
     </script>
-    <script src="https://cdn.tailwindcss.com"></script>
+
 </head>
 
-<body>
+<body class="bg-gray-100">
 
-    <!-- SIDEBAR -->
-    <div class="sidebar">
-        <h2>TRACEABILITY</h2>
-        <a href="#" onclick="show('dashboard')">📊 Dashboard</a>
-        <a href="#" onclick="show('farmer')">👤 Farmer</a>
-        <a href="#" onclick="show('plot')">📍 Plot</a>
-        <a href="#" onclick="show('gis')">🗺️ GIS</a>
-        <a href="#" onclick="show('receiving')">📦 Receiving</a>
-        <a href="#" onclick="show('reports')">📑 Reports</a>
-        <a href="#" onclick="show('import')">⚙️ Import Initial Data</a>
+    <!-- ---------------------------------------------
+         SIDEBAR (ALL MODULES)
+    ---------------------------------------------- -->
+    <div class="sidebar fixed left-0 top-0 w-[250px] h-screen bg-white border-r border-gray-200 overflow-y-auto">
+        <h2 class="text-center py-5 text-xl font-bold text-blue-600">TRACEABILITY</h2>
 
+        <a data-page="dashboard" onclick="show('dashboard')"
+            class="block px-6 py-3 text-gray-800 hover:bg-gray-100 cursor-pointer">📊 Dashboard</a>
+
+        <a data-page="farmer" onclick="show('farmer')"
+            class="block px-6 py-3 text-gray-800 hover:bg-gray-100 cursor-pointer">👤 Farmer</a>
+
+        <a data-page="plot" onclick="show('plot')"
+            class="block px-6 py-3 text-gray-800 hover:bg-gray-100 cursor-pointer">📍 Plot</a>
+
+        <a data-page="gis" onclick="show('gis')"
+            class="block px-6 py-3 text-gray-800 hover:bg-gray-100 cursor-pointer">🗺️ GIS</a>
+
+        <a data-page="buyer" onclick="show('buyer')"
+            class="block px-6 py-3 text-gray-800 hover:bg-gray-100 cursor-pointer">🏪 Buyer</a>
+
+        <a data-page="receiving" onclick="show('receiving')"
+            class="block px-6 py-3 text-gray-800 hover:bg-gray-100 cursor-pointer">📦 Receiving</a>
+
+        <a data-page="reports" onclick="show('reports')"
+            class="block px-6 py-3 text-gray-800 hover:bg-gray-100 cursor-pointer">📑 Reports</a>
+
+        <a data-page="import" onclick="show('import')"
+            class="block px-6 py-3 text-gray-800 hover:bg-gray-100 cursor-pointer">⚙️ Initial Import</a>
     </div>
 
-    <!-- CONTENT -->
-    <div class="content">
+    <!-- ---------------------------------------------
+         MAIN CONTENT
+    ---------------------------------------------- -->
+    <div class="content ml-[250px] p-10">
 
-        <!-- ---------------------------------------------------------
-        DASHBOARD (GLAZEY PREMIUM – STANDARD 6 CARDS)
-        --------------------------------------------------------- -->
-        <div class="page" id="dashboard" style="display:block;">
+        <!-- ********************************************************************
+             PART 1 — DASHBOARD (GLAZEY STANDARD 6 CARDS)
+        ********************************************************************* -->
 
-            <!-- HEADER -->
-            <div class="bg-white px-6 py-4 rounded-xl shadow-sm border border-gray-100 
-                flex items-center justify-between mb-8">
+        <div class="page" id="dashboard">
 
-                <!-- Logo -->
-                <div class="text-2xl font-extrabold text-gray-800 tracking-wide">
+            <!-- TOP HEADER ------------------------------------------------ -->
+            <div class="bg-white px-6 py-4 mb-10 rounded-xl shadow-sm border border-gray-100 
+                        flex items-center justify-between">
+
+                <div class="text-2xl font-extrabold text-gray-800">
                     Traceability<span class="text-blue-600">.</span>
                 </div>
 
-                <!-- Search -->
                 <div class="flex-1 px-6">
-                    <input type="text" placeholder="ค้นหาเกษตร / แปลง / รับซื้อ..." class="w-full max-w-xl mx-auto bg-gray-50 border border-gray-200 rounded-xl 
-                          px-4 py-2 text-gray-700 focus:outline-blue-500 shadow-sm">
+                    <input type="text" placeholder="ค้นหาเกษตร / แปลง / รับซื้อ..."
+                        class="w-full max-w-xl bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 shadow-sm focus:outline-blue-500">
                 </div>
 
-                <!-- Icons -->
-                <div class="flex items-center gap-5 text-gray-600">
-                    <!-- Language -->
-                    <span class="text-sm cursor-pointer hover:text-blue-600">TH ▾</span>
+                <div class="flex items-center gap-6">
+                    <span class="text-sm text-gray-700 cursor-pointer hover:text-blue-600">TH ▾</span>
 
-                    <!-- Notification -->
                     <svg xmlns="http://www.w3.org/2000/svg"
-                        class="w-6 h-6 cursor-pointer hover:text-blue-600 transition" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                            d="M14.25 18.75a2.25 2.25 0 11-4.5 0" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                            d="M18.75 9.75a6.75 6.75 0 10-13.5 0c0 2.1801-.6736 3.8418-1.2984 4.9192C3.93 15.26 3.87 15.43 3.88 15.64c.01.24.09.37.24.49.15.12.46.12 1.08.12h13.96c.62 0 .93 0 1.08-.27.15-.12.22-.25.23-.49.01-.21-.05-.38-.38-.95-.63-1.08-1.3-2.74-1.3-4.92z" />
+                        class="w-6 h-6 text-gray-600 hover:text-blue-600 cursor-pointer" fill="none" viewBox="0 0 24 24"
+                        stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.25 18.75a2.25 2.25 0 11-4.5 0" />
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M18.75 9.75a6.75 6.75 0 10-13.5 0c0 2.18-.67 3.84-1.3 4.92-.33.57-.39.74-.38.95.01.24.08.37.23.49.16.27.46.27 1.08.27h13.96c.62 0 .91 0 1.06-.12.15-.12.23-.25.24-.49.01-.21-.05-.38-.38-.95-.63-1.08-1.3-2.74-1.3-4.92z" />
                     </svg>
 
-                    <!-- Profile -->
-                    <img src="https://i.pravatar.cc/40?img=47"
-                        class="w-10 h-10 rounded-full border border-gray-300 cursor-pointer">
-                </div>
-            </div>
-
-
-            <!-- TOP 6 CARDS -->
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
-
-                <!-- Farmers -->
-                <div class="p-6 bg-white rounded-xl shadow-sm border border-gray-100">
-                    <div class="text-sm text-gray-500 mb-1">เกษตรกรทั้งหมด</div>
-                    <div class="text-3xl font-bold text-gray-800">124</div>
-                </div>
-
-                <!-- Plots -->
-                <div class="p-6 bg-white rounded-xl shadow-sm border border-gray-100">
-                    <div class="text-sm text-gray-500 mb-1">แปลงทั้งหมด</div>
-                    <div class="text-3xl font-bold text-gray-800">312</div>
-                </div>
-
-                <!-- QGIS OK -->
-                <div class="p-6 bg-white rounded-xl shadow-sm border border-gray-100">
-                    <div class="text-sm text-gray-500 mb-1">แปลงผ่าน QGIS</div>
-                    <div class="text-3xl font-bold text-green-600">280</div>
-                </div>
-
-                <!-- QGIS FAIL -->
-                <div class="p-6 bg-white rounded-xl shadow-sm border border-gray-100">
-                    <div class="text-sm text-gray-500 mb-1">แปลงไม่ผ่าน QGIS</div>
-                    <div class="text-3xl font-bold text-red-600">32</div>
-                </div>
-
-                <!-- Over Quota -->
-                <div class="p-6 bg-white rounded-xl shadow-sm border border-gray-100">
-                    <div class="text-sm text-gray-500 mb-1">เกษตรเกินโควต้า (วันนี้)</div>
-                    <div class="text-3xl font-bold text-orange-500">3 ราย</div>
-                </div>
-
-                <!-- Receiving Today -->
-                <div class="p-6 bg-white rounded-xl shadow-sm border border-gray-100">
-                    <div class="text-sm text-gray-500 mb-1">Receiving วันนี้</div>
-                    <div class="text-3xl font-bold text-blue-600">2,480 kg</div>
+                    <img src="https://i.pravatar.cc/40?img=8"
+                        class="w-10 h-10 rounded-full border border-gray-300 cursor-pointer" />
                 </div>
 
             </div>
 
+            <!-- METRIC CARDS (TOP 6) ------------------------------------- -->
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-10">
 
-            <!-- SECOND ROW -->
-            <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                <div class="p-6 bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="text-sm text-gray-500">เกษตรกรทั้งหมด</div>
+                    <div class="text-3xl font-bold text-gray-800 mt-1">124</div>
+                </div>
 
-                <!-- Daily Receiving Chart -->
-                <div class="xl:col-span-2 bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-                    <div class="flex items-center justify-between mb-4">
+                <div class="p-6 bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="text-sm text-gray-500">จำนวนแปลง</div>
+                    <div class="text-3xl font-bold text-gray-800 mt-1">312</div>
+                </div>
+
+                <div class="p-6 bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="text-sm text-gray-500">แปลงผ่าน QGIS</div>
+                    <div class="text-3xl font-bold text-green-600 mt-1">280</div>
+                </div>
+
+                <div class="p-6 bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="text-sm text-gray-500">แปลงไม่ผ่าน QGIS</div>
+                    <div class="text-3xl font-bold text-red-600 mt-1">32</div>
+                </div>
+
+                <div class="p-6 bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="text-sm text-gray-500">เกินโควต้า (วันนี้)</div>
+                    <div class="text-3xl font-bold text-orange-500 mt-1">3 ราย</div>
+                </div>
+
+                <div class="p-6 bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="text-sm text-gray-500">Receiving วันนี้</div>
+                    <div class="text-3xl font-bold text-blue-600 mt-1">2,480 kg</div>
+                </div>
+
+            </div>
+
+            <!-- ROW 2: GRAPH + GIS SUMMARY ------------------------------- -->
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-10">
+
+                <!-- Chart -->
+                <div class="xl:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="flex justify-between mb-4">
                         <h2 class="text-xl font-semibold text-gray-800">Receiving รายวัน</h2>
                         <span class="text-sm text-gray-500">30 วันล่าสุด</span>
                     </div>
-
                     <div class="bg-blue-50 h-56 rounded-xl flex items-center justify-center text-blue-700 font-medium">
-                        [ GRAPH PREVIEW ]
+                        [GRAPH PREVIEW]
                     </div>
                 </div>
 
-                <!-- GIS Compliance -->
-                <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-                    <h2 class="text-xl font-semibold text-gray-800 mb-4">GIS Compliance</h2>
+                <!-- GIS -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-800">GIS Compliance</h2>
 
                     <ul class="space-y-3 text-gray-700">
-                        <li class="flex justify-between">
-                            <span class="text-green-600">OK</span> <span>280</span>
-                        </li>
-                        <li class="flex justify-between">
-                            <span class="text-red-600">FAIL</span> <span>32</span>
-                        </li>
-                        <li class="flex justify-between">
-                            <span class="text-orange-500">RISK</span> <span>12</span>
-                        </li>
+                        <li class="flex justify-between"><span class="text-green-600">OK</span><span>280</span></li>
+                        <li class="flex justify-between"><span class="text-red-600">FAIL</span><span>32</span></li>
+                        <li class="flex justify-between"><span class="text-orange-500">RISK</span><span>12</span></li>
                     </ul>
 
-                    <p class="mt-4 text-xs text-gray-500">
-                        Overlay ล่าสุด: 14 ก.พ. 2025
-                    </p>
+                    <p class="mt-4 text-xs text-gray-500">Overlay ล่าสุด: 14 ก.พ. 2025</p>
                 </div>
+
             </div>
 
-
-            <!-- THIRD ROW -->
-            <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mt-8">
+            <!-- ROW 3: ALERTS + ACTIVITIES ------------------------------- -->
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-10">
 
                 <!-- Alerts -->
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
@@ -323,24 +244,26 @@
 
                     <table class="min-w-full text-sm">
                         <tr class="border-b bg-gray-50">
-                            <th class="p-3 text-left font-medium">กิจกรรม</th>
-                            <th class="p-3 text-left font-medium">รายละเอียด</th>
-                            <th class="p-3 text-left font-medium">เวลา</th>
+                            <th class="p-3 text-left">กิจกรรม</th>
+                            <th class="p-3 text-left">รายละเอียด</th>
+                            <th class="p-3 text-left">เวลา</th>
                         </tr>
 
                         <tr class="border-b">
                             <td class="p-3">Receiving</td>
-                            <td class="p-3 text-gray-600">นำเข้า 420 kg ของ นายสมชาย</td>
+                            <td class="p-3 text-gray-700">นำเข้า 420 kg ของ นายสมชาย</td>
                             <td class="p-3 text-gray-500">15 ก.พ. 2025 14:20</td>
                         </tr>
+
                         <tr class="border-b">
                             <td class="p-3">GIS Overlay</td>
-                            <td class="p-3 text-gray-600">Overlay แปลง 1200 แปลง</td>
+                            <td class="p-3 text-gray-700">Overlay แปลง 1200 แปลง</td>
                             <td class="p-3 text-gray-500">14 ก.พ. 2025 18:10</td>
                         </tr>
+
                         <tr>
-                            <td class="p-3">Import Data</td>
-                            <td class="p-3 text-gray-600">Initial Import (400 farmers)</td>
+                            <td class="p-3">Initial Import</td>
+                            <td class="p-3 text-gray-700">เพิ่มข้อมูลเกษตร 400 ราย</td>
                             <td class="p-3 text-gray-500">10 ก.พ. 2025</td>
                         </tr>
                     </table>
@@ -348,15 +271,15 @@
 
             </div>
 
+            <!-- QUICK ACTIONS -------------------------------------------- -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">เมนูลัด</h2>
 
-            <!-- QUICK ACTIONS -->
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mt-8">
-                <h2 class="text-xl font-semibold mb-4 text-gray-800">เมนูลัด</h2>
-
-                <div class="flex gap-4 flex-wrap">
+                <div class="flex flex-wrap gap-4">
                     <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">+
                         เพิ่มเกษตรกร</button>
-                    <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">+ เพิ่มแปลง</button>
+                    <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">+
+                        เพิ่มแปลง</button>
                     <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">📄 นำเข้า
                         Receiving</button>
                     <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">⬇ Export
@@ -368,455 +291,1569 @@
 
         </div>
 
-
+        <!-- ********************************************************************
+             PART 2 — FARMER MODULE (FULL PAGES)
+        ********************************************************************* -->
 
         <!-- ---------------------------------------------------------
-        FARMER
+             FARMER LIST
         --------------------------------------------------------- -->
         <div class="page" id="farmer">
-            <h1>Farmer Management</h1>
 
-            <div class="box">
-                <button>+ เพิ่มเกษตรกร</button>
+            <h1 class="text-2xl font-bold mb-6">Farmer Management</h1>
 
-                <table>
-                    <tr>
-                        <th>ชื่อ</th>
-                        <th>เบอร์</th>
-                        <th>จังหวัด</th>
-                        <th></th>
+            <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-semibold">รายชื่อเกษตรกร</h2>
+                    <button onclick="show('farmerCreate')"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        + เพิ่มเกษตรกร
+                    </button>
+                </div>
+
+                <table class="min-w-full">
+                    <tr class="bg-gray-50 border-b">
+                        <th class="p-3 text-left">ชื่อ</th>
+                        <th class="p-3 text-left">เบอร์</th>
+                        <th class="p-3 text-left">จังหวัด</th>
+                        <th class="p-3 text-left">แปลง</th>
+                        <th class="p-3"></th>
                     </tr>
-                    <tr>
-                        <td>นายสมชาย</td>
-                        <td>089-1234567</td>
-                        <td>ตรัง</td>
-                        <td><button class="gray" onclick="show('farmerDetail')">รายละเอียด</button></td>
+
+                    <tr class="border-b">
+                        <td class="p-3">นายสมชาย</td>
+                        <td class="p-3 text-gray-600">089-1234567</td>
+                        <td class="p-3">ตรัง</td>
+                        <td class="p-3">5</td>
+                        <td class="p-3">
+                            <button onclick="show('farmerDetail')"
+                                class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">รายละเอียด</button>
+                        </td>
                     </tr>
+
                 </table>
+
             </div>
         </div>
 
-        <!-- FARMER DETAIL -->
-        <div class="page" id="farmerDetail">
-            <h1>Farmer Detail – นายสมชาย</h1>
-
-            <div class="tabs">
-                <div id="f-info-tab" class="farmer-tab active" onclick="showTab('farmer','f-info')">ข้อมูล</div>
-                <div id="f-plots-tab" class="farmer-tab" onclick="showTab('farmer','f-plots')">แปลง</div>
-                <div id="f-recv-tab" class="farmer-tab" onclick="showTab('farmer','f-recv')">Receiving</div>
-                <div id="f-doc-tab" class="farmer-tab" onclick="showTab('farmer','f-doc')">เอกสาร</div>
-            </div>
-
-            <div id="f-info" class="farmer-content box" style="display:block;">
-                <h2>ข้อมูลเกษตร</h2>
-                <p>ชื่อ: นายสมชาย</p>
-                <p>เบอร์โทร: 089-1234567</p>
-                <p>จังหวัด: ตรัง</p>
-            </div>
-
-            <div id="f-plots" class="farmer-content box">
-                <h2>แปลงทั้งหมด</h2>
-                <table>
-                    <tr>
-                        <th>Plot</th>
-                        <th>ไร่</th>
-                        <th>QGIS</th>
-                    </tr>
-                    <tr>
-                        <td>P-A12</td>
-                        <td>8</td>
-                        <td style="color:green">OK</td>
-                    </tr>
-                </table>
-            </div>
-
-            <div id="f-recv" class="farmer-content box">
-                <h2>Receiving History</h2>
-                <table>
-                    <tr>
-                        <th>Date</th>
-                        <th>Weight</th>
-                    </tr>
-                    <tr>
-                        <td>15/2/2025</td>
-                        <td>420 kg</td>
-                    </tr>
-                </table>
-            </div>
-
-            <div id="f-doc" class="farmer-content box">
-                <h2>เอกสารเกษตรกร</h2>
-                <p>ยังไม่มีข้อมูล</p>
-            </div>
-        </div>
 
         <!-- ---------------------------------------------------------
-        PLOT
+        FARMER CREATE
         --------------------------------------------------------- -->
-        <div class="page" id="plot">
-            <h1>Plot Management</h1>
+        <div class="page" id="farmerCreate">
 
-            <div class="box">
-                <button>+ เพิ่มแปลง</button>
-                <table>
-                    <tr>
-                        <th>Plot</th>
-                        <th>ไร่</th>
-                        <th>Doc</th>
-                        <th>QGIS</th>
-                        <th></th>
-                    </tr>
-                    <tr>
-                        <td>P-A12</td>
-                        <td>8</td>
-                        <td>นส.3ก</td>
-                        <td style="color:green;">OK</td>
-                        <td><button class="gray" onclick="show('plotDetail')">รายละเอียด</button></td>
-                    </tr>
-                </table>
+            <h1 class="text-2xl font-bold mb-6">เพิ่มเกษตรกรใหม่</h1>
+
+            <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+
+                <div class="mb-4">
+                    <label class="font-semibold">ชื่อเกษตรกร</label>
+                    <input type="text" class="w-full px-3 py-2 border rounded mt-1" placeholder="เช่น นายสมชาย">
+                </div>
+
+                <div class="mb-4">
+                    <label class="font-semibold">เบอร์โทร</label>
+                    <input type="text" class="w-full px-3 py-2 border rounded mt-1" placeholder="089-xxxxxxx">
+                </div>
+
+                <div class="mb-4">
+                    <label class="font-semibold">จังหวัด</label>
+                    <input type="text" class="w-full px-3 py-2 border rounded mt-1" placeholder="จังหวัด">
+                </div>
+
+                <div class="mb-4">
+                    <label class="font-semibold">หมายเหตุ</label>
+                    <textarea class="w-full px-3 py-2 border rounded mt-1" rows="3"></textarea>
+                </div>
+
+                <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    💾 บันทึก
+                </button>
+
+                <button class="px-4 py-2 bg-gray-300 rounded-lg ml-2" onclick="show('farmer')">
+                    ยกเลิก
+                </button>
+
             </div>
         </div>
 
-        <!-- PLOT DETAIL -->
+
+
+
+        <!-- ---------------------------------------------------------
+             FARMER DETAIL + TABS
+        --------------------------------------------------------- -->
+        <div class="page" id="farmerDetail">
+
+            <h1 class="text-2xl font-bold mb-6">Farmer Detail – นายสมชาย</h1>
+
+            <!-- TABS -->
+            <div class="flex gap-6 border-b mb-6">
+                <div id="f-info-tab" class="farmer-tab tab-active pb-3 cursor-pointer"
+                    onclick="showTab('farmer','f-info')">ข้อมูล</div>
+
+                <div id="f-plots-tab" class="farmer-tab pb-3 cursor-pointer" onclick="showTab('farmer','f-plots')">แปลง
+                </div>
+
+                <div id="f-recv-tab" class="farmer-tab pb-3 cursor-pointer" onclick="showTab('farmer','f-recv')">
+                    Receiving</div>
+
+                <div id="f-doc-tab" class="farmer-tab pb-3 cursor-pointer" onclick="showTab('farmer','f-doc')">เอกสาร
+                </div>
+
+                <div id="f-buyer-tab" class="farmer-tab pb-3 cursor-pointer" onclick="showTab('farmer','f-buyer')">Buyer
+                </div>
+
+                <div id="f-hist-tab" class="farmer-tab pb-3 cursor-pointer" onclick="showTab('farmer','f-history')">
+                    ประวัติแก้ไข</div>
+            </div>
+
+            <!-- TAB: INFO -->
+            <div id="f-info" class="farmer-content box" style="display:block;">
+                <h2 class="font-semibold mb-4">ข้อมูลเกษตรกร</h2>
+
+                <p><b>ชื่อ:</b> นายสมชาย</p>
+                <p><b>เบอร์:</b> 089-1234567</p>
+                <p><b>จังหวัด:</b> ตรัง</p>
+                <p><b>Buyer ปัจจุบัน:</b> จุดรับซื้อ A</p>
+
+                <button onclick="show('farmerEdit')"
+                    class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    ✏️ แก้ไขข้อมูล
+                </button>
+            </div>
+
+
+
+            <!-- TAB: PLOTS -->
+            <div id="f-plots" class="farmer-content box" style="display:none;">
+                <h2 class="font-semibold mb-4">แปลงทั้งหมด</h2>
+
+                <table class="min-w-full">
+                    <tr class="bg-gray-50 border-b">
+                        <th class="p-3">Plot</th>
+                        <th class="p-3">ไร่</th>
+                        <th class="p-3">QGIS</th>
+                        <th class="p-3"></th>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">P-A12</td>
+                        <td class="p-3">8</td>
+                        <td class="p-3 text-green-600">OK</td>
+                        <td class="p-3">
+                            <button onclick="show('plotDetail')"
+                                class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">เปิดดู</button>
+                        </td>
+                    </tr>
+
+                </table>
+
+                <button class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    + เพิ่มแปลงใหม่ให้เกษตรกรนี้
+                </button>
+            </div>
+
+
+            <!-- TAB: RECEIVING -->
+            <div id="f-recv" class="farmer-content box" style="display:none;">
+                <h2 class="font-semibold mb-4">ประวัติ Receiving</h2>
+
+                <table class="min-w-full">
+                    <tr class="bg-gray-50 border-b">
+                        <th class="p-3">วันที่</th>
+                        <th class="p-3">น้ำหนัก</th>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">15/2/2025</td>
+                        <td class="p-3">420 kg</td>
+                    </tr>
+                </table>
+            </div>
+
+
+            <!-- TAB: DOCUMENT -->
+            <div id="f-doc" class="farmer-content box" style="display:none;">
+                <h2 class="font-semibold mb-4">เอกสารเกษตร</h2>
+
+                <p class="text-gray-500">ยังไม่มีเอกสาร</p>
+            </div>
+
+
+            <!-- TAB: BUYER LINK -->
+            <div id="f-buyer" class="farmer-content box" style="display:none;">
+                <h2 class="font-semibold mb-4">Buyer ที่เกษตรกรนี้ถูกผูก</h2>
+
+                <p class="text-gray-700"><b>Buyer ปัจจุบัน:</b> จุดรับซื้อ A</p>
+
+                <button class="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                    🔗 เปลี่ยน Buyer
+                </button>
+
+                <h3 class="mt-6 font-semibold">ประวัติ Buyer ที่เคยผูก</h3>
+
+                <table class="min-w-full mt-3">
+                    <tr class="bg-gray-50 border-b">
+                        <th class="p-3">เวลา</th>
+                        <th class="p-3">Buyer</th>
+                        <th class="p-3">เหตุผล</th>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">10/02/2025</td>
+                        <td class="p-3">Buyer A</td>
+                        <td class="p-3">ผูกครั้งแรก</td>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">01/01/2025</td>
+                        <td class="p-3">Buyer B</td>
+                        <td class="p-3">โยกย้ายจุดรับซื้อ</td>
+                    </tr>
+                </table>
+            </div>
+
+
+
+            <!-- TAB: HISTORY -->
+            <div id="f-history" class="farmer-content box" style="display:none;">
+                <h2 class="font-semibold mb-4">ประวัติการแก้ไขข้อมูล</h2>
+
+                <table class="min-w-full">
+                    <tr class="bg-gray-50 border-b">
+                        <th class="p-3">เวลา</th>
+                        <th class="p-3">รายการ</th>
+                        <th class="p-3">ผู้ทำรายการ</th>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">12/2/2025 10:15</td>
+                        <td class="p-3">แก้ไขหมายเหตุเกษตรกร</td>
+                        <td class="p-3">admin</td>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">10/2/2025 09:00</td>
+                        <td class="p-3">สร้างข้อมูลเกษตรกร</td>
+                        <td class="p-3">admin</td>
+                    </tr>
+
+                </table>
+            </div>
+
+        </div>
+
+
+        <!-- ---------------------------------------------------------
+             FARMER EDIT
+        --------------------------------------------------------- -->
+        <div class="page" id="farmerEdit">
+
+            <h1 class="text-2xl font-bold mb-6">แก้ไขข้อมูลเกษตรกร – นายสมชาย</h1>
+
+            <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+
+                <div class="mb-4">
+                    <label class="font-semibold">ชื่อเกษตรกร</label>
+                    <input type="text" class="w-full px-3 py-2 border rounded mt-1" value="นายสมชาย">
+                </div>
+
+                <div class="mb-4">
+                    <label class="font-semibold">เบอร์โทร</label>
+                    <input type="text" class="w-full px-3 py-2 border rounded mt-1" value="089-1234567">
+                </div>
+
+                <div class="mb-4">
+                    <label class="font-semibold">จังหวัด</label>
+                    <input type="text" class="w-full px-3 py-2 border rounded mt-1" value="ตรัง">
+                </div>
+
+                <div class="mb-4">
+                    <label class="font-semibold">หมายเหตุ</label>
+                    <textarea class="w-full px-3 py-2 border rounded mt-1" rows="3">-</textarea>
+                </div>
+
+                <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    💾 บันทึก
+                </button>
+
+                <button class="px-4 py-2 bg-gray-300 rounded-lg ml-2" onclick="show('farmerDetail')">
+                    ย้อนกลับ
+                </button>
+
+            </div>
+        </div>
+
+        <!-- FARMER BUYER HISTORY -->
+        <div id="f-hbuyer" class="farmer-content box">
+            <h2>ประวัติ Buyer ที่ผูก</h2>
+
+            <table>
+                <tr>
+                    <th>เวลา</th>
+                    <th>Buyer</th>
+                    <th>เหตุผล</th>
+                </tr>
+
+                <tr>
+                    <td>10/02/2025</td>
+                    <td>Buyer A</td>
+                    <td>ผูกครั้งแรก</td>
+                </tr>
+
+                <tr>
+                    <td>01/01/2025</td>
+                    <td>Buyer B</td>
+                    <td>โยกย้ายจุดรับซื้อ</td>
+                </tr>
+            </table>
+        </div>
+
+
+        <!-- ********************************************************************
+             PART 3 — PLOT MODULE (FULL EXPANDED)
+        ********************************************************************* -->
+
+        <!-- ---------------------------------------------------------
+             PLOT LIST
+        --------------------------------------------------------- -->
+        <div class="page" id="plot">
+
+            <h1 class="text-2xl font-bold mb-6">Plot Management</h1>
+
+            <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-semibold">รายชื่อแปลง</h2>
+
+                    <button onclick="show('plotCreate')"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        + เพิ่มแปลงใหม่
+                    </button>
+                </div>
+
+                <table class="min-w-full">
+                    <tr class="bg-gray-50 border-b">
+                        <th class="p-3">Plot</th>
+                        <th class="p-3">เกษตรกร</th>
+                        <th class="p-3">พื้นที่ (ไร่)</th>
+                        <th class="p-3">Doc</th>
+                        <th class="p-3">QGIS</th>
+                        <th class="p-3"></th>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">P-A12</td>
+                        <td class="p-3">นายสมชาย</td>
+                        <td class="p-3">8</td>
+                        <td class="p-3">นส.3ก</td>
+                        <td class="p-3 text-green-600">OK</td>
+                        <td class="p-3">
+                            <button onclick="show('plotDetail')"
+                                class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">รายละเอียด</button>
+                        </td>
+                    </tr>
+
+                </table>
+
+            </div>
+        </div>
+
+
+        <!-- ---------------------------------------------------------
+             PLOT CREATE
+        --------------------------------------------------------- -->
+        <div class="page" id="plotCreate">
+
+            <h1 class="text-2xl font-bold mb-6">เพิ่มแปลงใหม่</h1>
+
+            <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+
+                <div class="mb-4">
+                    <label class="font-semibold">รหัสแปลง (Plot Code)</label>
+                    <input type="text" class="w-full px-3 py-2 border rounded mt-1" placeholder="เช่น P-A12">
+                </div>
+
+                <div class="mb-4">
+                    <label class="font-semibold">เลือกเกษตรกรเจ้าของแปลง</label>
+                    <select class="w-full px-3 py-2 border rounded mt-1">
+                        <option>นายสมชาย</option>
+                        <option>นางสำราญ</option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label class="font-semibold">พื้นที่ (ไร่)</label>
+                    <input type="number" class="w-full px-3 py-2 border rounded mt-1" placeholder="เช่น 8">
+                </div>
+
+                <div class="mb-4">
+                    <label class="font-semibold">ประเภทเอกสารสิทธิ์</label>
+                    <select class="w-full px-3 py-2 border rounded mt-1">
+                        <option>นส.3ก</option>
+                        <option>โฉนด</option>
+                        <option>สปก</option>
+                    </select>
+                </div>
+
+                <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    💾 บันทึก
+                </button>
+
+                <button class="px-4 py-2 bg-gray-300 rounded-lg ml-2" onclick="show('plot')">ยกเลิก</button>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ---------------------------------------------------------
+             PLOT DETAIL (BIG MODULE)
+        --------------------------------------------------------- -->
         <div class="page" id="plotDetail">
-            <h1>Plot Detail – P-A12</h1>
 
-            <div class="tabs">
-                <div id="p-info-tab" class="plot-tab active" onclick="showTab('plot','p-info')">ข้อมูล</div>
-                <div id="p-map-tab" class="plot-tab" onclick="showTab('plot','p-map')">แผนที่</div>
-                <div id="p-doc-tab" class="plot-tab" onclick="showTab('plot','p-doc')">เอกสาร</div>
-                <div id="p-gis-tab" class="plot-tab" onclick="showTab('plot','p-gis')">GIS Result</div>
-                <div id="p-recv-tab" class="plot-tab" onclick="showTab('plot','p-recv')">Receiving Split</div>
-                <div id="p-hdoc-tab" class="plot-tab" onclick="showTab('plot','p-hdoc')">Document History</div>
-                <div id="p-hgis-tab" class="plot-tab" onclick="showTab('plot','p-hgis')">GIS History</div>
-                <div id="p-hgeo-tab" class="plot-tab" onclick="showTab('plot','p-hgeo')">Geometry History</div>
+            <h1 class="text-2xl font-bold mb-6">Plot Detail – P-A12</h1>
+
+            <!-- TABS -->
+            <div class="flex gap-6 border-b mb-6">
+
+                <div id="p-info-tab" class="plot-tab tab-active pb-3 cursor-pointer" onclick="showTab('plot','p-info')">
+                    ข้อมูล</div>
+
+                <div id="p-map-tab" class="plot-tab pb-3 cursor-pointer" onclick="showTab('plot','p-map')">แผนที่</div>
+
+                <div id="p-doc-tab" class="plot-tab pb-3 cursor-pointer" onclick="showTab('plot','p-doc')">เอกสาร</div>
+
+                <div id="p-gis-tab" class="plot-tab pb-3 cursor-pointer" onclick="showTab('plot','p-gis')">GIS Result
+                </div>
+
+                <div id="p-recv-tab" class="plot-tab pb-3 cursor-pointer" onclick="showTab('plot','p-recv')">Receiving
+                    Split</div>
+
+                <div id="p-hdoc-tab" class="plot-tab pb-3 cursor-pointer" onclick="showTab('plot','p-hdoc')">Document
+                    History</div>
+
+                <div id="p-hgis-tab" class="plot-tab pb-3 cursor-pointer" onclick="showTab('plot','p-hgis')">GIS History
+                </div>
+
+                <div id="p-hgeo-tab" class="plot-tab pb-3 cursor-pointer" onclick="showTab('plot','p-hgeo')">Geometry
+                    History</div>
 
             </div>
 
+
+            <!-- TAB: INFO -->
             <div id="p-info" class="plot-content box" style="display:block;">
-                <h2>ข้อมูลแปลง</h2>
-                <p>พื้นที่: 8 ไร่</p>
-                <p>ประเภทเอกสาร: นส.3ก</p>
+                <h2 class="font-semibold mb-4">ข้อมูลแปลง</h2>
+
+                <p><b>Plot:</b> P-A12</p>
+                <p><b>เจ้าของ:</b> นายสมชาย</p>
+                <p><b>พื้นที่:</b> 8 ไร่</p>
+                <p><b>ประเภทเอกสาร:</b> นส.3ก</p>
+
+                <button onclick="show('plotEdit')"
+                    class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    ✏️ แก้ไขข้อมูลแปลง
+                </button>
             </div>
 
-            <div id="p-map" class="plot-content box">
-                <h2>แผนที่</h2>
-                <div
-                    style="background:#dbeafe;height:250px;border-radius:12px;display:flex;align-items:center;justify-content:center;">
-                    [ MAP MOCK ]
+
+
+            <!-- TAB: MAP -->
+            <div id="p-map" class="plot-content box" style="display:none;">
+                <h2 class="font-semibold mb-4">แผนที่แปลง</h2>
+
+                <div class="bg-blue-50 h-64 rounded-xl flex items-center justify-center text-blue-700">
+                    [ MAP PREVIEW ]
+                </div>
+
+                <button class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    อัปโหลด Geometry ใหม่
+                </button>
+            </div>
+
+
+
+            <!-- TAB: DOCUMENT -->
+            <div id="p-doc" class="plot-content box" style="display:none;">
+                <h2 class="font-semibold mb-4">เอกสารแปลง (ปีล่าสุด)</h2>
+
+                <table class="min-w-full">
+                    <tr class="bg-gray-50 border-b">
+                        <th class="p-3">ปี</th>
+                        <th class="p-3">ประเภทเอกสาร</th>
+                        <th class="p-3">ไฟล์</th>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">2568</td>
+                        <td class="p-3">นส.3ก</td>
+                        <td class="p-3"><button class="px-3 py-1 bg-gray-200 rounded">📄 ดูไฟล์</button></td>
+                    </tr>
+                </table>
+
+                <button class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    + อัปโหลดเอกสาร
+                </button>
+            </div>
+
+
+
+            <!-- TAB: GIS RESULT -->
+            <div id="p-gis" class="plot-content box" style="display:none;">
+                <h2 class="font-semibold mb-4">ผลการตรวจสอบ GIS ล่าสุด</h2>
+
+                <p><b>สถานะ:</b> <span class="text-green-600">OK</span></p>
+                <p><b>หมายเหตุ:</b> -</p>
+
+                <button class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    อัปโหลดผล GIS ใหม่
+                </button>
+            </div>
+
+
+
+            <!-- TAB: RECEIVING SPLIT -->
+            <div id="p-recv" class="plot-content box" style="display:none;">
+                <h2 class="font-semibold mb-4">Receiving Split</h2>
+
+                <table class="min-w-full">
+                    <tr class="bg-gray-50 border-b">
+                        <th class="p-3">วันที่</th>
+                        <th class="p-3">น้ำหนัก</th>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">15/2/2025</td>
+                        <td class="p-3">280 kg</td>
+                    </tr>
+
+                </table>
+            </div>
+
+
+
+            <!-- TAB: DOCUMENT HISTORY -->
+            <div id="p-hdoc" class="plot-content box" style="display:none;">
+                <h2 class="font-semibold mb-4">Document History</h2>
+
+                <table class="min-w-full">
+                    <tr class="bg-gray-50 border-b">
+                        <th class="p-3">ปี</th>
+                        <th class="p-3">ประเภทเอกสาร</th>
+                        <th class="p-3">ไฟล์</th>
+                        <th class="p-3">สถานะ</th>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">2568</td>
+                        <td class="p-3">นส.3ก</td>
+                        <td class="p-3"><button class="px-3 py-1 bg-gray-200 rounded">📄 ดูไฟล์</button></td>
+                        <td class="p-3 text-green-600">ล่าสุด</td>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">2567</td>
+                        <td class="p-3">นส.3ก</td>
+                        <td class="p-3"><button class="px-3 py-1 bg-gray-200 rounded">📄 ดูไฟล์</button></td>
+                        <td class="p-3">ประวัติ</td>
+                    </tr>
+                </table>
+            </div>
+
+
+
+            <!-- TAB: GIS HISTORY -->
+            <div id="p-hgis" class="plot-content box" style="display:none;">
+                <h2 class="font-semibold mb-4">GIS Overlay History</h2>
+
+                <table class="min-w-full">
+                    <tr class="bg-gray-50 border-b">
+                        <th class="p-3">ปี</th>
+                        <th class="p-3">สถานะ</th>
+                        <th class="p-3">หมายเหตุ</th>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">2568</td>
+                        <td class="p-3 text-red-600">FAIL</td>
+                        <td class="p-3">ทับเขตป่าคุ้มครอง (ปีใหม่)</td>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">2567</td>
+                        <td class="p-3 text-green-600">OK</td>
+                        <td class="p-3">-</td>
+                    </tr>
+                </table>
+            </div>
+
+
+
+            <!-- TAB: GEOMETRY HISTORY -->
+            <div id="p-hgeo" class="plot-content box" style="display:none;">
+                <h2 class="font-semibold mb-4">Geometry / Area History</h2>
+
+                <table class="min-w-full">
+                    <tr class="bg-gray-50 border-b">
+                        <th class="p-3">ปี</th>
+                        <th class="p-3">พื้นที่ (ไร่)</th>
+                        <th class="p-3">การเปลี่ยนแปลง</th>
+                        <th class="p-3">แหล่งข้อมูล</th>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">2568</td>
+                        <td class="p-3">8</td>
+                        <td class="p-3">อัปเดตเอกสาร</td>
+                        <td class="p-3">เอกสารปี 2568</td>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">2567</td>
+                        <td class="p-3">7.5</td>
+                        <td class="p-3">ข้อมูลเดิม</td>
+                        <td class="p-3">เอกสารปี 2567</td>
+                    </tr>
+                </table>
+            </div>
+
+        </div>
+
+
+
+        <!-- ---------------------------------------------------------
+             PLOT EDIT
+        --------------------------------------------------------- -->
+        <div class="page" id="plotEdit">
+
+            <h1 class="text-2xl font-bold mb-6">แก้ไขข้อมูลแปลง – P-A12</h1>
+
+            <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+
+                <div class="mb-4">
+                    <label class="font-semibold">พื้นที่ (ไร่)</label>
+                    <input type="number" class="w-full px-3 py-2 border rounded mt-1" value="8">
+                </div>
+
+                <div class="mb-4">
+                    <label class="font-semibold">ประเภทเอกสาร</label>
+                    <select class="w-full px-3 py-2 border rounded mt-1">
+                        <option selected>นส.3ก</option>
+                        <option>โฉนด</option>
+                        <option>สปก</option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label class="font-semibold">หมายเหตุ</label>
+                    <textarea class="w-full px-3 py-2 border rounded mt-1" rows="3">-</textarea>
+                </div>
+
+                <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    💾 บันทึก
+                </button>
+
+                <button class="px-4 py-2 bg-gray-300 rounded-lg ml-2" onclick="show('plotDetail')">
+                    ย้อนกลับ
+                </button>
+
+            </div>
+        </div>
+
+        <!-- ********************************************************************
+             PART 4 — GIS MODULE + RECEIVING WIZARD
+        ********************************************************************* -->
+
+        <!-- ---------------------------------------------------------
+             GIS PROCESSING (MODULE)
+        --------------------------------------------------------- -->
+        <div class="page" id="gis">
+
+            <h1 class="text-2xl font-bold mb-6">GIS Processing</h1>
+
+            <!-- GIS ACTIONS -->
+            <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm mb-6">
+
+                <h2 class="text-lg font-semibold mb-3">เครื่องมือ GIS</h2>
+
+                <div class="flex gap-4 mb-4">
+
+                    <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        ⬇ Export Polygon (GeoJSON)
+                    </button>
+
+                    <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        ⬆ Import Overlay Result (CSV/GeoJSON)
+                    </button>
+
+                </div>
+
+                <p class="text-sm text-gray-600">
+                    ใช้เพื่อทำ Overlay กับเขตป่าคุ้มครอง / เขตเสี่ยง / ข้อมูล Spatial อื่น ๆ
+                </p>
+
+            </div>
+
+
+            <!-- GIS RESULT TABLE -->
+            <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+
+                <h2 class="text-lg font-semibold mb-4">ผลการ Overlay ล่าสุด</h2>
+
+                <table class="min-w-full">
+                    <tr class="bg-gray-50 border-b">
+                        <th class="p-3">Plot</th>
+                        <th class="p-3">Status</th>
+                        <th class="p-3">Note</th>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">P-A12</td>
+                        <td class="p-3 text-green-600">OK</td>
+                        <td class="p-3">-</td>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">P-B09</td>
+                        <td class="p-3 text-red-600">FAIL</td>
+                        <td class="p-3">ทับเขตป่าคุ้มครอง</td>
+                    </tr>
+
+                </table>
+
+                <p class="text-xs text-gray-500 mt-4">อัปเดตล่าสุด: 14 ก.พ. 2025</p>
+
+            </div>
+
+        </div>
+
+
+        <!-- ---------------------------------------------------------
+             RECEIVING WIZARD (STEP 1–5)
+        --------------------------------------------------------- -->
+        <div class="page" id="receiving">
+
+            <h1 class="text-2xl font-bold mb-6">Receiving – Step Wizard</h1>
+
+
+            <!-- STEP 1: IMPORT EXCEL -->
+            <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm mb-6">
+
+                <h2 class="text-lg font-semibold mb-3">Step 1: Import Excel</h2>
+
+                <p class="text-gray-600 mb-3">
+                    อัปโหลดไฟล์ Excel ที่มีข้อมูลรับซื้อ (ชั่งน้ำหนักจากจุดรับซื้อ)
+                </p>
+
+                <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    📄 Upload Excel
+                </button>
+
+                <p class="text-xs text-gray-500 mt-2">รองรับไฟล์ .xls, .xlsx</p>
+
+            </div>
+
+
+
+            <!-- STEP 2: MATCH FARMER -->
+            <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm mb-6">
+
+                <h2 class="text-lg font-semibold mb-3">Step 2: Match Farmer</h2>
+
+                <p class="text-gray-600 mb-3">จับคู่ชื่อเกษตรใน Excel → เกษตรในระบบ</p>
+
+                <table class="min-w-full">
+                    <tr class="bg-gray-50 border-b">
+                        <th class="p-3">ชื่อ (จาก Excel)</th>
+                        <th class="p-3">Matched</th>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">นายสมชาย</td>
+                        <td class="p-3 text-green-600">✔</td>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">นายปรีชา</td>
+                        <td class="p-3 text-red-600">❌ ต้องเลือกเกษตร</td>
+                    </tr>
+
+                </table>
+
+            </div>
+
+
+
+            <!-- STEP 3: CALCULATE AREA & QUOTA -->
+            <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm mb-6">
+
+                <h2 class="text-lg font-semibold mb-3">Step 3: Calculate Area & Quota</h2>
+
+                <p class="text-gray-600 mb-3">
+                    ระบบรวมพื้นที่ → แล้วคำนวณโควต้าอัตโนมัติ
+                </p>
+
+                <table class="min-w-full">
+                    <tr class="bg-gray-50 border-b">
+                        <th class="p-3">Farmer</th>
+                        <th class="p-3">Total Area</th>
+                        <th class="p-3">Quota</th>
+                        <th class="p-3">Actual</th>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">นายสมชาย</td>
+                        <td class="p-3">12 ไร่</td>
+                        <td class="p-3">120 kg</td>
+                        <td class="p-3 text-red-600">420 kg</td>
+                    </tr>
+
+                </table>
+
+            </div>
+
+
+
+            <!-- STEP 4: SPLIT BY PLOT -->
+            <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm mb-6">
+
+                <h2 class="text-lg font-semibold mb-3">Step 4: Split by Plot</h2>
+
+                <p class="text-gray-600 mb-3">
+                    น้ำหนักรวมจะถูกกระจายไปตามแปลงตามสัดส่วนพื้นที่
+                </p>
+
+                <table class="min-w-full">
+                    <tr class="bg-gray-50 border-b">
+                        <th class="p-3">Plot</th>
+                        <th class="p-3">Area</th>
+                        <th class="p-3">Allocated</th>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">A12</td>
+                        <td class="p-3">8 ไร่</td>
+                        <td class="p-3">280 kg</td>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">A13</td>
+                        <td class="p-3">4 ไร่</td>
+                        <td class="p-3">140 kg</td>
+                    </tr>
+                </table>
+
+            </div>
+
+
+
+            <!-- STEP 5: SUMMARY -->
+            <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+
+                <h2 class="text-lg font-semibold mb-3">Step 5: Summary</h2>
+
+                <table class="min-w-full">
+                    <tr class="bg-gray-50 border-b">
+                        <th class="p-3">วันที่</th>
+                        <th class="p-3">เกษตรกร</th>
+                        <th class="p-3">Total</th>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">15/2/2025</td>
+                        <td class="p-3">นายสมชาย</td>
+                        <td class="p-3">420 kg</td>
+                    </tr>
+                </table>
+
+                <button class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    💾 Save Receiving
+                </button>
+
+            </div>
+
+        </div>
+
+        <!-- ********************************************************************
+             PART 5 — BUYER MODULE (LIST + CREATE + DETAIL)
+        ********************************************************************* -->
+
+
+        <!-- ---------------------------------------------------------
+             BUYER LIST
+        --------------------------------------------------------- -->
+        <div class="page" id="buyer">
+
+            <h1 class="text-2xl font-bold mb-6">Buyer Management</h1>
+
+            <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-semibold">รายชื่อจุดรับซื้อ</h2>
+
+                    <button onclick="navigate('buyerCreate')"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        + เพิ่มจุดรับซื้อ
+                    </button>
+                </div>
+
+                <table class="min-w-full">
+                    <tr class="bg-gray-50 border-b">
+                        <th class="p-3">ชื่อจุดรับซื้อ</th>
+                        <th class="p-3">ผู้ติดต่อ</th>
+                        <th class="p-3">จังหวัด</th>
+                        <th class="p-3">เกษตรที่ผูก</th>
+                        <th class="p-3"></th>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">จุดรับซื้อ A</td>
+                        <td class="p-3">นายพงศกร</td>
+                        <td class="p-3">ตรัง</td>
+                        <td class="p-3">42 ราย</td>
+                        <td class="p-3">
+                            <button class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                                onclick="navigate('buyerDetail')">
+                                รายละเอียด
+                            </button>
+                        </td>
+                    </tr>
+
+                </table>
+
+            </div>
+        </div>
+
+
+
+        <!-- ---------------------------------------------------------
+             BUYER CREATE
+        --------------------------------------------------------- -->
+        <div class="page" id="buyerCreate">
+
+            <h1 class="text-2xl font-bold mb-6">เพิ่มจุดรับซื้อใหม่</h1>
+
+            <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                    <div>
+                        <label class="block mb-1 text-sm">ชื่อจุดรับซื้อ</label>
+                        <input type="text" class="w-full border p-2 rounded" placeholder="ระบุชื่อจุดรับซื้อ">
+                    </div>
+
+                    <div>
+                        <label class="block mb-1 text-sm">ผู้ติดต่อ</label>
+                        <input type="text" class="w-full border p-2 rounded" placeholder="ชื่อผู้ติดต่อ">
+                    </div>
+
+                    <div>
+                        <label class="block mb-1 text-sm">เบอร์โทร</label>
+                        <input type="text" class="w-full border p-2 rounded" placeholder="เบอร์โทรศัพท์">
+                    </div>
+
+                    <div>
+                        <label class="block mb-1 text-sm">จังหวัด</label>
+                        <input type="text" class="w-full border p-2 rounded" placeholder="จังหวัด">
+                    </div>
+
+                </div>
+
+                <div class="mt-4">
+                    <label class="block mb-1 text-sm">หมายเหตุ</label>
+                    <textarea rows="3" class="w-full border p-2 rounded" placeholder="เพิ่มเติม (ถ้ามี)"></textarea>
+                </div>
+
+
+                <div class="mt-6 flex gap-3">
+                    <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        💾 บันทึก
+                    </button>
+
+                    <button class="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400" onclick="navigate('buyer')">
+                        กลับ
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+
+        <!-- ---------------------------------------------------------
+             BUYER DETAIL
+        --------------------------------------------------------- -->
+        <div class="page" id="buyerDetail">
+
+            <h1 class="text-2xl font-bold mb-6">Buyer Detail – จุดรับซื้อ A</h1>
+
+            <!-- TABS -->
+            <div class="tabs mb-4">
+                <div id="b-info-tab" class="buyer-tab active" onclick="showTab('buyer','b-info')">ข้อมูล</div>
+                <div id="b-farmers-tab" class="buyer-tab" onclick="showTab('buyer','b-farmers')">เกษตรที่ผูก</div>
+                <div id="b-recv-tab" class="buyer-tab" onclick="showTab('buyer','b-recv')">ประวัติ Receiving</div>
+                <div id="b-history-tab" class="buyer-tab" onclick="showTab('buyer','b-history')">ประวัติการเปลี่ยนแปลง
                 </div>
             </div>
 
-            <div id="p-doc" class="plot-content box">
-                <h2>เอกสารรายปี</h2>
-                <table>
-                    <tr>
-                        <th>ปี</th>
-                        <th>Doc</th>
-                    </tr>
-                    <tr>
-                        <td>2568</td>
-                        <td>นส.3ก</td>
-                    </tr>
-                </table>
+
+            <!-- BUYER INFO -->
+            <div id="b-info" class="buyer-content box" style="display:block;">
+
+                <h2 class="text-lg font-semibold mb-3">ข้อมูล Buyer</h2>
+
+                <p><b>ชื่อ:</b> จุดรับซื้อ A</p>
+                <p><b>ผู้ติดต่อ:</b> นายพงศกร</p>
+                <p><b>จังหวัด:</b> ตรัง</p>
+                <p><b>หมายเหตุ:</b> -</p>
+
             </div>
 
-            <div id="p-gis" class="plot-content box">
-                <h2>GIS Result</h2>
-                <p>สถานะ: <span style="color:green;">OK</span></p>
+
+            <!-- FARMERS LINKED -->
+            <div id="b-farmers" class="buyer-content box" style="display:none;">
+
+                <h2 class="text-lg font-semibold mb-3">เกษตรที่ผูกกับ Buyer นี้</h2>
+
+                <table class="min-w-full">
+                    <tr class="bg-gray-50 border-b">
+                        <th class="p-3">ชื่อเกษตรกร</th>
+                        <th class="p-3">เบอร์โทร</th>
+                        <th class="p-3">จำนวนแปลง</th>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">นายสมชาย</td>
+                        <td class="p-3">089-1234567</td>
+                        <td class="p-3">5 แปลง</td>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">นางสำราญ</td>
+                        <td class="p-3">081-888999</td>
+                        <td class="p-3">3 แปลง</td>
+                    </tr>
+
+                </table>
+
             </div>
 
-            <div id="p-recv" class="plot-content box">
-                <h2>Receiving Split</h2>
-                <table>
-                    <tr>
-                        <th>Date</th>
-                        <th>Weight</th>
+
+
+            <!-- RECEIVING HISTORY -->
+            <div id="b-recv" class="buyer-content box" style="display:none;">
+
+                <h2 class="text-lg font-semibold mb-3">ประวัติ Receiving ของ Buyer นี้</h2>
+
+                <table class="min-w-full">
+                    <tr class="bg-gray-50 border-b">
+                        <th class="p-3">วันที่</th>
+                        <th class="p-3">เกษตรกร</th>
+                        <th class="p-3">Weight</th>
                     </tr>
+
                     <tr>
-                        <td>15/2/2025</td>
-                        <td>280 kg</td>
+                        <td class="p-3">15/02/2025</td>
+                        <td class="p-3">นายสมชาย</td>
+                        <td class="p-3">420 kg</td>
                     </tr>
+
                 </table>
+
             </div>
+
         </div>
 
         <!-- ---------------------------------------------------------
-        GIS PROCESS
+             BUYER HISTORY
         --------------------------------------------------------- -->
-        <div class="page" id="gis">
-            <h1>GIS Processing</h1>
+        <div id="b-history" class="buyer-content box" style="display:none;">
 
-            <div class="box">
-                <button>⬇ Export Polygon</button>
-                <button>⬆ Import Overlay Result</button>
+            <h2 class="text-lg font-semibold mb-3">ประวัติการเปลี่ยนแปลง Buyer</h2>
 
-                <h2 style="margin-top:25px;">ผลการ Overlay</h2>
-                <table>
-                    <tr>
-                        <th>Plot</th>
-                        <th>Status</th>
-                        <th>Note</th>
-                    </tr>
-                    <tr>
-                        <td>P-A12</td>
-                        <td style="color:green;">OK</td>
-                        <td>-</td>
-                    </tr>
-                    <tr>
-                        <td>P-B09</td>
-                        <td style="color:red;">FAIL</td>
-                        <td>ทับเขตป่าคุ้มครอง</td>
-                    </tr>
-                </table>
+            <table class="min-w-full">
+                <tr class="bg-gray-50 border-b">
+                    <th class="p-3">เวลา</th>
+                    <th class="p-3">รายการ</th>
+                    <th class="p-3">โดย</th>
+                </tr>
+
+                <tr>
+                    <td class="p-3">15/02/2025 14:20</td>
+                    <td class="p-3">ผูก “นายสมชาย” เข้ากับ Buyer A</td>
+                    <td class="p-3">Admin1</td>
+                </tr>
+
+                <tr>
+                    <td class="p-3">14/02/2025 11:10</td>
+                    <td class="p-3">ยกเลิกผูก “นางสำราญ”</td>
+                    <td class="p-3">Admin2</td>
+                </tr>
+
+            </table>
+
+        </div>
+
+
+
+
+        <!-- ********************************************************************
+             PART 6 — PLOT VALIDATION CENTER
+        ********************************************************************* -->
+
+        <div class="page" id="plotValidation">
+
+            <h1 class="text-2xl font-bold mb-6">Plot Validation Center</h1>
+
+            <!-- FILTER BAR -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-6">
+
+                <h2 class="text-lg font-semibold mb-4">ตัวกรองการตรวจสอบ</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox" checked>
+                        ไม่มี Geometry
+                    </label>
+
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox" checked>
+                        ไม่มีเอกสารปีล่าสุด
+                    </label>
+
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox">
+                        เอกสารหมดอายุ
+                    </label>
+
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox" checked>
+                        QGIS = FAIL
+                    </label>
+
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox">
+                        อยู่ในเขตป่าคุ้มครอง
+                    </label>
+
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox">
+                        Receiving > Quota (ผิดปกติ)
+                    </label>
+
+                </div>
+
+                <button class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    🔍 ตรวจสอบแปลง
+                </button>
+
             </div>
+
+
+
+            <!-- RESULT TABLE -->
+            <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+
+                <h2 class="text-lg font-semibold mb-4">ผลการตรวจสอบแปลง</h2>
+
+                <table class="min-w-full">
+                    <tr class="bg-gray-50 border-b">
+                        <th class="p-3">Plot</th>
+                        <th class="p-3">Farmer</th>
+                        <th class="p-3">พื้นที่ (ไร่)</th>
+                        <th class="p-3">ปัญหา</th>
+                        <th class="p-3">Action</th>
+                    </tr>
+
+
+                    <!-- CASE 1: ไม่มี geometry -->
+                    <tr>
+                        <td class="p-3">P-001</td>
+                        <td class="p-3">นายสมชาย</td>
+                        <td class="p-3">7.5</td>
+
+                        <td class="p-3">
+                            <span class="px-2 py-1 rounded bg-red-100 text-red-700 text-sm">
+                                ไม่มี Geometry
+                            </span>
+                        </td>
+
+                        <td class="p-3">
+                            <button class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                                onclick="navigate('plotDetail')">
+                                ดูรายละเอียด
+                            </button>
+                        </td>
+                    </tr>
+
+
+                    <!-- CASE 2: ไม่มี document ปีล่าสุด -->
+                    <tr>
+                        <td class="p-3">P-019</td>
+                        <td class="p-3">นางสำราญ</td>
+                        <td class="p-3">9</td>
+
+                        <td class="p-3">
+                            <span class="px-2 py-1 rounded bg-orange-100 text-orange-700 text-sm">
+                                ไม่มีเอกสารปีล่าสุด
+                            </span>
+                        </td>
+
+                        <td class="p-3">
+                            <button class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                                onclick="navigate('plotDetail')">
+                                ดูรายละเอียด
+                            </button>
+                        </td>
+                    </tr>
+
+
+                    <!-- CASE 3: QGIS = FAIL -->
+                    <tr>
+                        <td class="p-3">P-044</td>
+                        <td class="p-3">นายปรีชา</td>
+                        <td class="p-3">5</td>
+
+                        <td class="p-3">
+                            <span class="px-2 py-1 rounded bg-red-100 text-red-700 text-sm">
+                                QGIS FAIL
+                            </span>
+                            <span class="px-2 py-1 rounded bg-yellow-100 text-yellow-700 text-sm ml-2">
+                                ทับเขตป่าคุ้มครอง
+                            </span>
+                        </td>
+
+                        <td class="p-3">
+                            <button class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                                onclick="navigate('plotDetail')">
+                                ดูรายละเอียด
+                            </button>
+                        </td>
+                    </tr>
+
+
+                    <!-- CASE 4: Receiving over quota -->
+                    <tr>
+                        <td class="p-3">P-083</td>
+                        <td class="p-3">นายอำนาจ</td>
+                        <td class="p-3">6</td>
+
+                        <td class="p-3">
+                            <span class="px-2 py-1 rounded bg-purple-100 text-purple-700 text-sm">
+                                น้ำหนักเกินพื้นที่ (ผิดปกติ)
+                            </span>
+                        </td>
+
+                        <td class="p-3">
+                            <button class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                                onclick="navigate('plotDetail')">
+                                ดูรายละเอียด
+                            </button>
+                        </td>
+                    </tr>
+
+                </table>
+
+            </div>
+
+        </div>
+
+        <!-- ********************************************************************
+             PART 7 — BUYER → FARMER LINK MANAGER
+        ********************************************************************* -->
+
+        <div class="page" id="buyerLinkManager">
+
+            <h1 class="text-2xl font-bold mb-6">Buyer → Farmer Link Manager</h1>
+
+            <!-- BUYER SELECTOR -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-6">
+
+                <label class="block font-semibold mb-2">เลือก Buyer:</label>
+
+                <select class="px-4 py-2 border rounded-lg w-full max-w-md">
+                    <option>จุดรับซื้อ A</option>
+                    <option>จุดรับซื้อ B</option>
+                    <option>จุดรับซื้อ C</option>
+                </select>
+
+                <p class="mt-2 text-gray-500 text-sm">
+                    เลือก Buyer เพื่อดูและจัดการเกษตรกรทั้งหมดที่ผูกอยู่
+                </p>
+            </div>
+
+
+
+            <!-- ASSIGNED FARMERS -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-8">
+
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold">เกษตรที่ผูกกับ Buyer</h2>
+
+                    <button class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                        ลบที่เลือก
+                    </button>
+                </div>
+
+                <table class="min-w-full mb-4 text-sm">
+                    <tr class="bg-gray-50 border-b">
+                        <th class="p-3"><input type="checkbox"></th>
+                        <th class="p-3">ชื่อเกษตรกร</th>
+                        <th class="p-3">เบอร์โทร</th>
+                        <th class="p-3">จำนวนแปลง</th>
+                        <th class="p-3">Action</th>
+                    </tr>
+
+                    <tr class="border-b">
+                        <td class="p-3"><input type="checkbox"></td>
+                        <td class="p-3">นายสมชาย</td>
+                        <td class="p-3">089-1234567</td>
+                        <td class="p-3">5 แปลง</td>
+                        <td class="p-3">
+                            <button class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">
+                                ดูรายละเอียด
+                            </button>
+                        </td>
+                    </tr>
+
+                    <tr class="border-b">
+                        <td class="p-3"><input type="checkbox"></td>
+                        <td class="p-3">นางสำราญ</td>
+                        <td class="p-3">081-888999</td>
+                        <td class="p-3">3 แปลง</td>
+                        <td class="p-3">
+                            <button class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">
+                                ดูรายละเอียด
+                            </button>
+                        </td>
+                    </tr>
+
+                </table>
+
+                <p class="text-gray-500 text-sm">รวมทั้งหมด: 2 ราย</p>
+            </div>
+
+
+
+            <!-- AVAILABLE FARMERS FOR ASSIGN -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-6">
+
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold">เพิ่มเกษตรเข้า Buyer</h2>
+
+                    <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        + เพิ่มที่เลือก
+                    </button>
+                </div>
+
+                <!-- SEARCH -->
+                <div class="mb-4">
+                    <input type="text" placeholder="ค้นหาเกษตรกร..." class="w-full px-4 py-2 border rounded-lg">
+                </div>
+
+                <table class="min-w-full text-sm">
+                    <tr class="bg-gray-50 border-b">
+                        <th class="p-3"><input type="checkbox"></th>
+                        <th class="p-3">ชื่อเกษตรกร</th>
+                        <th class="p-3">เบอร์โทร</th>
+                        <th class="p-3">จังหวัด</th>
+                        <th class="p-3">สถานะ</th>
+                    </tr>
+
+                    <tr class="border-b">
+                        <td class="p-3"><input type="checkbox"></td>
+                        <td class="p-3">นายอำนาจ</td>
+                        <td class="p-3">082-998877</td>
+                        <td class="p-3">พัทลุง</td>
+                        <td class="p-3 text-green-600">พร้อมผูก</td>
+                    </tr>
+
+                    <tr class="border-b">
+                        <td class="p-3"><input type="checkbox"></td>
+                        <td class="p-3">นายชัยวัฒน์</td>
+                        <td class="p-3">083-444555</td>
+                        <td class="p-3">สงขลา</td>
+                        <td class="p-3 text-gray-500">ถูกผูกอยู่แล้ว (Buyer B)</td>
+                    </tr>
+
+                </table>
+
+            </div>
+
         </div>
 
         <!-- ---------------------------------------------------------
-        RECEIVING (WIZARD PAGE)
-        -------------------------------------------------------- -->
-        <div class="page" id="receiving">
-            <h1>Receiving – Step Wizard</h1>
-
-            <div class="box">
-                <h2>Step 1: Import Excel</h2>
-                <button>📄 Upload Excel</button>
-            </div>
-
-            <div class="box">
-                <h2>Step 2: Match Farmer</h2>
-                <table>
-                    <tr>
-                        <th>Excel Name</th>
-                        <th>Matched</th>
-                    </tr>
-                    <tr>
-                        <td>นายสมชาย</td>
-                        <td style="color:green;">✔</td>
-                    </tr>
-                    <tr>
-                        <td>นายปรีชา</td>
-                        <td style="color:red;">❌ ต้องเลือกเกษตร</td>
-                    </tr>
-                </table>
-            </div>
-
-            <div class="box">
-                <h2>Step 3: Calculate Area & Quota</h2>
-                <table>
-                    <tr>
-                        <th>Farmer</th>
-                        <th>Total Area</th>
-                        <th>Quota</th>
-                        <th>Actual</th>
-                    </tr>
-                    <tr>
-                        <td>นายสมชาย</td>
-                        <td>12 ไร่</td>
-                        <td>120 kg</td>
-                        <td style="color:red;">420 kg</td>
-                    </tr>
-                </table>
-            </div>
-
-            <div class="box">
-                <h2>Step 4: Split by Plot</h2>
-                <table>
-                    <tr>
-                        <th>Plot</th>
-                        <th>Area</th>
-                        <th>Allocated</th>
-                    </tr>
-                    <tr>
-                        <td>A12</td>
-                        <td>8 ไร่</td>
-                        <td>280 kg</td>
-                    </tr>
-                    <tr>
-                        <td>A13</td>
-                        <td>4 ไร่</td>
-                        <td>140 kg</td>
-                    </tr>
-                </table>
-            </div>
-
-            <div class="box">
-                <h2>Step 5: Summary</h2>
-                <table>
-                    <tr>
-                        <th>Date</th>
-                        <th>Farmer</th>
-                        <th>Total</th>
-                    </tr>
-                    <tr>
-                        <td>15/2/2025</td>
-                        <td>นายสมชาย</td>
-                        <td>420 kg</td>
-                    </tr>
-                </table>
-                <button style="margin-top:15px;">💾 Save Receiving</button>
-            </div>
-        </div>
-
-        <!-- ---------------------------------------------------------
-         REPORTS
+        BUYER LINK MANAGER (Select Farmers)
         --------------------------------------------------------- -->
-        <div class="page" id="reports">
-            <h1>Reports</h1>
+        <div class="page" id="buyerLinkManager">
 
-            <div class="tabs">
-                <div id="r-farmer-tab" class="report-tab active" onclick="showTab('report','r-farmer')">Farmer</div>
-                <div id="r-plot-tab" class="report-tab" onclick="showTab('report','r-plot')">Plot</div>
-                <div id="r-daily-tab" class="report-tab" onclick="showTab('report','r-daily')">Daily</div>
-                <div id="r-month-tab" class="report-tab" onclick="showTab('report','r-month')">Monthly</div>
-                <div id="r-gis-tab" class="report-tab" onclick="showTab('report','r-gis')">GIS</div>
-                <div id="r-eudr-tab" class="report-tab" onclick="showTab('report','r-eudr')">EUDR</div>
+            <h1>Link Farmers → Buyer A</h1>
+
+            <!-- ACTION BAR -->
+            <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm mb-6">
+
+                <div class="flex justify-between items-center flex-wrap gap-4">
+
+                    <!-- Search -->
+                    <input type="text" placeholder="ค้นหาเกษตรกร..." class="px-4 py-2 border rounded-lg w-72">
+
+                    <!-- Filters -->
+                    <div class="flex gap-3">
+
+                        <select class="px-3 py-2 border rounded-lg">
+                            <option value="">จังหวัดทั้งหมด</option>
+                            <option>ตรัง</option>
+                            <option>สงขลา</option>
+                            <option>พัทลุง</option>
+                        </select>
+
+                        <select class="px-3 py-2 border rounded-lg">
+                            <option value="">สถานะ</option>
+                            <option>Linked</option>
+                            <option>Unlinked</option>
+                        </select>
+
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex gap-3">
+                        <button onclick="openAssignModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg">Assign
+                            Selected</button>
+
+                        <button onclick="openUnassignModal()"
+                            class="px-4 py-2 bg-red-600 text-white rounded-lg">Unassign</button>
+
+                        <button class="px-4 py-2 bg-gray-300 rounded-lg" onclick="show('buyerDetail')">ย้อนกลับ</button>
+                    </div>
+
+                </div>
             </div>
 
-            <div id="r-farmer" class="report-content box" style="display:block;">
-                <h2>Farmer Report</h2>
-                <table>
-                    <tr>
-                        <th>Farmer</th>
-                        <th>Area</th>
-                        <th>Yearly Weight</th>
+            <!-- TABLE RESULT -->
+            <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+
+                <table class="min-w-full">
+                    <tr class="bg-gray-50 border-b">
+                        <th class="p-3"><input type="checkbox"></th>
+                        <th class="p-3">ชื่อเกษตรกร</th>
+                        <th class="p-3">เบอร์โทร</th>
+                        <th class="p-3">จังหวัด</th>
+                        <th class="p-3">สถานะปัจจุบัน</th>
                     </tr>
-                    <tr>
-                        <td>นายสมชาย</td>
-                        <td>12</td>
-                        <td>14,200 kg</td>
+
+                    <tr class="border-b">
+                        <td class="p-3"><input type="checkbox"></td>
+                        <td class="p-3">นายสมชาย</td>
+                        <td class="p-3">089-1234567</td>
+                        <td class="p-3">ตรัง</td>
+                        <td class="p-3 text-green-600">Linked (Buyer A)</td>
                     </tr>
+
+                    <tr class="border-b">
+                        <td class="p-3"><input type="checkbox"></td>
+                        <td class="p-3">นางสำราญ</td>
+                        <td class="p-3">081-888999</td>
+                        <td class="p-3">ตรัง</td>
+                        <td class="p-3 text-gray-500">ยังไม่ผูก</td>
+                    </tr>
+
+                    <tr class="border-b">
+                        <td class="p-3"><input type="checkbox"></td>
+                        <td class="p-3">นายชัยวัฒน์</td>
+                        <td class="p-3">083-444555</td>
+                        <td class="p-3">สงขลา</td>
+                        <td class="p-3 text-gray-500">ถูกผูกอยู่แล้ว (Buyer B)</td>
+                    </tr>
+
                 </table>
+
             </div>
 
-            <div id="r-plot" class="report-content box">
-                <h2>Plot Report</h2>
-                <table>
-                    <tr>
-                        <th>Plot</th>
-                        <th>Area</th>
-                        <th>QGIS</th>
-                        <th>Year</th>
-                    </tr>
-                    <tr>
-                        <td>A12</td>
-                        <td>8</td>
-                        <td style="color:green;">OK</td>
-                        <td>2568</td>
-                    </tr>
-                </table>
-            </div>
-
-            <div id="r-daily" class="report-content box">
-                <h2>Daily Report</h2>
-                <table>
-                    <tr>
-                        <th>Date</th>
-                        <th>Total Weight</th>
-                    </tr>
-                    <tr>
-                        <td>2025-02-15</td>
-                        <td>2,480 kg</td>
-                    </tr>
-                </table>
-            </div>
-
-            <div id="r-month" class="report-content box">
-                <h2>Monthly Report</h2>
-                <table>
-                    <tr>
-                        <th>Month</th>
-                        <th>Total</th>
-                    </tr>
-                    <tr>
-                        <td>02/2025</td>
-                        <td>98,000 kg</td>
-                    </tr>
-                </table>
-            </div>
-
-            <div id="r-gis" class="report-content box">
-                <h2>GIS Report</h2>
-                <table>
-                    <tr>
-                        <th>Plot</th>
-                        <th>Status</th>
-                        <th>Note</th>
-                    </tr>
-                    <tr>
-                        <td>A12</td>
-                        <td style="color:green;">OK</td>
-                        <td>-</td>
-                    </tr>
-                    <tr>
-                        <td>B09</td>
-                        <td style="color:red;">FAIL</td>
-                        <td>ทับเขตป่า</td>
-                    </tr>
-                </table>
-            </div>
-
-            <div id="r-eudr" class="report-content box">
-                <h2>EUDR Export</h2>
-                <p>ข้อมูลสำหรับส่งต่อโรงงาน/EU</p>
-                <button>⬇ ดาวน์โหลด EUDR JSON</button>
-            </div>
         </div>
 
         <!-- ---------------------------------------------------------
-        IMPORT WIZARD (INITIAL DATA IMPORT)
+        INITIAL IMPORT (FULL WIZARD)
         --------------------------------------------------------- -->
         <div class="page" id="import">
-            <h1>Import Initial Data (Wizard)</h1>
 
-            <!-- STEP 1: Upload File -->
-            <div class="box">
-                <h2>Step 1: Upload Excel File</h2>
-                <p>อัปโหลดไฟล์ Excel ที่มีข้อมูลเกษตร / แปลง / เอกสาร / พื้นที่ / ข้อมูลอื่นๆ</p>
-                <button>📄 เลือกไฟล์ Excel</button>
-                <p style="margin-top:10px;color:#666;">รองรับไฟล์: .xlsx, .xls</p>
+            <h1 class="text-3xl font-bold mb-6">Initial Import – ตั้งต้นข้อมูลระบบ</h1>
+
+            <!-- STEP PROGRESS BAR -->
+            <div class="flex items-center gap-3 mb-6">
+                <div class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm">Step 1</div>
+                <div class="px-4 py-2 bg-gray-200 text-gray-600 rounded-lg text-sm">Step 2</div>
+                <div class="px-4 py-2 bg-gray-200 text-gray-600 rounded-lg text-sm">Step 3</div>
+                <div class="px-4 py-2 bg-gray-200 text-gray-600 rounded-lg text-sm">Step 4</div>
+                <div class="px-4 py-2 bg-gray-200 text-gray-600 rounded-lg text-sm">Step 5</div>
             </div>
 
-            <!-- STEP 2: Detect Sheets -->
-            <div class="box">
-                <h2>Step 2: Detect Sheets</h2>
-                <p>ระบบตรวจพบชีทดังต่อไปนี้:</p>
+            <!-- =====================================================
+            STEP 1 — UPLOAD EXCEL
+            ====================================================== -->
+            <div class="box mb-8">
+                <h2 class="text-xl font-bold mb-3">Step 1: Upload Excel File</h2>
 
-                <table>
-                    <tr>
-                        <th>Sheet Name</th>
-                        <th>Detected Type</th>
-                        <th>Assign</th>
+                <p class="text-gray-700 mb-3">
+                    อัปโหลดไฟล์ Excel ที่มีข้อมูลเกษตร / แปลง / เอกสาร / พื้นที่ เพื่อเริ่มต้นระบบ
+                </p>
+
+                <button class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-white">
+                    📄 เลือกไฟล์ Excel
+                </button>
+                <p class="mt-3 text-gray-500 text-sm">รองรับไฟล์: .xlsx, .xls</p>
+            </div>
+
+
+            <!-- =====================================================
+            STEP 2 — DETECT SHEETS
+            ====================================================== -->
+            <div class="box mb-8">
+                <h2 class="text-xl font-bold mb-3">Step 2: Detect Sheets</h2>
+
+                <p class="text-gray-700 mb-3">ระบบตรวจพบชีทดังต่อไปนี้:</p>
+
+                <table class="w-full border-collapse">
+                    <tr class="bg-gray-100">
+                        <th class="p-3 text-left">Sheet Name</th>
+                        <th class="p-3 text-left">Detected Type</th>
+                        <th class="p-3 text-left">Assign</th>
                     </tr>
-                    <tr>
-                        <td>Farmer</td>
-                        <td>เกษตรกร</td>
-                        <td>
-                            <select>
-                                <option>Farmer</option>
+
+                    <tr class="border-b">
+                        <td class="p-3">Farmer</td>
+                        <td class="p-3 text-green-600">เกษตรกร</td>
+                        <td class="p-3">
+                            <select class="border rounded px-2 py-1">
+                                <option selected>Farmer</option>
                                 <option>Plot</option>
                                 <option>PlotDocument</option>
                                 <option>Skip</option>
                             </select>
                         </td>
                     </tr>
-                    <tr>
-                        <td>Plot</td>
-                        <td>แปลง</td>
-                        <td>
-                            <select>
-                                <option selected>Plot</option>
+
+                    <tr class="border-b">
+                        <td class="p-3">Plot</td>
+                        <td class="p-3 text-green-600">แปลง</td>
+                        <td class="p-3">
+                            <select class="border rounded px-2 py-1">
                                 <option>Farmer</option>
+                                <option selected>Plot</option>
                                 <option>PlotDocument</option>
                                 <option>Skip</option>
                             </select>
                         </td>
                     </tr>
-                    <tr>
-                        <td>Document</td>
-                        <td>เอกสารแปลง</td>
-                        <td>
-                            <select>
+
+                    <tr class="border-b">
+                        <td class="p-3">Document</td>
+                        <td class="p-3 text-green-600">เอกสารแปลง</td>
+                        <td class="p-3">
+                            <select class="border rounded px-2 py-1">
                                 <option>Farmer</option>
                                 <option>Plot</option>
                                 <option selected>PlotDocument</option>
@@ -824,23 +1861,30 @@
                             </select>
                         </td>
                     </tr>
+
                 </table>
             </div>
 
-            <!-- STEP 3: Column Mapping -->
-            <div class="box">
-                <h2>Step 3: Column Mapping</h2>
-                <p>เชื่อมคอลัมน์จาก Excel → ฟิลด์ในระบบ</p>
 
-                <table>
-                    <tr>
-                        <th>Excel Column</th>
-                        <th>System Field</th>
+
+            <!-- =====================================================
+             STEP 3 — COLUMN MAPPING
+            ====================================================== -->
+            <div class="box mb-8">
+                <h2 class="text-xl font-bold mb-3">Step 3: Column Mapping</h2>
+
+                <p class="text-gray-700 mb-3">เชื่อมคอลัมน์จาก Excel → ฟิลด์ในระบบ</p>
+
+                <table class="w-full border-collapse">
+                    <tr class="bg-gray-100">
+                        <th class="p-3 text-left">Excel Column</th>
+                        <th class="p-3 text-left">System Field</th>
                     </tr>
-                    <tr>
-                        <td>ชื่อเกษตรกร</td>
-                        <td>
-                            <select>
+
+                    <tr class="border-b">
+                        <td class="p-3">ชื่อเกษตรกร</td>
+                        <td class="p-3">
+                            <select class="border rounded px-2 py-1">
                                 <option>farmer.name</option>
                                 <option>farmer.phone</option>
                                 <option>plot.area</option>
@@ -848,19 +1892,21 @@
                             </select>
                         </td>
                     </tr>
-                    <tr>
-                        <td>พื้นที่ไร่</td>
-                        <td>
-                            <select>
+
+                    <tr class="border-b">
+                        <td class="p-3">พื้นที่ไร่</td>
+                        <td class="p-3">
+                            <select class="border rounded px-2 py-1">
                                 <option>plot.area</option>
                                 <option>farmer.name</option>
                             </select>
                         </td>
                     </tr>
-                    <tr>
-                        <td>ปี</td>
-                        <td>
-                            <select>
+
+                    <tr class="border-b">
+                        <td class="p-3">ปี</td>
+                        <td class="p-3">
+                            <select class="border rounded px-2 py-1">
                                 <option>document.year</option>
                                 <option>plot.area</option>
                             </select>
@@ -869,124 +1915,1581 @@
                 </table>
             </div>
 
-            <!-- STEP 4: Preview -->
-            <div class="box">
-                <h2>Step 4: Preview Data</h2>
-                <p>โปรดตรวจสอบข้อมูลก่อนนำเข้าระบบ</p>
 
-                <table>
-                    <tr>
-                        <th>Farmer</th>
-                        <th>Plot</th>
-                        <th>Area</th>
-                        <th>Doc Year</th>
+
+            <!-- =====================================================
+            STEP 4 — PREVIEW DATA
+            ====================================================== -->
+            <div class="box mb-8">
+                <h2 class="text-xl font-bold mb-3">Step 4: Preview Data</h2>
+
+                <p class="text-gray-700 mb-3">โปรดตรวจสอบความถูกต้องของข้อมูลก่อนนำเข้าระบบ</p>
+
+                <table class="w-full border-collapse">
+                    <tr class="bg-gray-100">
+                        <th class="p-3 text-left">Farmer</th>
+                        <th class="p-3 text-left">Plot</th>
+                        <th class="p-3 text-left">Area</th>
+                        <th class="p-3 text-left">Doc Year</th>
                     </tr>
-                    <tr>
-                        <td>นายสมชาย</td>
-                        <td>P-A12</td>
-                        <td>8</td>
-                        <td>2568</td>
+
+                    <tr class="border-b">
+                        <td class="p-3">นายสมชาย</td>
+                        <td class="p-3">P-A12</td>
+                        <td class="p-3">8</td>
+                        <td class="p-3">2568</td>
                     </tr>
-                    <tr>
-                        <td>นายปรีชา</td>
-                        <td>P-B09</td>
-                        <td style="color:red;">(missing)</td>
-                        <td>2567</td>
+
+                    <tr class="border-b bg-red-50">
+                        <td class="p-3">นายปรีชา</td>
+                        <td class="p-3">P-B09</td>
+                        <td class="p-3 text-red-600">(missing)</td>
+                        <td class="p-3">2567</td>
                     </tr>
+
                 </table>
 
-                <p style="color:red;margin-top:10px;">
+                <p class="mt-3 text-red-600 text-sm">
                     ⚠ พบข้อมูลไม่ครบถ้วน: แปลงของ “นายปรีชา” ไม่มีพื้นที่
                 </p>
             </div>
 
-            <!-- STEP 5: Confirm -->
-            <div class="box">
-                <h2>Step 5: Confirm Import</h2>
-                <p>ข้อมูลทั้งหมดพร้อมนำเข้าระบบแล้ว</p>
-                <button>🚀 เริ่ม Import</button>
+
+
+            <!-- =====================================================
+            STEP 5 — CONFIRM IMPORT
+            ====================================================== -->
+            <div class="box mb-12">
+                <h2 class="text-xl font-bold mb-3">Step 5: Confirm Import</h2>
+
+                <p class="text-gray-700 mb-3">ข้อมูลพร้อมนำเข้าระบบแล้ว</p>
+
+                <button class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg text-white text-lg">
+                    🚀 เริ่ม Import
+                </button>
             </div>
 
         </div>
 
-        <!-- DOCUMENT HISTORY -->
-        <div id="p-hdoc" class="plot-content box">
-            <h2>Document History</h2>
 
-            <table>
-                <tr>
-                    <th>ปี</th>
-                    <th>ประเภทเอกสาร</th>
-                    <th>ไฟล์</th>
-                    <th>สถานะ</th>
-                </tr>
-                <tr>
-                    <td>2568</td>
-                    <td>นส.3ก</td>
-                    <td><button class="gray">📄 ดูไฟล์</button></td>
-                    <td style="color:green;">ล่าสุด</td>
-                </tr>
-                <tr>
-                    <td>2567</td>
-                    <td>นส.3ก</td>
-                    <td><button class="gray">📄 ดูไฟล์</button></td>
-                    <td>ประวัติย้อนหลัง</td>
-                </tr>
-            </table>
+        <!-- BACKDROP -->
+        <div id="modal-backdrop" class="fixed inset-0 bg-black bg-opacity-40 hidden"></div>
+
+        <!-- MODAL -->
+        <div id="modal-box" class="fixed top-1/2 left-1/2 w-[420px] -translate-x-1/2 -translate-y-1/2 
+            bg-white p-6 rounded-xl shadow-xl hidden">
+
+            <h2 id="modal-title" class="text-xl font-semibold mb-4">ยืนยันการทำรายการ</h2>
+
+            <p id="modal-message" class="text-gray-700 mb-6">
+                <!-- text dynamic -->
+            </p>
+
+            <div class="flex justify-end gap-3">
+                <button onclick="closeModal()" class="px-4 py-2 bg-gray-300 rounded-lg">ยกเลิก</button>
+                <button id="modal-confirm-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg">
+                    ยืนยัน
+                </button>
+            </div>
         </div>
 
-        <!-- GIS HISTORY -->
-        <div id="p-hgis" class="plot-content box">
-            <h2>GIS Overlay History</h2>
+        <!-- ---------------------------------------------------------
+        REPORTS (GLAZEY MODERN STYLE)
+        --------------------------------------------------------- -->
+        <div class="page" id="reports">
 
-            <table>
-                <tr>
-                    <th>ปี</th>
-                    <th>Status</th>
-                    <th>Note</th>
-                </tr>
-                <tr>
-                    <td>2568</td>
-                    <td style="color:red;">FAIL</td>
-                    <td>ทับเขตป่าคุ้มครอง (ปีใหม่)</td>
-                </tr>
-                <tr>
-                    <td>2567</td>
-                    <td style="color:green;">OK</td>
-                    <td>-</td>
-                </tr>
-            </table>
+            <!-- HEADER -->
+            <h1 class="text-3xl font-extrabold text-gray-800 mb-6">
+                Reports <span class="text-blue-600">.</span>
+            </h1>
+
+            <!-- REPORTS MENU - GLASS / GLAZE STYLE -->
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+
+                <!-- Farmer Report -->
+                <div onclick="navigate('reportFarmer')"
+                    class="p-6 bg-white rounded-xl shadow-md hover:shadow-lg border border-gray-100 cursor-pointer transition">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-2">📘 Farmer Report</h2>
+                    <p class="text-gray-600 text-sm">
+                        รายงานภาพรวมเกษตรกร พื้นที่ แปลง และผลผลิตรายปี
+                    </p>
+                </div>
+
+                <!-- Plot Report -->
+                <div onclick="navigate('reportPlot')"
+                    class="p-6 bg-white rounded-xl shadow-md hover:shadow-lg border border-gray-100 cursor-pointer transition">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-2">📍 Plot Report</h2>
+                    <p class="text-gray-600 text-sm">
+                        รายงานข้อมูลแปลง, เอกสาร, พื้นที่ และสถานะ GIS
+                    </p>
+                </div>
+
+                <!-- Daily Receiving -->
+                <div onclick="navigate('reportDaily')"
+                    class="p-6 bg-white rounded-xl shadow-md hover:shadow-lg border border-gray-100 cursor-pointer transition">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-2">📅 Daily Receiving</h2>
+                    <p class="text-gray-600 text-sm">
+                        รายงานสรุปยอดรับซื้อรายวัน พร้อมกราฟสรุปรายวัน
+                    </p>
+                </div>
+
+                <!-- Monthly Summary -->
+                <div onclick="navigate('reportMonthly')"
+                    class="p-6 bg-white rounded-xl shadow-md hover:shadow-lg border border-gray-100 cursor-pointer transition">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-2">📆 Monthly Summary</h2>
+                    <p class="text-gray-600 text-sm">
+                        รายงานยอดรับซื้อรวมต่อเดือน แยก Buyer/Province/Farmer
+                    </p>
+                </div>
+
+                <!-- GIS Compliance -->
+                <div onclick="navigate('reportGIS')"
+                    class="p-6 bg-white rounded-xl shadow-md hover:shadow-lg border border-gray-100 cursor-pointer transition">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-2">🗺️ GIS Compliance</h2>
+                    <p class="text-gray-600 text-sm">
+                        รายงานการตรวจสอบ GIS, OK/FAIL/RISK และพื้นที่ทับซ้อน
+                    </p>
+                </div>
+
+                <!-- EUDR Export -->
+                <div onclick="navigate('reportEUDR')"
+                    class="p-6 bg-white rounded-xl shadow-md hover:shadow-lg border border-gray-100 cursor-pointer transition">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-2">🌍 EUDR Export</h2>
+                    <p class="text-gray-600 text-sm">
+                        สร้างไฟล์ JSON สำหรับส่งโรงงาน/EU ตามมาตรฐาน EUDR
+                    </p>
+                </div>
+
+            </div>
+
         </div>
 
-        <!-- GEOMETRY / AREA HISTORY -->
-        <div id="p-hgeo" class="plot-content box">
-            <h2>Geometry / Area History</h2>
+        <!-- ---------------------------------------------------------
+        REPORT: FARMER REPORT
+        --------------------------------------------------------- -->
+        <div class="page" id="reportFarmer" style="display:none;">
 
-            <table>
-                <tr>
-                    <th>ปี</th>
-                    <th>พื้นที่ (ไร่)</th>
-                    <th>ประเภทการเปลี่ยนแปลง</th>
-                    <th>แหล่งที่มา</th>
-                </tr>
-                <tr>
-                    <td>2568</td>
-                    <td>8</td>
-                    <td>แก้ไขเอกสาร</td>
-                    <td>เอกสารปี 2568</td>
-                </tr>
-                <tr>
-                    <td>2567</td>
-                    <td>7.5</td>
-                    <td>ข้อมูลเดิม</td>
-                    <td>เอกสารปี 2567</td>
-                </tr>
-            </table>
+            <!-- HEADER -->
+            <div class="flex justify-between items-center mb-8">
+                <h1 class="text-3xl font-extrabold text-gray-800">
+                    Farmer Report <span class="text-blue-600">.</span>
+                </h1>
+
+                <button onclick="navigate('reports')" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">
+                    ← กลับไป Reports
+                </button>
+            </div>
+
+
+            <!-- FILTER BAR -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
+
+                <h2 class="text-lg font-semibold mb-4 text-gray-800">🔍 Filters</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                    <div>
+                        <label class="text-sm text-gray-600">จังหวัด</label>
+                        <select class="w-full mt-1 border rounded-lg p-2">
+                            <option>ทั้งหมด</option>
+                            <option>ตรัง</option>
+                            <option>สงขลา</option>
+                            <option>สุราษฎร์</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="text-sm text-gray-600">สถานะ GIS</label>
+                        <select class="w-full mt-1 border rounded-lg p-2">
+                            <option>ทั้งหมด</option>
+                            <option>OK</option>
+                            <option>FAIL</option>
+                            <option>RISK</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="text-sm text-gray-600">ปี</label>
+                        <select class="w-full mt-1 border rounded-lg p-2">
+                            <option>2568</option>
+                            <option>2567</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 mt-4">
+                    Apply Filters
+                </button>
+
+            </div>
+
+
+            <!-- SUMMARY CARDS -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+
+                <!-- Farmer Count -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="text-sm text-gray-500">จำนวนเกษตรกร</div>
+                    <div class="text-3xl font-bold text-gray-800">124</div>
+                </div>
+
+                <!-- Total Area -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="text-sm text-gray-500">พื้นที่รวม (ไร่)</div>
+                    <div class="text-3xl font-bold text-gray-800">890</div>
+                </div>
+
+                <!-- Total Weight -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="text-sm text-gray-500">ผลผลิตรวมปี 2568</div>
+                    <div class="text-3xl font-bold text-blue-600">142,000 kg</div>
+                </div>
+
+            </div>
+
+
+            <!-- DATA TABLE -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+
+                <h2 class="text-xl font-semibold mb-4">🔎 รายงานตามรายเกษตรกร</h2>
+
+                <table class="min-w-full text-sm">
+                    <tr class="bg-gray-50 border-b">
+                        <th class="p-3 text-left">เกษตรกร</th>
+                        <th class="p-3 text-left">จังหวัด</th>
+                        <th class="p-3 text-left">จำนวนแปลง</th>
+                        <th class="p-3 text-left">พื้นที่ (ไร่)</th>
+                        <th class="p-3 text-left">ผลผลิต (kg)</th>
+                        <th class="p-3 text-left">สถานะ GIS</th>
+                    </tr>
+
+                    <tr class="border-b">
+                        <td class="p-3">นายสมชาย</td>
+                        <td class="p-3">ตรัง</td>
+                        <td class="p-3">5</td>
+                        <td class="p-3">12</td>
+                        <td class="p-3 text-blue-600">14,200</td>
+                        <td class="p-3 text-green-600 font-medium">OK</td>
+                    </tr>
+
+                    <tr class="border-b">
+                        <td class="p-3">นางสำราญ</td>
+                        <td class="p-3">สงขลา</td>
+                        <td class="p-3">3</td>
+                        <td class="p-3">7</td>
+                        <td class="p-3 text-blue-600">8,900</td>
+                        <td class="p-3 text-orange-500 font-medium">RISK</td>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">นายปรีชา</td>
+                        <td class="p-3">ตรัง</td>
+                        <td class="p-3">2</td>
+                        <td class="p-3">6</td>
+                        <td class="p-3 text-blue-600">5,600</td>
+                        <td class="p-3 text-red-600 font-medium">FAIL</td>
+                    </tr>
+
+                </table>
+
+            </div>
+
+        </div>
+
+        <!-- ---------------------------------------------------------
+        REPORT: PLOT REPORT
+        --------------------------------------------------------- -->
+        <div class="page" id="reportPlot" style="display:none;">
+
+            <!-- HEADER -->
+            <div class="flex justify-between items-center mb-8">
+                <h1 class="text-3xl font-extrabold text-gray-800">
+                    Plot Report <span class="text-blue-600">.</span>
+                </h1>
+
+                <button onclick="navigate('reports')" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">
+                    ← กลับไป Reports
+                </button>
+            </div>
+
+
+            <!-- FILTER BAR -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
+
+                <h2 class="text-lg font-semibold mb-4 text-gray-800">🔍 Filters</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+
+                    <div>
+                        <label class="text-sm text-gray-600">จังหวัด</label>
+                        <select class="w-full mt-1 border rounded-lg p-2">
+                            <option>ทั้งหมด</option>
+                            <option>ตรัง</option>
+                            <option>สงขลา</option>
+                            <option>ชุมพร</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="text-sm text-gray-600">สถานะ QGIS</label>
+                        <select class="w-full mt-1 border rounded-lg p-2">
+                            <option>ทั้งหมด</option>
+                            <option>OK</option>
+                            <option>FAIL</option>
+                            <option>RISK</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="text-sm text-gray-600">ช่วงพื้นที่ (ไร่)</label>
+                        <select class="w-full mt-1 border rounded-lg p-2">
+                            <option>ทั้งหมด</option>
+                            <option>0 - 5 ไร่</option>
+                            <option>5 - 10 ไร่</option>
+                            <option>10+ ไร่</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="text-sm text-gray-600">ชนิดเอกสาร</label>
+                        <select class="w-full mt-1 border rounded-lg p-2">
+                            <option>ทั้งหมด</option>
+                            <option>นส.3</option>
+                            <option>นส.3ก</option>
+                            <option>โฉนด</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 mt-4">
+                    Apply Filters
+                </button>
+
+            </div>
+
+
+            <!-- SUMMARY CARDS -->
+            <div class="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
+
+                <!-- Total Plots -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="text-sm text-gray-500">จำนวนแปลงทั้งหมด</div>
+                    <div class="text-3xl font-bold text-gray-800">312</div>
+                </div>
+
+                <!-- Total Area -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="text-sm text-gray-500">พื้นที่รวม</div>
+                    <div class="text-3xl font-bold text-gray-800">890 ไร่</div>
+                </div>
+
+                <!-- GIS OK -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="text-sm text-gray-500">ผ่าน GIS</div>
+                    <div class="text-3xl font-bold text-green-600">280</div>
+                </div>
+
+                <!-- GIS FAIL -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="text-sm text-gray-500">ไม่ผ่าน GIS</div>
+                    <div class="text-3xl font-bold text-red-600">32</div>
+                </div>
+
+                <!-- GIS RISK -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="text-sm text-gray-500">เสี่ยง RISK</div>
+                    <div class="text-3xl font-bold text-orange-500">12</div>
+                </div>
+
+            </div>
+
+
+            <!-- GIS SUMMARY BAR -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
+
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                    GIS Compliance Summary
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                    <div class="p-4 rounded-xl bg-green-50 border border-green-200">
+                        <div class="text-sm text-gray-600">OK</div>
+                        <div class="text-2xl font-bold text-green-700">280</div>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-red-50 border border-red-200">
+                        <div class="text-sm text-gray-600">FAIL</div>
+                        <div class="text-2xl font-bold text-red-700">32</div>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-orange-50 border border-orange-200">
+                        <div class="text-sm text-gray-600">RISK</div>
+                        <div class="text-2xl font-bold text-orange-700">12</div>
+                    </div>
+
+                </div>
+
+                <p class="text-xs mt-4 text-gray-500">
+                    Overlay ล่าสุด: 14 ก.พ. 2025 — Source: QGIS
+                </p>
+
+            </div>
+
+
+
+
+            <!-- DATA TABLE -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+
+                <h2 class="text-xl font-semibold mb-4">📍 รายงานตามรายแปลง</h2>
+
+                <table class="min-w-full text-sm">
+                    <tr class="bg-gray-50 border-b">
+                        <th class="p-3 text-left">Plot Code</th>
+                        <th class="p-3 text-left">เกษตรกร</th>
+                        <th class="p-3 text-left">จังหวัด</th>
+                        <th class="p-3 text-left">พื้นที่ (ไร่)</th>
+                        <th class="p-3 text-left">ชนิดเอกสาร</th>
+                        <th class="p-3 text-left">สถานะ GIS</th>
+                    </tr>
+
+                    <tr class="border-b">
+                        <td class="p-3">A12</td>
+                        <td class="p-3">นายสมชาย</td>
+                        <td class="p-3">ตรัง</td>
+                        <td class="p-3">8</td>
+                        <td class="p-3">นส.3ก</td>
+                        <td class="p-3 text-green-600 font-medium">OK</td>
+                    </tr>
+
+                    <tr class="border-b">
+                        <td class="p-3">B09</td>
+                        <td class="p-3">นายปรีชา</td>
+                        <td class="p-3">ตรัง</td>
+                        <td class="p-3">4</td>
+                        <td class="p-3">นส.3</td>
+                        <td class="p-3 text-red-600 font-medium">FAIL</td>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">C21</td>
+                        <td class="p-3">นางสำราญ</td>
+                        <td class="p-3">สงขลา</td>
+                        <td class="p-3">7</td>
+                        <td class="p-3">โฉนด</td>
+                        <td class="p-3 text-orange-500 font-medium">RISK</td>
+                    </tr>
+
+                </table>
+
+            </div>
+
+        </div>
+
+        <!-- ---------------------------------------------------------
+        REPORT: DAILY REPORT
+        --------------------------------------------------------- -->
+        <div class="page" id="reportDaily" style="display:none;">
+
+            <!-- HEADER -->
+            <div class="flex justify-between items-center mb-8">
+                <h1 class="text-3xl font-extrabold text-gray-800">
+                    Daily Report <span class="text-blue-600">.</span>
+                </h1>
+
+                <button onclick="navigate('reports')" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">
+                    ← กลับไป Reports
+                </button>
+            </div>
+
+            <!-- FILTER BAR -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
+
+                <h2 class="text-lg font-semibold mb-4 text-gray-800">🔍 Filters</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+
+                    <div>
+                        <label class="text-sm text-gray-600">วันที่</label>
+                        <input type="date" class="w-full mt-1 border rounded-lg p-2">
+                    </div>
+
+                    <div>
+                        <label class="text-sm text-gray-600">เลือก Buyer</label>
+                        <select class="w-full mt-1 border rounded-lg p-2">
+                            <option>ทั้งหมด</option>
+                            <option>Buyer A</option>
+                            <option>Buyer B</option>
+                            <option>Buyer C</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="text-sm text-gray-600">จังหวัด</label>
+                        <select class="w-full mt-1 border rounded-lg p-2">
+                            <option>ทั้งหมด</option>
+                            <option>ตรัง</option>
+                            <option>สงขลา</option>
+                            <option>ชุมพร</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="text-sm text-gray-600">Sort by</label>
+                        <select class="w-full mt-1 border rounded-lg p-2">
+                            <option>น้ำหนักมาก → น้อย</option>
+                            <option>น้ำหนักน้อย → มาก</option>
+                            <option>ชื่อ A → Z</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 mt-4">
+                    Apply Filters
+                </button>
+            </div>
+
+
+            <!-- SUMMARY CARDS -->
+            <div class="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="text-sm text-gray-500">น้ำหนักรวมวันนี้</div>
+                    <div class="text-3xl font-bold text-blue-600">2,480 kg</div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="text-sm text-gray-500">จำนวนเกษตรที่ส่ง</div>
+                    <div class="text-3xl font-bold text-gray-800">42 ราย</div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="text-sm text-gray-500">เฉลี่ย/เกษตร</div>
+                    <div class="text-3xl font-bold text-gray-800">59 kg</div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="text-sm text-gray-500">สูงสุดต่อราย</div>
+                    <div class="text-3xl font-bold text-green-600">120 kg</div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="text-sm text-gray-500">เกิน quota วันนี้</div>
+                    <div class="text-3xl font-bold text-red-600">3 ราย</div>
+                </div>
+
+            </div>
+
+
+            <!-- GRAPH (TREND 30 DAYS) -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
+
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold text-gray-800">Receiving 30-Day Trend</h2>
+                    <span class="text-sm text-gray-500">รวมจากทุก Buyer</span>
+                </div>
+
+                <div class="bg-blue-50 h-64 rounded-xl flex items-center justify-center text-blue-700 font-medium">
+                    [ GRAPH MOCK: 30 DAY TREND ]
+                </div>
+
+            </div>
+
+
+            <!-- TABLE: DAILY RECEIVING DETAIL -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+
+                <h2 class="text-xl font-semibold mb-4">📦 Receiving ตามรายเกษตร</h2>
+
+                <table class="min-w-full text-sm">
+                    <tr class="bg-gray-50 border-b">
+                        <th class="p-3 text-left">เกษตรกร</th>
+                        <th class="p-3 text-left">Buyer</th>
+                        <th class="p-3 text-left">จังหวัด</th>
+                        <th class="p-3 text-left">น้ำหนัก (kg)</th>
+                        <th class="p-3 text-left">Quota</th>
+                        <th class="p-3 text-left">สถานะ</th>
+                    </tr>
+
+                    <tr class="border-b">
+                        <td class="p-3">นายสมชาย</td>
+                        <td class="p-3">Buyer A</td>
+                        <td class="p-3">ตรัง</td>
+                        <td class="p-3 font-bold">420</td>
+                        <td class="p-3">120</td>
+                        <td class="p-3 text-red-600 font-semibold">เกินโควต้า</td>
+                    </tr>
+
+                    <tr class="border-b">
+                        <td class="p-3">นางสำราญ</td>
+                        <td class="p-3">Buyer A</td>
+                        <td class="p-3">ตรัง</td>
+                        <td class="p-3 font-bold">65</td>
+                        <td class="p-3">60</td>
+                        <td class="p-3 text-orange-500 font-semibold">เสี่ยง</td>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">นายปรีชา</td>
+                        <td class="p-3">Buyer B</td>
+                        <td class="p-3">สงขลา</td>
+                        <td class="p-3 font-bold">55</td>
+                        <td class="p-3">70</td>
+                        <td class="p-3 text-green-600 font-semibold">ปกติ</td>
+                    </tr>
+
+                </table>
+
+            </div>
+
+        </div>
+
+        <!-- ---------------------------------------------------------
+        REPORT: MONTHLY REPORT
+        --------------------------------------------------------- -->
+        <div class="page" id="reportMonthly" style="display:none;">
+
+            <!-- HEADER -->
+            <div class="flex justify-between items-center mb-8">
+                <h1 class="text-3xl font-extrabold text-gray-800">
+                    Monthly Report <span class="text-blue-600">.</span>
+                </h1>
+
+                <button onclick="navigate('reports')" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">
+                    ← กลับไป Reports
+                </button>
+            </div>
+
+            <!-- FILTER BAR -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
+
+                <h2 class="text-lg font-semibold mb-4 text-gray-800">🔍 Filters</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+
+                    <div>
+                        <label class="text-sm text-gray-600">เดือน</label>
+                        <input type="month" class="w-full mt-1 border rounded-lg p-2" value="2025-02">
+                    </div>
+
+                    <div>
+                        <label class="text-sm text-gray-600">Buyer</label>
+                        <select class="w-full mt-1 border rounded-lg p-2">
+                            <option>ทั้งหมด</option>
+                            <option>Buyer A</option>
+                            <option>Buyer B</option>
+                            <option>Buyer C</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="text-sm text-gray-600">จังหวัด</label>
+                        <select class="w-full mt-1 border rounded-lg p-2">
+                            <option>ทั้งหมด</option>
+                            <option>ตรัง</option>
+                            <option>สงขลา</option>
+                            <option>สุราษฎร์ธานี</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="text-sm text-gray-600">Sort by</label>
+                        <select class="w-full mt-1 border rounded-lg p-2">
+                            <option>น้ำหนักมาก → น้อย</option>
+                            <option>น้ำหนักน้อย → มาก</option>
+                            <option>Buyer A → Z</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 mt-4">
+                    Apply Filters
+                </button>
+
+            </div>
+
+
+            <!-- SUMMARY CARDS (5 CARDS) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="text-sm text-gray-500">น้ำหนักรวมทั้งเดือน</div>
+                    <div class="text-3xl font-bold text-blue-600">98,000 kg</div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="text-sm text-gray-500">จำนวนเกษตรทั้งหมด</div>
+                    <div class="text-3xl font-bold text-gray-800">420 ราย</div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="text-sm text-gray-500">เฉลี่ย/วัน</div>
+                    <div class="text-3xl font-bold text-gray-800">3,260 kg</div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="text-sm text-gray-500">ยอดสูงสุดต่อวัน</div>
+                    <div class="text-3xl font-bold text-green-600">4,010 kg</div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="text-sm text-gray-500">เกิน quota ทั้งเดือน</div>
+                    <div class="text-3xl font-bold text-red-600">24 ราย</div>
+                </div>
+
+            </div>
+
+
+            <!-- TREND GRAPH MONTHLY -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
+
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold text-gray-800">Monthly Trend (Daily Breakdown)</h2>
+                    <span class="text-sm text-gray-500">น้ำหนักรวมแต่ละวันในเดือน</span>
+                </div>
+
+                <div class="bg-blue-50 h-72 rounded-xl flex items-center justify-center text-blue-700 font-medium">
+                    [ GRAPH MOCK: BAR CHART DAILY TREND ]
+                </div>
+
+            </div>
+
+
+            <!-- BUYER BREAKDOWN -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
+
+                <h2 class="text-xl font-semibold mb-4">📦 น้ำหนักรวมตาม Buyer</h2>
+
+                <table class="min-w-full text-sm">
+                    <tr class="bg-gray-50 border-b">
+                        <th class="p-3 text-left">Buyer</th>
+                        <th class="p-3 text-left">จังหวัด</th>
+                        <th class="p-3 text-left">เกษตรในระบบ</th>
+                        <th class="p-3 text-left">น้ำหนักรวมเดือนนี้</th>
+                        <th class="p-3 text-left">สัดส่วน (%)</th>
+                    </tr>
+
+                    <tr class="border-b">
+                        <td class="p-3 font-medium">Buyer A</td>
+                        <td class="p-3">ตรัง</td>
+                        <td class="p-3">120</td>
+                        <td class="p-3 font-bold text-blue-600">45,200 kg</td>
+                        <td class="p-3">46%</td>
+                    </tr>
+
+                    <tr class="border-b">
+                        <td class="p-3 font-medium">Buyer B</td>
+                        <td class="p-3">สงขลา</td>
+                        <td class="p-3">90</td>
+                        <td class="p-3 font-bold text-blue-600">33,800 kg</td>
+                        <td class="p-3">34%</td>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3 font-medium">Buyer C</td>
+                        <td class="p-3">สุราษฎร์ธานี</td>
+                        <td class="p-3">70</td>
+                        <td class="p-3 font-bold text-blue-600">19,000 kg</td>
+                        <td class="p-3">20%</td>
+                    </tr>
+
+                </table>
+
+            </div>
+
+
+            <!-- FARMER RANKING -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
+
+                <h2 class="text-xl font-semibold mb-4">🏆 Farmer Ranking (Top Producers of the Month)</h2>
+
+                <table class="min-w-full text-sm">
+                    <tr class="bg-gray-50 border-b">
+                        <th class="p-3 text-left">อันดับ</th>
+                        <th class="p-3 text-left">ชื่อเกษตรกร</th>
+                        <th class="p-3 text-left">Buyer</th>
+                        <th class="p-3 text-left">จังหวัด</th>
+                        <th class="p-3 text-left">น้ำหนักรวม (kg)</th>
+                    </tr>
+
+                    <tr class="border-b">
+                        <td class="p-3 font-bold">#1</td>
+                        <td class="p-3">นายสมชาย</td>
+                        <td class="p-3">Buyer A</td>
+                        <td class="p-3">ตรัง</td>
+                        <td class="p-3 font-bold text-blue-600">1,880 kg</td>
+                    </tr>
+
+                    <tr class="border-b">
+                        <td class="p-3 font-bold">#2</td>
+                        <td class="p-3">นางสำราญ</td>
+                        <td class="p-3">Buyer A</td>
+                        <td class="p-3">ตรัง</td>
+                        <td class="p-3 font-bold text-blue-600">1,720 kg</td>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3 font-bold">#3</td>
+                        <td class="p-3">นายปรีชา</td>
+                        <td class="p-3">Buyer B</td>
+                        <td class="p-3">สงขลา</td>
+                        <td class="p-3 font-bold text-blue-600">1,650 kg</td>
+                    </tr>
+
+                </table>
+
+            </div>
+
+
+            <!-- MONTHLY FULL BREAKDOWN TABLE -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+
+                <h2 class="text-xl font-semibold mb-4">📄 รายละเอียดรายวันทั้งเดือน</h2>
+
+                <table class="min-w-full text-sm">
+                    <tr class="bg-gray-50 border-b">
+                        <th class="p-3">วันที่</th>
+                        <th class="p-3">น้ำหนักรวม (kg)</th>
+                        <th class="p-3">เกษตรที่ส่ง</th>
+                        <th class="p-3">สูงสุดต่อราย</th>
+                        <th class="p-3">เกิน quota</th>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">01/02/2025</td>
+                        <td class="p-3 font-medium">3,120</td>
+                        <td class="p-3">38</td>
+                        <td class="p-3">95 kg</td>
+                        <td class="p-3 text-red-600">2 ราย</td>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">02/02/2025</td>
+                        <td class="p-3 font-medium">3,480</td>
+                        <td class="p-3">40</td>
+                        <td class="p-3">102 kg</td>
+                        <td class="p-3 text-orange-500">1 ราย</td>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">03/02/2025</td>
+                        <td class="p-3 font-medium">3,010</td>
+                        <td class="p-3">37</td>
+                        <td class="p-3">88 kg</td>
+                        <td class="p-3 text-green-600">0 ราย</td>
+                    </tr>
+
+                </table>
+
+            </div>
+
+        </div>
+
+        <!-- ---------------------------------------------------------
+        REPORT: GIS REPORT (OVERLAY RESULT)
+        --------------------------------------------------------- -->
+        <div class="page" id="reportGIS" style="display:none;">
+
+            <!-- HEADER -->
+            <div class="flex justify-between items-center mb-8">
+                <h1 class="text-3xl font-extrabold text-gray-800">
+                    GIS Report <span class="text-blue-600">.</span>
+                </h1>
+
+                <button onclick="navigate('reports')" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">
+                    ← กลับไป Reports
+                </button>
+            </div>
+
+
+            <!-- FILTER BAR -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
+
+                <h2 class="text-lg font-semibold mb-4 text-gray-800">🔍 Filters</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+
+                    <div>
+                        <label class="text-sm text-gray-600">ปีที่ Overlay</label>
+                        <select class="w-full mt-1 border rounded-lg p-2">
+                            <option>2568</option>
+                            <option>2567</option>
+                            <option>2566</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="text-sm text-gray-600">สถานะ QGIS</label>
+                        <select class="w-full mt-1 border rounded-lg p-2">
+                            <option value="ALL">ทั้งหมด</option>
+                            <option value="OK">OK</option>
+                            <option value="RISK">RISK</option>
+                            <option value="FAIL">FAIL</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="text-sm text-gray-600">จังหวัด</label>
+                        <select class="w-full mt-1 border rounded-lg p-2">
+                            <option>ทั้งหมด</option>
+                            <option>ตรัง</option>
+                            <option>สงขลา</option>
+                            <option>สุราษฎร์ธานี</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="text-sm text-gray-600">ประเภทเอกสาร</label>
+                        <select class="w-full mt-1 border rounded-lg p-2">
+                            <option>ทั้งหมด</option>
+                            <option>โฉนด</option>
+                            <option>นส.3</option>
+                            <option>นส.3ก</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 mt-4">
+                    Apply Filters
+                </button>
+
+            </div>
+
+
+
+            <!-- SUMMARY CARDS -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="text-sm text-gray-500">ผ่าน QGIS</div>
+                    <div class="text-3xl font-bold text-green-600">280</div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="text-sm text-gray-500">Risk (เสี่ยง)</div>
+                    <div class="text-3xl font-bold text-yellow-500">12</div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="text-sm text-gray-500">ไม่ผ่าน (FAIL)</div>
+                    <div class="text-3xl font-bold text-red-600">32</div>
+                </div>
+
+            </div>
+
+
+
+            <!-- GIS MAP MOCK -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
+
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold text-gray-800">GIS Overlay Map</h2>
+                    <span class="text-sm text-gray-500">แผนที่จำลองผล overlay</span>
+                </div>
+
+                <div class="bg-blue-50 h-80 rounded-xl flex items-center justify-center text-blue-700 font-medium">
+                    [ GIS MAP MOCK ]
+                </div>
+
+            </div>
+
+
+
+            <!-- RISK SUMMARY -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
+
+                <h2 class="text-xl font-semibold mb-4">📌 สรุปความเสี่ยง</h2>
+
+                <table class="min-w-full text-sm">
+                    <tr class="bg-gray-50 border-b">
+                        <th class="p-3">ประเภท</th>
+                        <th class="p-3">จำนวนแปลง</th>
+                        <th class="p-3">หมายเหตุ</th>
+                    </tr>
+
+                    <tr class="border-b">
+                        <td class="p-3 text-yellow-600 font-medium">Risk</td>
+                        <td class="p-3">12</td>
+                        <td class="p-3">ใกล้เขตป่าคุ้มครอง</td>
+                    </tr>
+
+                    <tr class="border-b">
+                        <td class="p-3 text-red-600 font-medium">Fail</td>
+                        <td class="p-3">32</td>
+                        <td class="p-3">ทับเขตป่าคุ้มครอง/อุทยาน</td>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3 text-green-600 font-medium">OK</td>
+                        <td class="p-3">280</td>
+                        <td class="p-3">ไม่มีปัญหา</td>
+                    </tr>
+
+                </table>
+
+            </div>
+
+
+
+            <!-- PROVINCE BREAKDOWN -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
+
+                <h2 class="text-xl font-semibold mb-4">📍 สรุปผล Overlay ตามจังหวัด</h2>
+
+                <table class="min-w-full text-sm">
+                    <tr class="bg-gray-50 border-b">
+                        <th class="p-3">จังหวัด</th>
+                        <th class="p-3">OK</th>
+                        <th class="p-3">Risk</th>
+                        <th class="p-3">Fail</th>
+                        <th class="p-3">รวมทั้งหมด</th>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3 font-medium">ตรัง</td>
+                        <td class="p-3 text-green-600">132</td>
+                        <td class="p-3 text-yellow-500">3</td>
+                        <td class="p-3 text-red-600">7</td>
+                        <td class="p-3 font-bold">142</td>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3 font-medium">สงขลา</td>
+                        <td class="p-3 text-green-600">91</td>
+                        <td class="p-3 text-yellow-500">4</td>
+                        <td class="p-3 text-red-600">12</td>
+                        <td class="p-3 font-bold">107</td>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3 font-medium">สุราษฎร์ธานี</td>
+                        <td class="p-3 text-green-600">57</td>
+                        <td class="p-3 text-yellow-500">5</td>
+                        <td class="p-3 text-red-600">13</td>
+                        <td class="p-3 font-bold">75</td>
+                    </tr>
+
+                </table>
+
+            </div>
+
+
+
+            <!-- FULL OVERLAY RESULT TABLE -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+
+                <h2 class="text-xl font-semibold mb-4">📝 รายละเอียดผล Overlay ทั้งหมด</h2>
+
+                <table class="min-w-full text-sm">
+                    <tr class="bg-gray-50 border-b">
+                        <th class="p-3">Plot</th>
+                        <th class="p-3">Farmer</th>
+                        <th class="p-3">จังหวัด</th>
+                        <th class="p-3">เอกสาร</th>
+                        <th class="p-3">สถานะ</th>
+                        <th class="p-3">หมายเหตุ</th>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">A12</td>
+                        <td class="p-3">นายสมชาย</td>
+                        <td class="p-3">ตรัง</td>
+                        <td class="p-3">นส.3ก</td>
+                        <td class="p-3 text-green-600 font-bold">OK</td>
+                        <td class="p-3">-</td>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">B09</td>
+                        <td class="p-3">นางสำราญ</td>
+                        <td class="p-3">ตรัง</td>
+                        <td class="p-3">โฉนด</td>
+                        <td class="p-3 text-red-600 font-bold">FAIL</td>
+                        <td class="p-3">ทับเขตป่าคุ้มครอง</td>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">C17</td>
+                        <td class="p-3">นายปรีชา</td>
+                        <td class="p-3">สงขลา</td>
+                        <td class="p-3">นส.3ก</td>
+                        <td class="p-3 text-yellow-500 font-bold">RISK</td>
+                        <td class="p-3">ใกล้เขตป่า 50m</td>
+                    </tr>
+
+                </table>
+
+            </div>
+
+        </div>
+
+        <!-- ---------------------------------------------------------
+        REPORT: EUDR EXPORT (FULL MODULE)
+        --------------------------------------------------------- -->
+        <div class="page" id="reportEUDR" style="display:none;">
+
+            <!-- HEADER -->
+            <div class="flex justify-between items-center mb-8">
+                <h1 class="text-3xl font-extrabold text-gray-800">
+                    EUDR Export <span class="text-blue-600">.</span>
+                </h1>
+
+                <button onclick="navigate('reports')" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">
+                    ← กลับไป Reports
+                </button>
+            </div>
+
+
+            <!-- DESCRIPTION -->
+            <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm mb-8">
+                <h2 class="text-xl font-semibold mb-3 text-gray-800">📦 Export ข้อมูลตามมาตรฐาน EUDR</h2>
+
+                <p class="text-gray-600 leading-relaxed">
+                    ระบบจะรวบรวมข้อมูลจากเกษตรกร, แปลง, geometry, เอกสารสิทธิ์ และผล GIS overlay
+                    เพื่อนำมาสร้างไฟล์ EUDR Package ซึ่งประกอบด้วย:
+                </p>
+
+                <ul class="list-disc ml-6 mt-3 text-gray-700 space-y-1">
+                    <li>Farmer Profile</li>
+                    <li>Plot Information + Geometry (GeoJSON)</li>
+                    <li>Land Title Document</li>
+                    <li>GIS Compliance (OK / RISK / FAIL)</li>
+                    <li>Receiving Summary ของแปลง</li>
+                    <li>Compliance Flags ตามข้อกำหนด EU</li>
+                </ul>
+
+                <p class="text-gray-500 text-sm mt-2">
+                    สามารถเลือกปีที่ต้องการ หรือ Export ทั้งหมด
+                </p>
+            </div>
+
+
+
+            <!-- FILTERS -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
+                <h2 class="text-lg font-semibold mb-4 text-gray-800">🔍 Filters</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                    <div>
+                        <label class="text-sm text-gray-600">ปีข้อมูล</label>
+                        <select class="w-full mt-1 border rounded-lg p-2">
+                            <option>ทั้งหมด</option>
+                            <option>2568</option>
+                            <option>2567</option>
+                            <option>2566</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="text-sm text-gray-600">จังหวัด</label>
+                        <select class="w-full mt-1 border rounded-lg p-2">
+                            <option>ทั้งหมด</option>
+                            <option>ตรัง</option>
+                            <option>สงขลา</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="text-sm text-gray-600">เฉพาะแปลงที่ผ่าน / ไม่ผ่าน</label>
+                        <select class="w-full mt-1 border rounded-lg p-2">
+                            <option>ทั้งหมด</option>
+                            <option value="OK">ผ่านเท่านั้น</option>
+                            <option value="FAIL">เฉพาะไม่ผ่าน</option>
+                            <option value="RISK">เฉพาะ RISK</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 mt-4">
+                    Apply Filters
+                </button>
+            </div>
+
+
+
+            <!-- SUMMARY CARDS -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="text-sm text-gray-500">Farmer ทั้งหมด</div>
+                    <div class="text-3xl font-bold text-gray-800">124</div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="text-sm text-gray-500">แปลงทั้งหมด</div>
+                    <div class="text-3xl font-bold text-gray-800">312</div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="text-sm text-gray-500">จำนวนที่พร้อมส่งออก</div>
+                    <div class="text-3xl font-bold text-blue-600">298</div>
+                </div>
+
+            </div>
+
+
+
+            <!-- EXPORT OPTIONS -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-8">
+
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">📁 ประเภทไฟล์ที่ต้องการ Export</h2>
+
+                <div class="space-y-2 text-gray-700">
+                    <label class="flex items-center gap-3">
+                        <input type="checkbox">
+                        <span>EUDR JSON Package</span>
+                    </label>
+
+                    <label class="flex items-center gap-3">
+                        <input type="checkbox">
+                        <span>Plot Geometry (GeoJSON)</span>
+                    </label>
+
+                    <label class="flex items-center gap-3">
+                        <input type="checkbox">
+                        <span>Land Title Document (PDF)</span>
+                    </label>
+
+                    <label class="flex items-center gap-3">
+                        <input type="checkbox">
+                        <span>Receiving Summary (CSV)</span>
+                    </label>
+
+                    <label class="flex items-center gap-3">
+                        <input type="checkbox">
+                        <span>ทั้งหมดในรูปแบบ ZIP</span>
+                    </label>
+                </div>
+
+                <button
+                    class="mt-6 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 text-lg font-semibold">
+                    🚀 Export Now
+                </button>
+
+            </div>
+
+
+
+            <!-- PREVIEW BEFORE EXPORT -->
+            <div class="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">📄 Preview (ตัวอย่างข้อมูล)</h2>
+
+                <table class="min-w-full text-sm">
+                    <tr class="bg-gray-50 border-b">
+                        <th class="p-3">Plot</th>
+                        <th class="p-3">Farmer</th>
+                        <th class="p-3">GIS</th>
+                        <th class="p-3">Area</th>
+                        <th class="p-3">Doc</th>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">A12</td>
+                        <td class="p-3">นายสมชาย</td>
+                        <td class="p-3 text-green-600 font-bold">OK</td>
+                        <td class="p-3">8</td>
+                        <td class="p-3">นส.3ก</td>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">B09</td>
+                        <td class="p-3">นางสำราญ</td>
+                        <td class="p-3 text-red-600 font-bold">FAIL</td>
+                        <td class="p-3">5</td>
+                        <td class="p-3">โฉนด</td>
+                    </tr>
+
+                </table>
+
+                <p class="text-gray-500 text-xs mt-3">
+                    หมายเหตุ: ข้อมูลใน Preview นี้เป็นตัวอย่างจากผล Filter ไม่ใช่ข้อมูลเต็ม
+                </p>
+            </div>
+
         </div>
 
 
-    </div>
+        <!-- ---------------------------------------------------------
+        PART 8 — INITIAL IMPORT WIZARD (GLAZEY PREMIUM)
+        --------------------------------------------------------- -->
+        <div class="page" id="importInitial" style="display:none;">
 
-</body>
+            <!-- HEADER -->
+            <div class="flex justify-between items-center mb-8">
+                <h1 class="text-3xl font-extrabold text-gray-800">
+                    Initial Import <span class="text-blue-600">.</span>
+                </h1>
 
-</html>
+                <button onclick="navigate('dashboard')" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">
+                    ← กลับหน้า Dashboard
+                </button>
+            </div>
+
+
+            <!-- STEP INDICATOR -->
+            <div class="flex items-center justify-between mb-10">
+
+                <!-- Step 1 -->
+                <div class="flex-1 flex items-center">
+                    <div
+                        class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">
+                        1</div>
+                    <div class="ml-3 font-semibold text-gray-800">อัปโหลดไฟล์ Excel</div>
+                </div>
+
+                <div class="flex-1 border-t border-gray-300 mx-4"></div>
+
+                <!-- Step 2 -->
+                <div class="flex-1 flex items-center">
+                    <div
+                        class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center font-bold text-gray-600">
+                        2</div>
+                    <div class="ml-3 font-semibold text-gray-600">ตรวจสอบ Sheet</div>
+                </div>
+
+                <div class="flex-1 border-t border-gray-300 mx-4"></div>
+
+                <!-- Step 3 -->
+                <div class="flex-1 flex items-center">
+                    <div
+                        class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center font-bold text-gray-600">
+                        3</div>
+                    <div class="ml-3 font-semibold text-gray-600">จับคู่ Column</div>
+                </div>
+
+                <div class="flex-1 border-t border-gray-300 mx-4"></div>
+
+                <!-- Step 4 -->
+                <div class="flex-1 flex items-center">
+                    <div
+                        class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center font-bold text-gray-600">
+                        4</div>
+                    <div class="ml-3 font-semibold text-gray-600">Preview & Validate</div>
+                </div>
+
+                <div class="flex-1 border-t border-gray-300 mx-4"></div>
+
+                <!-- Step 5 -->
+                <div class="flex-1 flex items-center">
+                    <div
+                        class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center font-bold text-gray-600">
+                        5</div>
+                    <div class="ml-3 font-semibold text-gray-600">Import เข้าระบบ</div>
+                </div>
+
+            </div>
+
+
+
+            <!-- STEP 1: UPLOAD FILE -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-8">
+
+                <h2 class="text-xl font-semibold mb-2 text-gray-800">📄 Step 1 — เลือกไฟล์ Excel</h2>
+
+                <p class="text-gray-600 mb-4">อัปโหลดไฟล์ Excel ที่มีข้อมูล Farmer / Plot / Documents / Area</p>
+
+                <input type="file" accept=".xlsx,.xls" class="w-full p-3 border border-gray-300 rounded-lg mb-4">
+
+                <button class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-lg">
+                    🚀 ตรวจสอบไฟล์
+                </button>
+            </div>
+
+
+
+            <!-- STEP 2: DETECT SHEETS -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-8">
+
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">📑 Step 2 — ตรวจพบชีทในไฟล์</h2>
+
+                <table class="min-w-full text-sm">
+                    <tr class="bg-gray-50 border-b">
+                        <th class="p-3 text-left">Sheet Name</th>
+                        <th class="p-3 text-left">Detected Type</th>
+                        <th class="p-3 text-left">กำหนดประเภท</th>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">Farmer</td>
+                        <td class="p-3 text-gray-600">เกษตรกร</td>
+                        <td class="p-3">
+                            <select class="border p-2 rounded-lg">
+                                <option>Farmer</option>
+                                <option>Plot</option>
+                                <option>PlotDocument</option>
+                                <option>Skip</option>
+                            </select>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">Plot</td>
+                        <td class="p-3 text-gray-600">แปลง</td>
+                        <td class="p-3">
+                            <select class="border p-2 rounded-lg">
+                                <option selected>Plot</option>
+                                <option>Farmer</option>
+                                <option>PlotDocument</option>
+                                <option>Skip</option>
+                            </select>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">Document</td>
+                        <td class="p-3 text-gray-600">เอกสารแปลง</td>
+                        <td class="p-3">
+                            <select class="border p-2 rounded-lg">
+                                <option>Farmer</option>
+                                <option>Plot</option>
+                                <option selected>PlotDocument</option>
+                                <option>Skip</option>
+                            </select>
+                        </td>
+                    </tr>
+                </table>
+
+            </div>
+
+
+
+            <!-- STEP 3: COLUMN MAPPING -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-8">
+
+                <h2 class="text-xl font-semibold mb-4 text-gray-800">🔗 Step 3 — Mapping Column</h2>
+                <p class="text-gray-600 mb-4">จับคู่คอลัมน์ Excel → ฟิลด์ในระบบ</p>
+
+                <table class="min-w-full text-sm">
+                    <tr class="bg-gray-50 border-b">
+                        <th class="p-3 text-left">Excel Column</th>
+                        <th class="p-3 text-left">System Field</th>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">ชื่อเกษตรกร</td>
+                        <td class="p-3">
+                            <select class="border p-2 rounded-lg w-full">
+                                <option>farmer.name</option>
+                                <option>farmer.phone</option>
+                                <option>plot.area</option>
+                            </select>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">พื้นที่ไร่</td>
+                        <td class="p-3">
+                            <select class="border p-2 rounded-lg w-full">
+                                <option>plot.area</option>
+                                <option>farmer.name</option>
+                            </select>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">ปี</td>
+                        <td class="p-3">
+                            <select class="border p-2 rounded-lg w-full">
+                                <option>document.year</option>
+                                <option>plot.area</option>
+                            </select>
+                        </td>
+                    </tr>
+                </table>
+
+            </div>
+
+
+
+            <!-- STEP 4: PREVIEW -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-8">
+
+                <h2 class="text-xl font-semibold mb-3 text-gray-800">🧐 Step 4 — Preview Data</h2>
+
+                <table class="min-w-full text-sm">
+                    <tr class="bg-gray-50 border-b">
+                        <th class="p-3">Farmer</th>
+                        <th class="p-3">Plot</th>
+                        <th class="p-3">Area</th>
+                        <th class="p-3">Doc Year</th>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">นายสมชาย</td>
+                        <td class="p-3">A12</td>
+                        <td class="p-3">8</td>
+                        <td class="p-3">2568</td>
+                    </tr>
+
+                    <tr>
+                        <td class="p-3">นายปรีชา</td>
+                        <td class="p-3">B09</td>
+                        <td class="p-3 text-red-600 font-bold">(missing)</td>
+                        <td class="p-3">2567</td>
+                    </tr>
+                </table>
+
+                <p class="text-red-500 mt-3">
+                    ⚠ พบข้อมูลไม่ครบ: แปลงของ “นายปรีชา” ไม่มีพื้นที่
+                </p>
+            </div>
+
+
+
+            <!-- STEP 5: CONFIRM -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+
+                <h2 class="text-xl font-semibold mb-3 text-gray-800">🚀 Step 5 — Import เข้าระบบ</h2>
+
+                <p class="text-gray-600">ข้อมูลทั้งหมดพร้อมนำเข้าสู่ฐานข้อมูลจริง</p>
+
+                <button class="mt-4 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 text-lg">
+                    ✔ ยืนยันการนำเข้า
+                </button>
+
+            </div>
+
+        </div>
+
+
+
+
+        <script>
+            /* Show Main Page */
+            function navigate(pageId) {
+                document.querySelectorAll(".page").forEach(p => p.style.display = "none");
+                document.getElementById(pageId).style.display = "block";
+
+                // reset all sub-tabs when page changes
+                resetTabs();
+            }
+
+            /* Reset every section tab */
+            function resetTabs() {
+                document.querySelectorAll("[class$='-tab']").forEach(tab => {
+                    tab.classList.remove("active");
+                });
+
+                document.querySelectorAll("[class$='-content']").forEach(content => {
+                    content.style.display = "none";
+                });
+            }
+
+            /* Tabs (Farmer / Plot / Buyer / Reports) */
+            function showTab(section, tabId) {
+                document.querySelectorAll("." + section + "-tab").forEach(t => t.classList.remove("active"));
+                document.querySelectorAll("." + section + "-content").forEach(c => c.style.display = "none");
+
+                document.getElementById(tabId).style.display = "block";
+                document.getElementById(tabId + "-tab").classList.add("active");
+            }
+        </script>
