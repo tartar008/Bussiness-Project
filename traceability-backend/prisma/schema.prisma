@@ -1,0 +1,345 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model dealer {
+  dealer_id                  String           @id
+  suppliercode_xx            String?          @unique
+  dealername                 String?
+  prefix                     String?
+  name                       String?
+  surname                    String?
+  tel_no                     String?
+  address                    String?
+  subdistrict                String?
+  district                   String?
+  province                   String?
+  zipcode                    String?
+  commercial_registration    String?
+  commercial_registration_no String?
+  tax_id                     String?
+  tax_expire                 DateTime?        @db.Date
+  geometry                   String?
+  coordinate                 String?
+  distancefromfactorykm      Decimal?         @db.Decimal
+  created_at                 DateTime?        @db.Date
+  updated_at                 DateTime?        @db.Date
+  plotvalidation             plotvalidation[]
+  transport                  transport[]
+}
+
+model deforestanalysis_gfwalert {
+  deforestanalysisgfwid String            @id
+  plotvalidationid      String?
+  geometry              String?
+  gfwalertresult        String?
+  evidenceresultlink    String?
+  created_at            DateTime?         @db.Date
+  updated_at            DateTime?         @db.Date
+  lk_result_status      lk_result_status? @relation(fields: [gfwalertresult], references: [code], onDelete: NoAction, onUpdate: NoAction)
+  plotvalidation        plotvalidation?   @relation(fields: [plotvalidationid], references: [plotvalidationid], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model deforestanalysis_th {
+  deforestanalysist_hid String            @id
+  plotvalidationid      String?
+  geometry              String?
+  deforestresult        String?
+  evidenceresultlink    String?
+  created_at            DateTime?         @db.Date
+  updated_at            DateTime?         @db.Date
+  lk_result_status      lk_result_status? @relation(fields: [deforestresult], references: [code], onDelete: NoAction, onUpdate: NoAction)
+  plotvalidation        plotvalidation?   @relation(fields: [plotvalidationid], references: [plotvalidationid], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model eudr_approvallist {
+  eudr_approvallistid                                                       String            @id
+  plotvalidationid                                                          String?
+  area                                                                      Decimal?          @db.Decimal
+  geometry                                                                  String?
+  coordinate                                                                String?
+  protectivearearesult                                                      String?
+  reserveforestresult                                                       String?
+  deforestresult                                                            String?
+  gfwalertresult                                                            String?
+  documentresult                                                            String?
+  riskresult                                                                String?
+  status                                                                    String?
+  latexvolume_day                                                           Decimal?          @db.Decimal
+  latexvolume_year                                                          Decimal?          @db.Decimal
+  created_at                                                                DateTime?         @db.Date
+  updated_at                                                                DateTime?         @db.Date
+  lk_result_status_eudr_approvallist_deforestresultTolk_result_status       lk_result_status? @relation("eudr_approvallist_deforestresultTolk_result_status", fields: [deforestresult], references: [code], onDelete: NoAction, onUpdate: NoAction)
+  lk_result_status_eudr_approvallist_documentresultTolk_result_status       lk_result_status? @relation("eudr_approvallist_documentresultTolk_result_status", fields: [documentresult], references: [code], onDelete: NoAction, onUpdate: NoAction)
+  lk_result_status_eudr_approvallist_gfwalertresultTolk_result_status       lk_result_status? @relation("eudr_approvallist_gfwalertresultTolk_result_status", fields: [gfwalertresult], references: [code], onDelete: NoAction, onUpdate: NoAction)
+  plotvalidation                                                            plotvalidation?   @relation(fields: [plotvalidationid], references: [plotvalidationid], onDelete: NoAction, onUpdate: NoAction)
+  lk_result_status_eudr_approvallist_protectivearearesultTolk_result_status lk_result_status? @relation("eudr_approvallist_protectivearearesultTolk_result_status", fields: [protectivearearesult], references: [code], onDelete: NoAction, onUpdate: NoAction)
+  lk_result_status_eudr_approvallist_reserveforestresultTolk_result_status  lk_result_status? @relation("eudr_approvallist_reserveforestresultTolk_result_status", fields: [reserveforestresult], references: [code], onDelete: NoAction, onUpdate: NoAction)
+  lk_result_status_eudr_approvallist_riskresultTolk_result_status           lk_result_status? @relation("eudr_approvallist_riskresultTolk_result_status", fields: [riskresult], references: [code], onDelete: NoAction, onUpdate: NoAction)
+  lk_result_status_eudr_approvallist_statusTolk_result_status               lk_result_status? @relation("eudr_approvallist_statusTolk_result_status", fields: [status], references: [code], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model eudr_daily_fieldlatexcollection {
+  fieldcollectionid String            @id
+  do_no             String?           @unique
+  date              DateTime?         @db.Date
+  plotvalidationid  String?
+  dailyweight       Decimal?          @db.Decimal
+  totalweight       Decimal?          @db.Decimal
+  type              String?
+  result            String?
+  created_at        DateTime?         @db.Date
+  updated_at        DateTime?         @db.Date
+  plotvalidation    plotvalidation?   @relation(fields: [plotvalidationid], references: [plotvalidationid], onDelete: NoAction, onUpdate: NoAction)
+  lk_result_status  lk_result_status? @relation(fields: [result], references: [code], onDelete: NoAction, onUpdate: NoAction)
+  transport_load    transport_load[]
+}
+
+model eudr_daily_weightcheck {
+  weightcheckid    String            @id
+  plotvalidationid String?
+  date             DateTime?         @db.Date
+  dailyweight      Decimal?          @db.Decimal
+  latexvolume_day  Decimal?          @db.Decimal
+  latexvolume_year Decimal?          @db.Decimal
+  result           String?
+  created_at       DateTime?         @db.Date
+  updated_at       DateTime?         @db.Date
+  plotvalidation   plotvalidation?   @relation(fields: [plotvalidationid], references: [plotvalidationid], onDelete: NoAction, onUpdate: NoAction)
+  lk_result_status lk_result_status? @relation(fields: [result], references: [code], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model eudr_latex_transport {
+  latextransportrowid String           @id
+  transport_no        String?          @unique
+  date                DateTime?        @db.Date
+  transportrowid      String?
+  created_at          DateTime?        @db.Date
+  updated_at          DateTime?        @db.Date
+  transport           transport?       @relation(fields: [transportrowid], references: [transportrowid], onDelete: NoAction, onUpdate: NoAction)
+  transport_load      transport_load[]
+}
+
+model farmer {
+  farmer_id      String           @id
+  farmcode_fxxxx String?          @unique
+  prefix         String?
+  name           String?
+  surname        String?
+  address        String?
+  subdistrict    String?
+  district       String?
+  province       String?
+  zipcode        String?
+  farmbooknumber String?
+  created_at     DateTime?        @db.Date
+  updated_at     DateTime?        @db.Date
+  plot           plot[]
+  plotvalidation plotvalidation[]
+}
+
+model lk_car_type {
+  code      String      @id
+  name      String
+  transport transport[]
+}
+
+model lk_deed_type {
+  code           String           @id
+  name           String
+  plot           plot[]
+  plotvalidation plotvalidation[]
+  riskassessment riskassessment[]
+}
+
+model lk_engine_type {
+  code      String      @id
+  name      String
+  transport transport[]
+}
+
+model lk_fuel_type {
+  code      String      @id
+  name      String
+  transport transport[]
+}
+
+model lk_result_status {
+  code                                                                       String                            @id
+  name                                                                       String
+  deforestanalysis_gfwalert                                                  deforestanalysis_gfwalert[]
+  deforestanalysis_th                                                        deforestanalysis_th[]
+  eudr_approvallist_eudr_approvallist_deforestresultTolk_result_status       eudr_approvallist[]               @relation("eudr_approvallist_deforestresultTolk_result_status")
+  eudr_approvallist_eudr_approvallist_documentresultTolk_result_status       eudr_approvallist[]               @relation("eudr_approvallist_documentresultTolk_result_status")
+  eudr_approvallist_eudr_approvallist_gfwalertresultTolk_result_status       eudr_approvallist[]               @relation("eudr_approvallist_gfwalertresultTolk_result_status")
+  eudr_approvallist_eudr_approvallist_protectivearearesultTolk_result_status eudr_approvallist[]               @relation("eudr_approvallist_protectivearearesultTolk_result_status")
+  eudr_approvallist_eudr_approvallist_reserveforestresultTolk_result_status  eudr_approvallist[]               @relation("eudr_approvallist_reserveforestresultTolk_result_status")
+  eudr_approvallist_eudr_approvallist_riskresultTolk_result_status           eudr_approvallist[]               @relation("eudr_approvallist_riskresultTolk_result_status")
+  eudr_approvallist_eudr_approvallist_statusTolk_result_status               eudr_approvallist[]               @relation("eudr_approvallist_statusTolk_result_status")
+  eudr_daily_fieldlatexcollection                                            eudr_daily_fieldlatexcollection[]
+  eudr_daily_weightcheck                                                     eudr_daily_weightcheck[]
+  plotvalidation                                                             plotvalidation[]
+  plotvalidation_result                                                      plotvalidation_result[]
+  protectivearea_analysis                                                    protectivearea_analysis[]
+  reserveforest_analysis                                                     reserveforest_analysis[]
+  riskassessment_riskassessment_documentresultTolk_result_status             riskassessment[]                  @relation("riskassessment_documentresultTolk_result_status")
+  riskassessment_riskassessment_riskresultTolk_result_status                 riskassessment[]                  @relation("riskassessment_riskresultTolk_result_status")
+}
+
+model lk_route_type {
+  code String @id
+  name String
+  plot plot[]
+}
+
+model plot {
+  plot_id        String           @id
+  plotcode_pxxxx String?          @unique
+  farmer_id      String?
+  subdistrict    String?
+  district       String?
+  province       String?
+  deedtype       String?
+  deedno         String?
+  area_rai       Decimal?         @db.Decimal
+  area_ngan      Decimal?         @db.Decimal
+  area_tarangwa  Decimal?         @db.Decimal
+  totalarea_rai  Decimal?         @db.Decimal
+  geometry       String?
+  lat            Decimal?         @db.Decimal
+  long           Decimal?         @db.Decimal
+  maxproduction  Decimal?         @db.Decimal
+  tier           Decimal?         @db.Decimal
+  routetype      String?
+  created_at     DateTime?        @db.Date
+  updated_at     DateTime?        @db.Date
+  lk_deed_type   lk_deed_type?    @relation(fields: [deedtype], references: [code], onDelete: NoAction, onUpdate: NoAction)
+  farmer         farmer?          @relation(fields: [farmer_id], references: [farmer_id], onDelete: NoAction, onUpdate: NoAction)
+  lk_route_type  lk_route_type?   @relation(fields: [routetype], references: [code], onDelete: NoAction, onUpdate: NoAction)
+  plotvalidation plotvalidation[]
+}
+
+model plotvalidation {
+  plotvalidationid                String                            @id
+  unique_xxxfxxxxpxxxx            String?                           @unique
+  dealer_id                       String?
+  farmer_id                       String?
+  plot_id                         String?
+  district                        String?
+  province                        String?
+  deedtype                        String?
+  deedno                          String?
+  totalarea_rai                   Decimal?                          @db.Decimal
+  result                          String?
+  geometry_clean                  String?
+  created_at                      DateTime?                         @db.Date
+  updated_at                      DateTime?                         @db.Date
+  deforestanalysis_gfwalert       deforestanalysis_gfwalert[]
+  deforestanalysis_th             deforestanalysis_th[]
+  eudr_approvallist               eudr_approvallist[]
+  eudr_daily_fieldlatexcollection eudr_daily_fieldlatexcollection[]
+  eudr_daily_weightcheck          eudr_daily_weightcheck[]
+  dealer                          dealer?                           @relation(fields: [dealer_id], references: [dealer_id], onDelete: NoAction, onUpdate: NoAction)
+  lk_deed_type                    lk_deed_type?                     @relation(fields: [deedtype], references: [code], onDelete: NoAction, onUpdate: NoAction)
+  farmer                          farmer?                           @relation(fields: [farmer_id], references: [farmer_id], onDelete: NoAction, onUpdate: NoAction)
+  plot                            plot?                             @relation(fields: [plot_id], references: [plot_id], onDelete: NoAction, onUpdate: NoAction)
+  lk_result_status                lk_result_status?                 @relation(fields: [result], references: [code], onDelete: NoAction, onUpdate: NoAction)
+  plotvalidation_result           plotvalidation_result[]
+  protectivearea_analysis         protectivearea_analysis[]
+  reserveforest_analysis          reserveforest_analysis[]
+  riskassessment                  riskassessment[]
+}
+
+model plotvalidation_result {
+  plotvalidationresultid String            @id
+  plotvalidationid       String?
+  geometry_chosen        String?
+  result                 String?
+  created_at             DateTime?         @db.Date
+  updated_at             DateTime?         @db.Date
+  plotvalidation         plotvalidation?   @relation(fields: [plotvalidationid], references: [plotvalidationid], onDelete: NoAction, onUpdate: NoAction)
+  lk_result_status       lk_result_status? @relation(fields: [result], references: [code], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model protectivearea_analysis {
+  protectiveareaanalysisid String            @id
+  plotvalidationid         String?
+  geometry                 String?
+  protectivearearesult     String?
+  created_at               DateTime?         @db.Date
+  updated_at               DateTime?         @db.Date
+  plotvalidation           plotvalidation?   @relation(fields: [plotvalidationid], references: [plotvalidationid], onDelete: NoAction, onUpdate: NoAction)
+  lk_result_status         lk_result_status? @relation(fields: [protectivearearesult], references: [code], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model reserveforest_analysis {
+  reserveforestanalysisid String            @id
+  plotvalidationid        String?
+  geometry                String?
+  reserveforestresult     String?
+  evidenceresult          String?
+  created_at              DateTime?         @db.Date
+  updated_at              DateTime?         @db.Date
+  plotvalidation          plotvalidation?   @relation(fields: [plotvalidationid], references: [plotvalidationid], onDelete: NoAction, onUpdate: NoAction)
+  lk_result_status        lk_result_status? @relation(fields: [reserveforestresult], references: [code], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model riskassessment {
+  riskassessmentid                                                 String            @id
+  plotvalidationid                                                 String?
+  identificationdoc                                                String?
+  deedtype                                                         String?
+  pdpa                                                             String?
+  documentresult                                                   String?
+  labour                                                           String?
+  law                                                              String?
+  fpic                                                             String?
+  chemical                                                         String?
+  taxese                                                           String?
+  riskresult                                                       String?
+  created_at                                                       DateTime?         @db.Date
+  updated_at                                                       DateTime?         @db.Date
+  lk_deed_type                                                     lk_deed_type?     @relation(fields: [deedtype], references: [code], onDelete: NoAction, onUpdate: NoAction)
+  lk_result_status_riskassessment_documentresultTolk_result_status lk_result_status? @relation("riskassessment_documentresultTolk_result_status", fields: [documentresult], references: [code], onDelete: NoAction, onUpdate: NoAction)
+  plotvalidation                                                   plotvalidation?   @relation(fields: [plotvalidationid], references: [plotvalidationid], onDelete: NoAction, onUpdate: NoAction)
+  lk_result_status_riskassessment_riskresultTolk_result_status     lk_result_status? @relation("riskassessment_riskresultTolk_result_status", fields: [riskresult], references: [code], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model transport {
+  transportrowid       String                 @id
+  truck_code           String?                @unique
+  dealer_id            String?
+  ownername            String?
+  cartype              String?
+  enginetype           String?
+  fueltype             String?
+  licenseplateno       String?
+  geometry             String?
+  coordinate           String?
+  capacity             Decimal?               @db.Decimal
+  distancefromdealer   String?
+  created_at           DateTime?              @db.Date
+  updated_at           DateTime?              @db.Date
+  eudr_latex_transport eudr_latex_transport[]
+  lk_car_type          lk_car_type?           @relation(fields: [cartype], references: [code], onDelete: NoAction, onUpdate: NoAction)
+  dealer               dealer?                @relation(fields: [dealer_id], references: [dealer_id], onDelete: NoAction, onUpdate: NoAction)
+  lk_engine_type       lk_engine_type?        @relation(fields: [enginetype], references: [code], onDelete: NoAction, onUpdate: NoAction)
+  lk_fuel_type         lk_fuel_type?          @relation(fields: [fueltype], references: [code], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model transport_load {
+  transportloadid                 String                           @id
+  latextransportrowid             String?
+  fieldcollectionid               String?
+  loadweight                      Decimal?                         @db.Decimal
+  created_at                      DateTime?                        @db.Date
+  updated_at                      DateTime?                        @db.Date
+  eudr_daily_fieldlatexcollection eudr_daily_fieldlatexcollection? @relation(fields: [fieldcollectionid], references: [fieldcollectionid], onDelete: NoAction, onUpdate: NoAction)
+  eudr_latex_transport            eudr_latex_transport?            @relation(fields: [latextransportrowid], references: [latextransportrowid], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([latextransportrowid, fieldcollectionid])
+}
