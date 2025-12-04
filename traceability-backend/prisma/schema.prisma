@@ -1,3 +1,7 @@
+// ====================================================================
+// GENERATOR & DATASOURCE
+// ====================================================================
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -6,340 +10,344 @@ datasource db {
   provider = "postgresql"
 }
 
-model dealer {
-  dealer_id                  String           @id
-  suppliercode_xx            String?          @unique
-  dealername                 String?
-  prefix                     String?
-  name                       String?
-  surname                    String?
-  tel_no                     String?
-  address                    String?
-  subdistrict                String?
-  district                   String?
-  province                   String?
-  zipcode                    String?
-  commercial_registration    String?
-  commercial_registration_no String?
-  tax_id                     String?
-  tax_expire                 DateTime?        @db.Date
-  geometry                   String?
-  coordinate                 String?
-  distancefromfactorykm      Decimal?         @db.Decimal
-  created_at                 DateTime?        @db.Date
-  updated_at                 DateTime?        @db.Date
-  plotvalidation             plotvalidation[]
-  transport                  transport[]
+// ====================================================================
+// MASTER TABLES
+// ====================================================================
+
+// ------------------------------
+// Provinces
+// ------------------------------
+model province {
+  province_id BigInt  @id @default(autoincrement())
+  name_th     String?
+
+  districts district[]
+  plots     plot[]
 }
 
-model deforestanalysis_gfwalert {
-  deforestanalysisgfwid String            @id
-  plotvalidationid      String?
-  geometry              String?
-  gfwalertresult        String?
-  evidenceresultlink    String?
-  created_at            DateTime?         @db.Date
-  updated_at            DateTime?         @db.Date
-  lk_result_status      lk_result_status? @relation(fields: [gfwalertresult], references: [code], onDelete: NoAction, onUpdate: NoAction)
-  plotvalidation        plotvalidation?   @relation(fields: [plotvalidationid], references: [plotvalidationid], onDelete: NoAction, onUpdate: NoAction)
+// ------------------------------
+// Districts
+// ------------------------------
+model district {
+  district_id BigInt  @id @default(autoincrement())
+  province_id BigInt?
+  name_th     String?
+
+  province province? @relation(fields: [province_id], references: [province_id])
+  plots    plot[]
 }
 
-model deforestanalysis_th {
-  deforestanalysist_hid String            @id
-  plotvalidationid      String?
-  geometry              String?
-  deforestresult        String?
-  evidenceresultlink    String?
-  created_at            DateTime?         @db.Date
-  updated_at            DateTime?         @db.Date
-  lk_result_status      lk_result_status? @relation(fields: [deforestresult], references: [code], onDelete: NoAction, onUpdate: NoAction)
-  plotvalidation        plotvalidation?   @relation(fields: [plotvalidationid], references: [plotvalidationid], onDelete: NoAction, onUpdate: NoAction)
+// ------------------------------
+// Statuses (Plot / Farmbook Status Master)
+// ------------------------------
+model status {
+  status_id   BigInt  @id @default(autoincrement())
+  farmbook_id String? @db.VarChar(255)
+  plot_id     String? @db.VarChar(255)
+  added_at    String? @db.VarChar(255)
+  name_th     String?
+  description String?
+
+  plot_status_links plot_status_link[]
 }
 
-model eudr_approvallist {
-  eudr_approvallistid                                                       String            @id
-  plotvalidationid                                                          String?
-  area                                                                      Decimal?          @db.Decimal
-  geometry                                                                  String?
-  coordinate                                                                String?
-  protectivearearesult                                                      String?
-  reserveforestresult                                                       String?
-  deforestresult                                                            String?
-  gfwalertresult                                                            String?
-  documentresult                                                            String?
-  riskresult                                                                String?
-  status                                                                    String?
-  latexvolume_day                                                           Decimal?          @db.Decimal
-  latexvolume_year                                                          Decimal?          @db.Decimal
-  created_at                                                                DateTime?         @db.Date
-  updated_at                                                                DateTime?         @db.Date
-  lk_result_status_eudr_approvallist_deforestresultTolk_result_status       lk_result_status? @relation("eudr_approvallist_deforestresultTolk_result_status", fields: [deforestresult], references: [code], onDelete: NoAction, onUpdate: NoAction)
-  lk_result_status_eudr_approvallist_documentresultTolk_result_status       lk_result_status? @relation("eudr_approvallist_documentresultTolk_result_status", fields: [documentresult], references: [code], onDelete: NoAction, onUpdate: NoAction)
-  lk_result_status_eudr_approvallist_gfwalertresultTolk_result_status       lk_result_status? @relation("eudr_approvallist_gfwalertresultTolk_result_status", fields: [gfwalertresult], references: [code], onDelete: NoAction, onUpdate: NoAction)
-  plotvalidation                                                            plotvalidation?   @relation(fields: [plotvalidationid], references: [plotvalidationid], onDelete: NoAction, onUpdate: NoAction)
-  lk_result_status_eudr_approvallist_protectivearearesultTolk_result_status lk_result_status? @relation("eudr_approvallist_protectivearearesultTolk_result_status", fields: [protectivearearesult], references: [code], onDelete: NoAction, onUpdate: NoAction)
-  lk_result_status_eudr_approvallist_reserveforestresultTolk_result_status  lk_result_status? @relation("eudr_approvallist_reserveforestresultTolk_result_status", fields: [reserveforestresult], references: [code], onDelete: NoAction, onUpdate: NoAction)
-  lk_result_status_eudr_approvallist_riskresultTolk_result_status           lk_result_status? @relation("eudr_approvallist_riskresultTolk_result_status", fields: [riskresult], references: [code], onDelete: NoAction, onUpdate: NoAction)
-  lk_result_status_eudr_approvallist_statusTolk_result_status               lk_result_status? @relation("eudr_approvallist_statusTolk_result_status", fields: [status], references: [code], onDelete: NoAction, onUpdate: NoAction)
+// ------------------------------
+// StatusReceivingTransaction
+// ------------------------------
+model status_receiving_transaction {
+  status_receiving_id   BigInt  @id @default(autoincrement())
+  status_receiving_name String?
+  description           String?
 }
 
-model eudr_daily_fieldlatexcollection {
-  fieldcollectionid String            @id
-  do_no             String?           @unique
-  date              DateTime?         @db.Date
-  plotvalidationid  String?
-  dailyweight       Decimal?          @db.Decimal
-  totalweight       Decimal?          @db.Decimal
-  type              String?
-  result            String?
-  created_at        DateTime?         @db.Date
-  updated_at        DateTime?         @db.Date
-  plotvalidation    plotvalidation?   @relation(fields: [plotvalidationid], references: [plotvalidationid], onDelete: NoAction, onUpdate: NoAction)
-  lk_result_status  lk_result_status? @relation(fields: [result], references: [code], onDelete: NoAction, onUpdate: NoAction)
-  transport_load    transport_load[]
+// ------------------------------
+// FarmBookType
+// ------------------------------
+model farmbook_type {
+  farmbook_type_id BigInt  @id @default(autoincrement())
+  name_th          String?
+  description      String?
+
+  farmbooks farmbook[]
 }
 
-model eudr_daily_weightcheck {
-  weightcheckid    String            @id
-  plotvalidationid String?
-  date             DateTime?         @db.Date
-  dailyweight      Decimal?          @db.Decimal
-  latexvolume_day  Decimal?          @db.Decimal
-  latexvolume_year Decimal?          @db.Decimal
-  result           String?
-  created_at       DateTime?         @db.Date
-  updated_at       DateTime?         @db.Date
-  plotvalidation   plotvalidation?   @relation(fields: [plotvalidationid], references: [plotvalidationid], onDelete: NoAction, onUpdate: NoAction)
-  lk_result_status lk_result_status? @relation(fields: [result], references: [code], onDelete: NoAction, onUpdate: NoAction)
-}
+// ====================================================================
+// ENTITY TABLES
+// ====================================================================
 
-model eudr_latex_transport {
-  latextransportrowid String           @id
-  transport_no        String?          @unique
-  date                DateTime?        @db.Date
-  transportrowid      String?
-  created_at          DateTime?        @db.Date
-  updated_at          DateTime?        @db.Date
-  transport           transport?       @relation(fields: [transportrowid], references: [transportrowid], onDelete: NoAction, onUpdate: NoAction)
-  transport_load      transport_load[]
-}
-
-model farmer {
-  farmer_id      String           @id
-  farmcode_fxxxx String?          @unique
-  prefix         String?
-  name           String?
-  surname        String?
+// ------------------------------
+// Buyers
+// ------------------------------
+model buyer {
+  buyer_id       BigInt   @id @default(autoincrement())
+  buyer_name     String?
+  license_number String?
+  contact_person String?
+  phone          String?
   address        String?
-  subdistrict    String?
-  district       String?
-  province       String?
-  zipcode        String?
-  farmbooknumber String?
-  created_at     DateTime?        @db.Date
-  updated_at     DateTime?        @db.Date
-  plot           plot[]
-  plotvalidation plotvalidation[]
+  province_id    BigInt?
+  district_id    BigInt?
+  subdistrict_id BigInt?
+  created_at     DateTime @default(now())
+
+  farmers                farmer[]
+  vehicles               vehicle[]
+  drivers                driver[]
+  receiving_transactions receiving_transaction[]
+  buyer_farmers          buyer_farmer[]
+  vehicle_drivers        vehicle_driver[] // <— เพิ่มบรรทัดนี้!
 }
 
-model lk_car_type {
-  code      String      @id
-  name      String
-  transport transport[]
+// ------------------------------
+// Farmer
+// ------------------------------
+model farmer {
+  farmer_id      BigInt    @id @default(autoincrement())
+  farmer_name    String?
+  farmer_surname String?
+  citizen_id     String?
+  phone          String?
+  buyer_id       BigInt?
+  address        String?
+  created_at     DateTime?
+  updated_at     DateTime?
+
+  buyer                  buyer?                  @relation(fields: [buyer_id], references: [buyer_id])
+  plots                  plot[]
+  farmbooks              farmbook[]
+  buyer_links            buyer_farmer[]
+  receiving_transactions receiving_transaction[]
 }
 
-model lk_deed_type {
-  code           String           @id
-  name           String
-  plot           plot[]
-  plotvalidation plotvalidation[]
-  riskassessment riskassessment[]
-}
-
-model lk_engine_type {
-  code      String      @id
-  name      String
-  transport transport[]
-}
-
-model lk_fuel_type {
-  code      String      @id
-  name      String
-  transport transport[]
-}
-
-model lk_result_status {
-  code                                                                       String                            @id
-  name                                                                       String
-  deforestanalysis_gfwalert                                                  deforestanalysis_gfwalert[]
-  deforestanalysis_th                                                        deforestanalysis_th[]
-  eudr_approvallist_eudr_approvallist_deforestresultTolk_result_status       eudr_approvallist[]               @relation("eudr_approvallist_deforestresultTolk_result_status")
-  eudr_approvallist_eudr_approvallist_documentresultTolk_result_status       eudr_approvallist[]               @relation("eudr_approvallist_documentresultTolk_result_status")
-  eudr_approvallist_eudr_approvallist_gfwalertresultTolk_result_status       eudr_approvallist[]               @relation("eudr_approvallist_gfwalertresultTolk_result_status")
-  eudr_approvallist_eudr_approvallist_protectivearearesultTolk_result_status eudr_approvallist[]               @relation("eudr_approvallist_protectivearearesultTolk_result_status")
-  eudr_approvallist_eudr_approvallist_reserveforestresultTolk_result_status  eudr_approvallist[]               @relation("eudr_approvallist_reserveforestresultTolk_result_status")
-  eudr_approvallist_eudr_approvallist_riskresultTolk_result_status           eudr_approvallist[]               @relation("eudr_approvallist_riskresultTolk_result_status")
-  eudr_approvallist_eudr_approvallist_statusTolk_result_status               eudr_approvallist[]               @relation("eudr_approvallist_statusTolk_result_status")
-  eudr_daily_fieldlatexcollection                                            eudr_daily_fieldlatexcollection[]
-  eudr_daily_weightcheck                                                     eudr_daily_weightcheck[]
-  plotvalidation                                                             plotvalidation[]
-  plotvalidation_result                                                      plotvalidation_result[]
-  protectivearea_analysis                                                    protectivearea_analysis[]
-  reserveforest_analysis                                                     reserveforest_analysis[]
-  riskassessment_riskassessment_documentresultTolk_result_status             riskassessment[]                  @relation("riskassessment_documentresultTolk_result_status")
-  riskassessment_riskassessment_riskresultTolk_result_status                 riskassessment[]                  @relation("riskassessment_riskresultTolk_result_status")
-}
-
-model lk_route_type {
-  code String @id
-  name String
-  plot plot[]
-}
-
+// ------------------------------
+// Plots
+// ------------------------------
 model plot {
-  plot_id        String           @id
-  plotcode_pxxxx String?          @unique
-  farmer_id      String?
-  subdistrict    String?
-  district       String?
-  province       String?
-  deedtype       String?
-  deedno         String?
-  area_rai       Decimal?         @db.Decimal
-  area_ngan      Decimal?         @db.Decimal
-  area_tarangwa  Decimal?         @db.Decimal
-  totalarea_rai  Decimal?         @db.Decimal
-  geometry       String?
-  lat            Decimal?         @db.Decimal
-  long           Decimal?         @db.Decimal
-  maxproduction  Decimal?         @db.Decimal
-  tier           Decimal?         @db.Decimal
-  routetype      String?
-  created_at     DateTime?        @db.Date
-  updated_at     DateTime?        @db.Date
-  lk_deed_type   lk_deed_type?    @relation(fields: [deedtype], references: [code], onDelete: NoAction, onUpdate: NoAction)
-  farmer         farmer?          @relation(fields: [farmer_id], references: [farmer_id], onDelete: NoAction, onUpdate: NoAction)
-  lk_route_type  lk_route_type?   @relation(fields: [routetype], references: [code], onDelete: NoAction, onUpdate: NoAction)
-  plotvalidation plotvalidation[]
+  plot_id              BigInt    @id @default(autoincrement())
+  farmer_id            BigInt?
+  land_code            String?
+  province_id          BigInt?
+  district_id          BigInt?
+  subdistrict_id       BigInt?
+  land_document_id     BigInt?
+  deed_type            String?
+  area_rai             Int?
+  area_ngan            Int?
+  area_wah             Int?
+  area_acre            Int?
+  geometry_type        String?
+  is_owned_before_2020 Boolean?
+  created_at           DateTime?
+  updated_at           DateTime?
+
+  farmer   farmer?   @relation(fields: [farmer_id], references: [farmer_id])
+  province province? @relation(fields: [province_id], references: [province_id])
+  district district? @relation(fields: [district_id], references: [district_id])
+
+  land_document land_document? @relation(fields: [land_document_id], references: [land_document_id])
+
+  plot_documents         plot_document[]
+  plot_geometry          plot_geometry[]
+  farmbook_plots         farmbook_plot[]
+  plot_status_links      plot_status_link[]
+  receiving_transactions receiving_transaction[]
+  validations            validations[]
 }
 
-model plotvalidation {
-  plotvalidationid                String                            @id
-  unique_xxxfxxxxpxxxx            String?                           @unique
-  dealer_id                       String?
-  farmer_id                       String?
-  plot_id                         String?
-  district                        String?
-  province                        String?
-  deedtype                        String?
-  deedno                          String?
-  totalarea_rai                   Decimal?                          @db.Decimal
-  result                          String?
-  geometry_clean                  String?
-  created_at                      DateTime?                         @db.Date
-  updated_at                      DateTime?                         @db.Date
-  deforestanalysis_gfwalert       deforestanalysis_gfwalert[]
-  deforestanalysis_th             deforestanalysis_th[]
-  eudr_approvallist               eudr_approvallist[]
-  eudr_daily_fieldlatexcollection eudr_daily_fieldlatexcollection[]
-  eudr_daily_weightcheck          eudr_daily_weightcheck[]
-  dealer                          dealer?                           @relation(fields: [dealer_id], references: [dealer_id], onDelete: NoAction, onUpdate: NoAction)
-  lk_deed_type                    lk_deed_type?                     @relation(fields: [deedtype], references: [code], onDelete: NoAction, onUpdate: NoAction)
-  farmer                          farmer?                           @relation(fields: [farmer_id], references: [farmer_id], onDelete: NoAction, onUpdate: NoAction)
-  plot                            plot?                             @relation(fields: [plot_id], references: [plot_id], onDelete: NoAction, onUpdate: NoAction)
-  lk_result_status                lk_result_status?                 @relation(fields: [result], references: [code], onDelete: NoAction, onUpdate: NoAction)
-  plotvalidation_result           plotvalidation_result[]
-  protectivearea_analysis         protectivearea_analysis[]
-  reserveforest_analysis          reserveforest_analysis[]
-  riskassessment                  riskassessment[]
+// ------------------------------
+// LandDocument
+// ------------------------------
+model land_document {
+  land_document_id BigInt    @id @default(autoincrement())
+  document_number  String?
+  document_type    String?
+  issued_date      DateTime?
+  created_at       DateTime?
+
+  plots plot[]
 }
 
-model plotvalidation_result {
-  plotvalidationresultid String            @id
-  plotvalidationid       String?
-  geometry_chosen        String?
-  result                 String?
-  created_at             DateTime?         @db.Date
-  updated_at             DateTime?         @db.Date
-  plotvalidation         plotvalidation?   @relation(fields: [plotvalidationid], references: [plotvalidationid], onDelete: NoAction, onUpdate: NoAction)
-  lk_result_status       lk_result_status? @relation(fields: [result], references: [code], onDelete: NoAction, onUpdate: NoAction)
+// ------------------------------
+// Vehicle
+// ------------------------------
+model vehicle {
+  vehicle_id   BigInt    @id @default(autoincrement())
+  buyer_id     BigInt?
+  plate_number String?
+  vehicle_type String?
+  brand        String?
+  model        String?
+  created_at   DateTime?
+
+  buyer                  buyer?                  @relation(fields: [buyer_id], references: [buyer_id])
+  receiving_transactions receiving_transaction[]
+  vehicle_drivers        vehicle_driver[]
 }
 
-model protectivearea_analysis {
-  protectiveareaanalysisid String            @id
-  plotvalidationid         String?
-  geometry                 String?
-  protectivearearesult     String?
-  created_at               DateTime?         @db.Date
-  updated_at               DateTime?         @db.Date
-  plotvalidation           plotvalidation?   @relation(fields: [plotvalidationid], references: [plotvalidationid], onDelete: NoAction, onUpdate: NoAction)
-  lk_result_status         lk_result_status? @relation(fields: [protectivearearesult], references: [code], onDelete: NoAction, onUpdate: NoAction)
+// ------------------------------
+// Driver
+// ------------------------------
+model driver {
+  driver_id      BigInt    @id @default(autoincrement())
+  buyer_id       BigInt?
+  driver_name    String?
+  driver_surname String?
+  license_number String?
+  phone          String?
+  created_at     DateTime?
+
+  buyer                  buyer?                  @relation(fields: [buyer_id], references: [buyer_id])
+  vehicle_drivers        vehicle_driver[]
+  receiving_transactions receiving_transaction[]
 }
 
-model reserveforest_analysis {
-  reserveforestanalysisid String            @id
-  plotvalidationid        String?
-  geometry                String?
-  reserveforestresult     String?
-  evidenceresult          String?
-  created_at              DateTime?         @db.Date
-  updated_at              DateTime?         @db.Date
-  plotvalidation          plotvalidation?   @relation(fields: [plotvalidationid], references: [plotvalidationid], onDelete: NoAction, onUpdate: NoAction)
-  lk_result_status        lk_result_status? @relation(fields: [reserveforestresult], references: [code], onDelete: NoAction, onUpdate: NoAction)
+// ====================================================================
+// DOCUMENTS & GEOMETRY
+// ====================================================================
+
+// ------------------------------
+// PlotDocuments
+// ------------------------------
+model plot_document {
+  doc_id     BigInt    @id @default(autoincrement())
+  plot_id    BigInt?
+  file_name  String?
+  file_type  String?
+  file_url   String?
+  created_at DateTime?
+
+  plot plot? @relation(fields: [plot_id], references: [plot_id])
 }
 
-model riskassessment {
-  riskassessmentid                                                 String            @id
-  plotvalidationid                                                 String?
-  identificationdoc                                                String?
-  deedtype                                                         String?
-  pdpa                                                             String?
-  documentresult                                                   String?
-  labour                                                           String?
-  law                                                              String?
-  fpic                                                             String?
-  chemical                                                         String?
-  taxese                                                           String?
-  riskresult                                                       String?
-  created_at                                                       DateTime?         @db.Date
-  updated_at                                                       DateTime?         @db.Date
-  lk_deed_type                                                     lk_deed_type?     @relation(fields: [deedtype], references: [code], onDelete: NoAction, onUpdate: NoAction)
-  lk_result_status_riskassessment_documentresultTolk_result_status lk_result_status? @relation("riskassessment_documentresultTolk_result_status", fields: [documentresult], references: [code], onDelete: NoAction, onUpdate: NoAction)
-  plotvalidation                                                   plotvalidation?   @relation(fields: [plotvalidationid], references: [plotvalidationid], onDelete: NoAction, onUpdate: NoAction)
-  lk_result_status_riskassessment_riskresultTolk_result_status     lk_result_status? @relation("riskassessment_riskresultTolk_result_status", fields: [riskresult], references: [code], onDelete: NoAction, onUpdate: NoAction)
+// ------------------------------
+// PlotGeometry
+// ------------------------------
+model plot_geometry {
+  geometry_id BigInt    @id @default(autoincrement())
+  plot_id     BigInt?
+  coordinates String?
+  created_at  DateTime?
+
+  plot plot? @relation(fields: [plot_id], references: [plot_id])
 }
 
-model transport {
-  transportrowid       String                 @id
-  truck_code           String?                @unique
-  dealer_id            String?
-  ownername            String?
-  cartype              String?
-  enginetype           String?
-  fueltype             String?
-  licenseplateno       String?
-  geometry             String?
-  coordinate           String?
-  capacity             Decimal?               @db.Decimal
-  distancefromdealer   String?
-  created_at           DateTime?              @db.Date
-  updated_at           DateTime?              @db.Date
-  eudr_latex_transport eudr_latex_transport[]
-  lk_car_type          lk_car_type?           @relation(fields: [cartype], references: [code], onDelete: NoAction, onUpdate: NoAction)
-  dealer               dealer?                @relation(fields: [dealer_id], references: [dealer_id], onDelete: NoAction, onUpdate: NoAction)
-  lk_engine_type       lk_engine_type?        @relation(fields: [enginetype], references: [code], onDelete: NoAction, onUpdate: NoAction)
-  lk_fuel_type         lk_fuel_type?          @relation(fields: [fueltype], references: [code], onDelete: NoAction, onUpdate: NoAction)
+// ====================================================================
+// FARMBOOK SYSTEM
+// ====================================================================
+
+// ------------------------------
+// Farmbook
+// ------------------------------
+model farmbook {
+  farmbook_id      BigInt    @id @default(autoincrement())
+  farmer_id        BigInt?
+  farmbook_type_id BigInt?
+  farmbook_number  String?
+  created_at       DateTime?
+
+  farmer        farmer?        @relation(fields: [farmer_id], references: [farmer_id])
+  farmbook_type farmbook_type? @relation(fields: [farmbook_type_id], references: [farmbook_type_id])
+
+  farmbook_plots farmbook_plot[]
 }
 
-model transport_load {
-  transportloadid                 String                           @id
-  latextransportrowid             String?
-  fieldcollectionid               String?
-  loadweight                      Decimal?                         @db.Decimal
-  created_at                      DateTime?                        @db.Date
-  updated_at                      DateTime?                        @db.Date
-  eudr_daily_fieldlatexcollection eudr_daily_fieldlatexcollection? @relation(fields: [fieldcollectionid], references: [fieldcollectionid], onDelete: NoAction, onUpdate: NoAction)
-  eudr_latex_transport            eudr_latex_transport?            @relation(fields: [latextransportrowid], references: [latextransportrowid], onDelete: NoAction, onUpdate: NoAction)
+// ------------------------------
+// FarmbookPlots
+// ------------------------------
+model farmbook_plot {
+  farmbook_plot_id BigInt    @id @default(autoincrement())
+  farmbook_id      BigInt?
+  plot_id          BigInt?
+  created_at       DateTime?
 
-  @@unique([latextransportrowid, fieldcollectionid])
+  farmbook farmbook? @relation(fields: [farmbook_id], references: [farmbook_id])
+  plot     plot?     @relation(fields: [plot_id], references: [plot_id])
+}
+
+// ====================================================================
+// TRANSACTIONS
+// ====================================================================
+
+// ------------------------------
+// ReceivingTransaction
+// ------------------------------
+model receiving_transaction {
+  transaction_id    BigInt    @id @default(autoincrement())
+  transaction_date  DateTime?
+  buyer_id          BigInt?
+  farmer_id         BigInt?
+  plot_id           BigInt?
+  vehicle_id        BigInt?
+  driver_id         BigInt?
+  weight_raw        Float?
+  weight_after_calc Float?
+  quality_score     Float?
+  created_at        DateTime?
+
+  buyer   buyer?   @relation(fields: [buyer_id], references: [buyer_id])
+  farmer  farmer?  @relation(fields: [farmer_id], references: [farmer_id])
+  plot    plot?    @relation(fields: [plot_id], references: [plot_id])
+  vehicle vehicle? @relation(fields: [vehicle_id], references: [vehicle_id])
+  driver  driver?  @relation(fields: [driver_id], references: [driver_id])
+}
+
+// ====================================================================
+// LINKING TABLES
+// ====================================================================
+
+// ------------------------------
+// Buyer-Farmer Link
+// ------------------------------
+model buyer_farmer {
+  buyer_farmer_id BigInt    @id @default(autoincrement())
+  buyer_id        BigInt?
+  farmer_id       BigInt?
+  created_at      DateTime?
+
+  buyer  buyer?  @relation(fields: [buyer_id], references: [buyer_id])
+  farmer farmer? @relation(fields: [farmer_id], references: [farmer_id])
+}
+
+// ------------------------------
+// VehicleDriver
+// ------------------------------
+model vehicle_driver {
+  vehicle_driver_id BigInt    @id @default(autoincrement())
+  vehicle_id        BigInt?
+  driver_id         BigInt?
+  buyer_id          BigInt?
+  assigned_date     DateTime?
+  released_date     DateTime?
+
+  vehicle vehicle? @relation(fields: [vehicle_id], references: [vehicle_id])
+  driver  driver?  @relation(fields: [driver_id], references: [driver_id])
+  buyer   buyer?   @relation(fields: [buyer_id], references: [buyer_id])
+}
+
+// ------------------------------
+// PlotStatusLinks
+// ------------------------------
+model plot_status_link {
+  plot_id      BigInt
+  status_id    BigInt
+  status_value Int?
+
+  plot   plot   @relation(fields: [plot_id], references: [plot_id])
+  status status @relation(fields: [status_id], references: [status_id])
+
+  @@id([plot_id, status_id])
+}
+
+// ------------------------------
+// Validations
+// ------------------------------
+model validations {
+  validation_id BigInt    @id @default(autoincrement())
+  plot_id       BigInt?
+  date          DateTime?
+  result        String?
+  officer       String?
+  remark        String?
+
+  plot plot? @relation(fields: [plot_id], references: [plot_id])
 }
