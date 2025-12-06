@@ -1,172 +1,36 @@
-# Traceability Frontend Structure
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-This project is the frontend system for the **Rubber Traceability Platform**, designed to manage:
-- Farmers  
-- Plots (GIS / Polygon)  
-- Transport Routes  
-- Buyers  
-- Inspections & Quality  
-- Daily rubber flow  
+## Getting Started
 
-The structure is designed for scalability, readability, and easy migration from mock API → real API.
+First, run the development server:
 
----
-
-# 📁 Project Structure
-
-```
-src/
-├── api/
-│   ├── mock/
-│   ├── services/
-│   └── http.ts
-│
-├── components/
-│   ├── farmers/
-│   ├── plots/
-│   ├── transport/
-│   └── shared/
-│
-├── layouts/
-│
-├── pages/
-│   ├── dashboard/
-│   ├── farmers/
-│   ├── plots/
-│   ├── transport/
-│   └── auth/
-│
-├── stores/
-│
-├── router/
-│
-├── utils/
-│
-├── styles/
-│
-├── hooks/
-│
-├── App.tsx
-└── main.tsx
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
----
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-# 📌 Folder Explanations
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-## 1) `api/`
-รวมทุกอย่างเกี่ยวกับการ **เชื่อมต่อข้อมูล**
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-### 🔹 `api/mock/`
-Mock API สำหรับตอนที่ยังไม่มี backend  
-หน้า UI ใช้งานจริงได้ โดยไม่ต้องรอ API จริง
+## Learn More
 
-### 🔹 `api/services/`
-Service Layer  
-ใช้สำหรับสื่อสารกับ API (จริงหรือ mock)
+To learn more about Next.js, take a look at the following resources:
 
-ตัวอย่าง:
-- `farmer.service.ts`
-- `plot.service.ts`
-- `transport.service.ts`
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-### 🔹 `api/http.ts`
-Axios wrapper สำหรับตั้งค่า:
-- Base URL  
-- Token  
-- Interceptors  
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
----
+## Deploy on Vercel
 
-## 2) `components/`
-UI Components แบบ reusable  
-แยกตามแต่ละโดเมนหลักของระบบ
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-- `farmers/` – ชุด component สำหรับเกษตรกร  
-- `plots/` – component ที่ใช้กับแปลงยาง + แผนที่  
-- `transport/` – component เกี่ยวกับการขนส่ง  
-- `shared/` – ปุ่ม, Modal, Header, Table, Map viewer
-
----
-
-## 3) `layouts/`
-Layout หลัก เช่น:
-- Default layout (sidebar + header)
-- Auth layout (หน้า login โล่งๆ)
-
----
-
-## 4) `pages/`
-หน้าเว็บจริงของแต่ละ module
-
-- `dashboard/` – หน้า KPI / Overview  
-- `farmers/` – รายการเกษตรกร, รายละเอียด, เพิ่มใหม่  
-- `plots/` – แผนที่, Polygon, รายละเอียดแปลง  
-- `transport/` – เส้นทางขนส่ง, Tracking  
-- `auth/` – Login / Register  
-
----
-
-## 5) `stores/`
-Global state management (Zustand / Redux)
-
-ตัวอย่าง State:
-- ผู้ใช้ที่ล็อกอิน
-- รายการเกษตรกร
-- ข้อมูล dashboard
-- ข้อมูล map / polygon
-
----
-
-## 6) `router/`
-จัดการ routing ทั้งหมดของเว็บ  
-เช่น `/dashboard`, `/farmers/:id`
-
----
-
-## 7) `utils/`
-Utility functions เช่น:
-- Format วันที่
-- Convert unit
-- Validator
-- Constant
-
----
-
-## 8) `styles/`
-เก็บ stylesheet:
-- Global CSS
-- Theme variables
-- Tailwind config
-
----
-
-## 9) `hooks/`
-Custom React hooks  
-เช่น:
-- useFetch
-- useDebounce
-- usePagination
-
----
-
-## 10) `App.tsx`
-Root Component  
-ใช้เชื่อม Layout + Router
-
-## 11) `main.tsx`
-Entry point ของ React
-
----
-
-# 🎉 Summary
-
-โครงสร้างนี้ถูกออกแบบให้:
-
-✔ เหมาะกับโปรเจคขนาดใหญ่  
-✔ แยก domain ชัดเจน (Farmers / Plots / Transport)  
-✔ พัฒนา UI ได้ทันทีด้วย Mock API  
-✔ สลับ API จริงได้ในอนาคตโดยไม่ต้องรื้อ UI  
-✔ เหมาะกับระบบ Traceability ของคุณอย่างมาก  
-
-พร้อมให้เริ่มพัฒนาต่อได้ทันที
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
