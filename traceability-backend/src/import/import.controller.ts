@@ -14,6 +14,6 @@ export class ImportController {
     @Post('master')
     @UseInterceptors(FileInterceptor('file'))
     async importMaster(@UploadedFile() file: any) {
-        return this.importService.importMaster(file);
+        return this.importService.importRow(file);
     }
 }

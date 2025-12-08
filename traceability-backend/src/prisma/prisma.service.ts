@@ -6,6 +6,7 @@ import { PrismaPg } from '@prisma/adapter-pg';
 export class PrismaService
     extends PrismaClient
     implements OnModuleInit, OnModuleDestroy {
+    plotGeometry: any;
     constructor() {
         const adapter = new PrismaPg(process.env.DATABASE_URL!);
 

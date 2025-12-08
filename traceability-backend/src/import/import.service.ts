@@ -1,138 +1,59 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import * as XLSX from 'xlsx';
+import { FarmerService } from 'src/farmer/farmer.service';
+import { LandDocumentService } from 'src/land-document/land-document.service';
+import { FarmPlotService } from 'src/farm-plot/farm-plot.service';
+import { PlotGeometryService } from 'src/plot-geometry/plot-geometry.service';
+import { ProvinceService } from 'src/province/province.service';
+import { DistrictService } from 'src/district/district.service';
+import { ExcelRowDto } from './dto/excel-row.dto';
+import { ExcelRowMapping } from './dto/excel-row-mapping';
 
 @Injectable()
 export class ImportService {
-    constructor(private prisma: PrismaService) { }
+    constructor(
+        private farmerService: FarmerService,
+        private landDocService: LandDocumentService,
+        private plotService: FarmPlotService,
+        private geometryService: PlotGeometryService,
+        private provinceService: ProvinceService,
+        private districtService: DistrictService,
+    ) { }
 
-    async importMaster(file: Express.Multer.File) {
-        if (!file) throw new BadRequestException('File is required');
+    async importRow(row: ExcelRowDto) {
 
-        const workbook = XLSX.read(file.buffer, { type: 'buffer' });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const rows: any[] = XLSX.utils.sheet_to_json(sheet);
+        // 1) Farmer
+        const farmerDto = ExcelRowMapping.toFarmerDto(row);
+        const farmer = await this.farmerService.findOrCreate(farmerDto);
 
-        return await this.prisma.$transaction(async (tx) => {
-            for (const row of rows) {
-                //
-                // =====================================================
-                // 1) CREATE FARMER
-                // =====================================================
-                //
-                const farmer = await tx.farmer.create({
-                    data: {
-                        farmerName: row['ชื่อ'] ?? null,
-                        farmerSurname: row['นามสกุล'] ?? null,
-                        citizenId: row['รหัสบัตรประจำตัวประชาชน']?.toString() ?? null,
-                        phone: row['เบอร์โทรติดต่อ']?.toString() ?? null,
-                        address: row['ที่อยู่'] ?? null,
-                        createdAt: new Date(),
-                    },
-                });
+        // 2) Province/District
+        const province = await this.provinceService.findByName(row.province ?? '');
+        const district = await this.districtService.findByName(row.district ?? '');
 
-                //
-                // =====================================================
-                // 2) LOOKUP Province / District
-                // =====================================================
-                //
-                const province = await tx.province.findFirst({
-                    where: { nameTh: row['จังหวัด']?.toString() },
-                });
+        // 3) Land Document
+        const landDto = ExcelRowMapping.toLandDocDto(row);
+        const landDoc = await this.landDocService.findOrCreate(landDto);
 
-                const district = await tx.district.findFirst({
-                    where: { nameTh: row['อำเภอ']?.toString() },
-                });
+        // 4) Farm Plot
+        const plotDto = ExcelRowMapping.toFarmPlotDto(
+            row,
+            farmer.farmerId,
+            landDoc.landDocumentId,
+            province?.provinceId,
+            district?.districtId
+        );
+        const plot = await this.plotService.create(plotDto);
 
-                //
-                // =====================================================
-                // 3) CREATE LAND DOCUMENT
-                // =====================================================
-                //
-                const landDocument = await tx.landDocumentRecord.create({
-                    data: {
-                        documentNumber: row['เลขที่เอกสาร']?.toString(),
-                        documentType: row['ประเภทเอกสารสิทธิ']?.toString(),
-                        createdAt: new Date(),
-                    },
-                });
+        // 5) Geometry
+        if (row.coordinate) {
+            const geoDto = ExcelRowMapping.toGeometryDto(plot.plotId, row);
+            await this.geometryService.create(geoDto);
+        }
 
-                //
-                // =====================================================
-                // 4) CREATE FARM PLOT
-                // =====================================================
-                //
-                const plot = await tx.farmPlot.create({
-                    data: {
-                        farmerId: farmer.farmerId,
-                        landCode: row['แปลงที่']?.toString(),
-
-                        provinceId: province?.provinceId ?? null,
-                        districtId: district?.districtId ?? null,
-
-                        landDocumentId: landDocument.landDocumentId,
-
-                        deedType: row['ประเภทเอกสารสิทธิ'] ?? null,
-
-                        areaRai: Number(row['ไร่'] ?? 0),
-                        areaNgan: Number(row['งาน'] ?? 0),
-                        areaWah: Number(row['ตารางวา'] ?? 0),
-
-                        geometryType: row['ประเภทพิกัด'] ?? null,
-
-                        isOwnedBefore2020:
-                            row['มีสวนก่อนปี พ.ศ. 2563'] === 'ใช่' ||
-                            row['มีสวนก่อนปี พ.ศ. 2563'] === true,
-
-                        createdAt: new Date(),
-                    },
-                });
-
-                //
-                // =====================================================
-                // 5) CREATE GEOMETRY POINT
-                // =====================================================
-                //
-                await tx.plotGeometryPoint.create({
-                    data: {
-                        plotId: plot.plotId,
-                        coordinates: row['ค่าพิกัดแปลง']?.toString() ?? null,
-                        createdAt: new Date(),
-                    },
-                });
-
-                //
-                // =====================================================
-                // 6) CREATE FARMBOOK
-                // =====================================================
-                //
-                const farmbook = await tx.farmbookRecord.create({
-                    data: {
-                        farmerId: farmer.farmerId,
-                        farmbookTypeId: 1, // default type
-                        farmbookNumber: landDocument.documentNumber,
-                        createdAt: new Date(),
-                    },
-                });
-
-                //
-                // =====================================================
-                // 7) LINK FARMBOOK ↔ PLOT
-                // =====================================================
-                //
-                await tx.farmbookPlotOwnership.create({
-                    data: {
-                        farmbookId: farmbook.farmbookId,
-                        plotId: plot.plotId,
-                        createdAt: new Date(),
-                    },
-                });
-            }
-
-            return {
-                ok: true,
-                total: rows.length,
-            };
-        });
+        return plot;
     }
+
+
+
 }
