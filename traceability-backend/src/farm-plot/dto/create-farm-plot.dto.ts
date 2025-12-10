@@ -1,8 +1,8 @@
 export class CreateFarmPlotDto {
     farmerId: bigint;
     landDocumentId: bigint;
-    provinceId?: bigint;
-    districtId?: bigint;
+    provinceId?: number | null;
+    districtId?: number | null;
     areaRai?: number;
     areaNgan?: number;
     areaWah?: number;
