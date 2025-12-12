@@ -1,9 +1,3 @@
-# 📘 TRACEABILITY BACKEND -- README.md
-
-Backend for Rubber Traceability System (NestJS + Prisma v7 + Supabase)
-
-------------------------------------------------------------------------
-
 # 📍 1. Overview
 
 Traceability Backend คือระบบสำหรับการจัดการข้อมูลที่เกี่ยวข้องกับเกษตรกร
@@ -14,8 +8,6 @@ EUDR และระบบตรวจสอบย้อนกลับของ
 Farmer → Plot → PlotGeometry → FarmBook แบบสัมพันธ์กัน - รองรับ
 Transaction แบบ Atomic - Prisma v7 ORM เชื่อมต่อฐานข้อมูล Supabase
 (PostgreSQL) - NestJS ทำงานเป็น API Gateway
-
-------------------------------------------------------------------------
 
 # 📦 2. Technology Stack
 
@@ -28,41 +20,56 @@ Transaction แบบ Atomic - Prisma v7 ORM เชื่อมต่อฐา�
   Migration Driver    Direct PostgreSQL (5432)
   Tools               ts-node, dotenv, class-validator
 
-------------------------------------------------------------------------
+## 1. Prerequisites
 
-# 📁 3. Project Structure (Full)
+- Windows / macOS / Linux
+- [Volta](https://github.com/volta-cli/volta/releases/tag/v2.0.2) (เพื่อจัดการ Node.js เวอร์ชันเฉพาะโปรเจกต์)
+- Git
 
-    traceability-backend/
-    │
-    ├── prisma/
-    │   ├── schema.prisma
-    │   ├── prisma.config.ts
-    │   └── migrations/
-    │
-    ├── src/
-    │   ├── prisma/
-    │   │   ├── prisma.module.ts
-    │   │   └── prisma.service.ts
-    │   │
-    │   ├── modules/
-    │   │   ├── farmer/
-    │   │   ├── plot/
-    │   │   ├── farmbook/
-    │   │   ├── geometry/
-    │   │   ├── import/
-    │   │   └── shared/
-    │   │
-    │   ├── common/
-    │   ├── utils/
-    │   ├── filters/
-    │   ├── interceptors/
-    │   ├── guards/
-    │   └── app.module.ts
-    │
-    ├── .env
-    ├── package.json
-    ├── tsconfig.json
-    └── README.md
+---
+
+## 2. Backend Setup
+
+เนื่องจาก Prisma ต้องใช้ Node.js เวอร์ชัน 20 เราจะติดตั้ง Node.js โดยไม่กระทบเวอร์ชันปัจจุบันที่ใช้งานอยู่ ด้วย Volta
+
+```bash
+cd C:\Users\ASUS\Documents\Bussiness-Project\traceability-backend
+volta pin node@20    # Pin Node.js เวอร์ชัน 20 ให้โปรเจกต์นี้
+volta pin npm        # Pin npm เวอร์ชันล่าสุดตาม Node 20
+```
+   
+
+# 3. Prisma Setup
+
+ ## 3.1 Pull Database
+  ดึง schema และข้อมูลจาก database ปัจจุบัน:
+
+```
+npx prisma db pull
+```
+ ## 3.2 Migrate Database
+ สร้าง migration สำหรับ schema ใหม่:
+ ```
+ npx prisma migrate dev --name <migration_name>
+ ```
+
+  ## 3.3 Reset Database
+  รีเซ็ต database ทั้งหมด (⚠️ ข้อมูลจะหายหมด):
+  ```
+  npx prisma migrate reset
+  ```
+
+  ## 3.4 Generate Prisma Client
+  สร้าง Prisma Client เพื่อให้ใช้งานในโค้ด:
+  ```
+  npx prisma generate
+  ```
+
+ ## 3.5 Useful Commands
+  ตรวจสอบสถานะ database:
+  ```
+  npx prisma studio
+  ```
 
 ------------------------------------------------------------------------
 

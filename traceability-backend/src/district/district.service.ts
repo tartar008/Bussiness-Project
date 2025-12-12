@@ -15,14 +15,20 @@ export class DistrictService {
    * @returns DistrictEntity
    */
   async create(name: string, provinceId: number): Promise<DistrictEntity> {
-    const district = await this.prisma.district.create({
+    const raw = await this.prisma.district.create({
       data: {
         nameTh: name,
         provinceId: provinceId
       }
     });
 
-    return district as DistrictEntity;
+    const entity = new DistrictEntity({
+      districtId: raw.districtId,
+      provinceId: raw.provinceId,
+      nameTh: raw.nameTh
+    });
+
+    return entity;
   }
 
 

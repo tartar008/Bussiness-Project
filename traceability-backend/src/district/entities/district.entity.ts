@@ -1,18 +1,10 @@
 // district/entities/district.entity.ts
-
-import { District, Prisma } from '@prisma/client';
-
-
-export class DistrictEntity implements District {
+export class DistrictEntity {
     districtId: bigint;
-
-    provinceId: bigint;
-
+    provinceId: bigint | null;
     nameTh: string | null;
 
-    // Constructor
-    constructor(data: Prisma.DistrictCreateInput | any) {
+    constructor(data: { districtId: bigint; provinceId: bigint | null; nameTh?: string | null }) {
         Object.assign(this, data);
-        this.districtId = data.districtId;
     }
 }

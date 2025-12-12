@@ -8,7 +8,7 @@ export class PlotGeometryService {
     constructor(private prisma: PrismaService) { }
 
     async create(dto: CreateGeometryDto) {
-        return this.prisma.plotGeometry.create({
+        return this.prisma.plot_geometry.create({
             data: dto,
         });
     }

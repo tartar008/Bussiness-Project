@@ -7,7 +7,7 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    // IMPORTANT: ต้องใช้ DIRECT_URL (5432) สำหรับ migrate / db pull
+    // DIRECT_URL ใช้สำหรับ migrate / db pull (ไม่ต้องผ่าน adapter)
     url: env("DIRECT_URL"),
   },
 });

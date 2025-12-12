@@ -7,10 +7,11 @@ import { PlotGeometryService } from '@/plot-geometry/plot-geometry.service';
 import { ImportMasterDTO } from './dto/Input-import-master';
 import { ResultImportRow } from './dto/Result-ImportRow';
 import { ResultImportSummary } from './dto/Result-ImportSummary';
+import { Coord } from '@/common/interfaces/coordinate.interface';
 
-
-import { Coord, Coordinates } from '@/common/interfaces/coordinate.interface'; // ปรับ Path ให้ถูกต้อง
-
+import { CreateFarmPlotDto } from '@/farm-plot/dto/create-farm-plot.dto';
+import { CreateLandDocumentDto } from '@/land-document/dto/create-land-document.dto';
+import { CreateGeometryDto } from '@/plot-geometry/dto/create-geometry.dto';
 
 @Injectable()
 export class ImportService {
@@ -21,15 +22,11 @@ export class ImportService {
         private geometryService: PlotGeometryService,
     ) { }
 
-    /** ==========================================
-     *  Import แบบ Batch (default: 20 rows / batch)
-     *  ========================================== */
+    /** Import แบบ Batch */
     async importRowsInBatch(rows: ImportMasterDTO[], batchSize = 20): Promise<ResultImportSummary> {
         if (!rows || rows.length === 0) {
             throw new BadRequestException('rows is empty');
         }
-
-        console.log(`Starting import of ${rows.length} rows in batches of ${batchSize}...`);
 
         const batches = chunk(rows, batchSize);
         const allResults: ResultImportRow[] = [];
@@ -47,12 +44,8 @@ export class ImportService {
         };
     }
 
-    /** ==========================================
-     *  ประมวลผล rows ใน 1 batch
-     *  ========================================== */
     private async processBatch(batchRows: ImportMasterDTO[]): Promise<ResultImportRow[]> {
         const promises = batchRows.map(row => this.processSingleRow(row));
-        console.log(`Processing batch of ${batchRows.length} rows...`);
         const settled = await Promise.allSettled(promises);
 
         return settled.map((r, index) => ({
@@ -63,52 +56,60 @@ export class ImportService {
         }));
     }
 
-    /** ==========================================
-     *  ประมวลผล row เดียว
-     *  ========================================== */
     private async processSingleRow(row: ImportMasterDTO) {
-        console.log(`Processing row for citizen ID: ${row.citizenId}`);
+        // 1️⃣ สร้าง Farmer
         const farmer = await this.farmerService.create({
             citizenId: row.citizenId || '',
+            prefix: row.prefix || undefined,
             firstName: row.firstName || '',
             lastName: row.lastName || '',
-            phone: row.phone || '',
-            address: row.address || '',
-        });
-        console.log(`Processed farmer ID: ${farmer}`);
-
-        const landDoc = await this.landDocService.create({
-            documentType: row.documentType || '',
-            documentNumber: row.documentNumber || ''
+            phone: row.phone || undefined,
+            address: row.address || undefined,
+            farmerRegisterNumber: row.farmerRegisterNumber ?? undefined,
+            farmbookNumber: row.farmbookNumber ?? undefined,
+            isOwnedBefore2020: row.isOwnedBefore2020 ?? false,
         });
 
-        const plot = await this.plotService.create({
+        // 2️⃣ สร้าง LandDocument
+        const landDocDTO: CreateLandDocumentDto = {
+            documentType: row.documentType ?? undefined,
+            documentNumber: row.documentNumber ?? undefined,
+        };
+        const landDoc = await this.landDocService.create(landDocDTO);
+
+        // 3️⃣ สร้าง FarmPlot
+        const plotDTO: CreateFarmPlotDto = {
             farmerId: farmer.farmerId,
             landDocumentId: landDoc.landDocumentId,
-            areaRai: row.areaRai || 0,
-            areaNgan: row.areaNgan || 0,
-            areaWah: row.areaWah || 0,
-            provinceId: row.provinceId ?? null,
-            districtId: row.districtId ?? null,
-        });
+            // plotCount: row.plotCount ?? 1,
+            // plotNo: row.plotNo ?? 1,
+            areaRai: row.areaRai ?? 0,
+            areaNgan: row.areaNgan ?? 0,
+            areaWah: row.areaWah ?? 0,
+            areaAcre: row.areaAcre ?? 0,
+            areaHa: row.areaHa ?? 0,
+            provinceId: row.provinceId,
+            districtId: row.districtId,
+            geometryType: row.geometryType,
+            subdistrictId: row.subdistrict
+        };
+        const plot = await this.plotService.create(plotDTO);
 
+        // 4️⃣ สร้าง PlotGeometry (ถ้ามี coords)
         if (row.coords?.length) {
-            await Promise.all(
-                row.coords.map((c: Coord) =>
-                    this.geometryService.create({
-                        plotId: plot.plotId,
-                        coordinates: JSON.stringify({
-                            lat: c.lat,
-                            lng: c.lng,
-                        }),
-                    }),
-                ),
-            );
+            const geometryPromises = row.coords.map((c: Coord) => {
+                const plotGeometryDTO: CreateGeometryDto = {
+                    plotId: plot.plotId,
+                    coordinates: JSON.stringify({ lat: c.lat, lng: c.lng }),
+                };
+                return this.geometryService.create(plotGeometryDTO);
+            });
+            await Promise.all(geometryPromises);
         }
 
         return {
             farmer,
-            landDoc,
+            landDocId: landDoc.landDocumentId,
             plot,
             geometryCount: row.coords?.length ?? 0,
         };

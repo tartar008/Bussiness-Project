@@ -1,11 +1,25 @@
+import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { PrismaService } from './prisma/prisma.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: ['error', 'warn', 'log', 'verbose', 'debug'],
   });
+
+  // // ดึง PrismaService จาก DI container
+  // const prisma = app.get(PrismaService);
+
+
+  // try {
+  //   await prisma.$queryRaw`SELECT 1`;
+  //   console.log("Database connected ✅");
+  // } catch (err) {
+  //   console.error("Database connection failed ❌", err);
+  //   process.exit(1); // หยุด server ทันทีถ้า DB connect ไม่ได้
+  // }
 
   const config = new DocumentBuilder()
     .setTitle('Import API')

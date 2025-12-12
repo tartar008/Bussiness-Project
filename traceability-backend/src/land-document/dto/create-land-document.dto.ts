@@ -1,4 +1,4 @@
 export class CreateLandDocumentDto {
-    documentType: string;
-    documentNumber: string;
+    documentType: string | undefined;
+    documentNumber: string | undefined;
 }

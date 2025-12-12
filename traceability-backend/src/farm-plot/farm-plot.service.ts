@@ -5,7 +5,7 @@ import { CreateFarmPlotDto } from "./dto/create-farm-plot.dto";
 
 @Injectable()
 export class FarmPlotService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(dto: CreateFarmPlotDto) {
     return this.prisma.farmPlot.create({
