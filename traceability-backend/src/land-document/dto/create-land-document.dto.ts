@@ -1,4 +1,5 @@
 export class CreateLandDocumentDto {
-    documentType: string | undefined;
-    documentNumber: string | undefined;
+    documentNumber: string;
+    documentType: string;
+    issuedDate: Date;
 }

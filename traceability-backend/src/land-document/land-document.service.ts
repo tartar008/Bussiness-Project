@@ -8,15 +8,16 @@ export class LandDocumentService {
     constructor(private prisma: PrismaService) { }
 
     async create(dto: CreateLandDocumentDto) {
-        const newDoc = await this.prisma.landDocumentRecord.create({
+        return this.prisma.landDocumentRecord.create({
             data: {
-                documentNumber: dto.documentNumber,
-                documentType: dto.documentType,
-            }
+                documentNumber: dto.documentNumber || '',
+                documentType: dto.documentType || '',
+                issuedDate: dto.issuedDate ?? new Date(),  // required
+                createdAt: new Date(),                     // required
+            },
         });
-
-        return newDoc;
     }
+
 
     async findOrCreate(dto: CreateLandDocumentDto) {
         let doc = await this.prisma.landDocumentRecord.findFirst({
@@ -29,9 +30,11 @@ export class LandDocumentService {
         if (!doc) {
             doc = await this.prisma.landDocumentRecord.create({
                 data: {
-                    documentNumber: dto.documentNumber,
-                    documentType: dto.documentType,
-                }
+                    documentNumber: dto.documentNumber || '',
+                    documentType: dto.documentType || '',
+                    issuedDate: dto.issuedDate ?? new Date(),  // required
+                    createdAt: new Date(),                     // required
+                },
             });
         }
 

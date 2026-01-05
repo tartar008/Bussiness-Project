@@ -1,10 +1,10 @@
 // src/import/dto/ResultImportRow.dto.ts
-import { Farmer } from '@/farmer/dto/create-farmer.dto';
-import { FarmPlot } from '@/farm-plot/entities/farm-plot.entity';
+import { CreateFarmerDto } from '@/farmer/dto/create-farmer.dto';
+import { CreateFarmPlotDto } from '@/farm-plot/dto/create-farm-plot.dto';
 
 export class ResultImportRowDTO {
-    farmer: Farmer;
+    farmer: CreateFarmerDto;
     landDocId: bigint;
-    plot: FarmPlot;
+    plot: CreateFarmPlotDto;
     geometryCount: number;
 }

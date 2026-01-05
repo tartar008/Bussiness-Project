@@ -9,8 +9,14 @@ export class PlotGeometryService {
 
     async create(dto: CreateGeometryDto) {
         return this.prisma.plot_geometry.create({
-            data: dto,
+            data: {
+                plot_id: dto.plotId,
+                coordinates: dto.coordinates,
+                created_at: new Date(),  // required
+            },
         });
     }
+
+
 }
 

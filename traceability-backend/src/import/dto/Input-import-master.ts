@@ -28,11 +28,11 @@ export class ImportMasterDTO {
 
     @IsOptional()
     @IsString()
-    farmerRegisterNumber?: string; // ทะเบียนเกษตร   // farmer info
+    farmerRegisterNumber: string; // ทะเบียนเกษตร   // farmer info
 
     @IsOptional()
     @IsString()
-    farmbookNumber?: string; // หมายเลขทะเบียน (เช่น เลขที่ในสมุดทะเบียน) // farmer info
+    farmbookNumber: string; // หมายเลขทะเบียน (เช่น เลขที่ในสมุดทะเบียน) // farmer info
 
     @IsOptional()
     @IsNumber()

@@ -1,5 +1,6 @@
 import { Controller, Get, Post, Param, Body } from '@nestjs/common';
 import { FarmbookRecordService } from './farmbook-record.service';
+import { CreateFarmbookRecordDto } from './dto/create-farmbook-record.dto';
 
 @Controller('farmbook-record')
 export class FarmbookRecordController {
@@ -12,11 +13,12 @@ export class FarmbookRecordController {
 
     @Get(':id')
     async getById(@Param('id') id: string) {
+        // แปลงเป็น BigInt ก่อนส่งให้ service
         return this.service.findById(BigInt(id));
     }
 
     @Post()
-    async create(@Body() body: { farmerId: bigint; farmbookTypeId: bigint; farmbookNumber?: string }) {
+    async create(@Body() body: CreateFarmbookRecordDto) {
         return this.service.create(body);
     }
 }

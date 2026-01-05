@@ -6,5 +6,6 @@ import { PrismaService } from '@/prisma/prisma.service';
 @Module({
     controllers: [FarmbookRecordController],
     providers: [FarmbookRecordService, PrismaService],
+    exports: [FarmbookRecordService],
 })
 export class FarmbookRecordModule { }

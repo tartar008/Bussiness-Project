@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 
 const adapter = new PrismaPg({
-    host: "aws-1-ap-southeast-1.pooler.supabase.com",
+    host: "aws-1-ap-southeast-2.pooler.supabase.com",
     port: 6543,
     database: "postgres",
     user: "postgres",
