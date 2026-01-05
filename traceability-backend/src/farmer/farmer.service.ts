@@ -13,7 +13,7 @@ export class FarmerService {
 
     const data: Prisma.FarmerCreateInput = {
       prefix: dto.prefix,
-      farmerName: dto.firstName,  
+      farmerName: dto.firstName,
       farmerSurname: dto.lastName,
       citizenId: dto.citizenId,
       phone: dto.phone,
@@ -25,7 +25,7 @@ export class FarmerService {
     const farmer = await this.prisma.farmer.create({ data });
 
     return {
-      farmerId: farmer.farmerId,
+      farmerId: farmer.farmerId.toString(),
       prefix: farmer.prefix,
       firstName: farmer.farmerName,
       lastName: farmer.farmerSurname,

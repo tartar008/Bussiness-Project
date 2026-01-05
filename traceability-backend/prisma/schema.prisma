@@ -8,21 +8,25 @@ datasource db {
 }
 
 model Province {
-  provinceId BigInt     @id @default(autoincrement()) @map("province_id")
-  nameTh     String     @map("name_th")
+  provinceId BigInt @id @default(autoincrement()) @map("province_id")
+  nameTh     String @unique @map("name_th")
+
   districts  District[]
   farmPlots  FarmPlot[]
 
   @@map("province")
 }
 
+
 model District {
-  districtId BigInt     @id @default(autoincrement()) @map("district_id")
-  provinceId BigInt     @map("province_id")
-  nameTh     String     @map("name_th")
-  province   Province   @relation(fields: [provinceId], references: [provinceId])
+  districtId BigInt   @id @default(autoincrement()) @map("district_id")
+  provinceId BigInt   @map("province_id")
+  nameTh     String   @map("name_th")
+
+  province   Province @relation(fields: [provinceId], references: [provinceId])
   farmPlots  FarmPlot[]
 
+  @@unique([nameTh, provinceId])
   @@map("district")
 }
 

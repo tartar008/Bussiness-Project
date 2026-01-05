@@ -87,3 +87,13 @@ npx prisma db pull
 ## 4.3 Install NestJS CLI
 
     npm install -g @nestjs/cli
+
+------------
+### คำสั่ง Test
+
+  npx tsx test-psql.ts  
+
+------------
+###  คำสั่งรัน Seed Prisma ใน database
+
+  npx tsx test-psql.ts  

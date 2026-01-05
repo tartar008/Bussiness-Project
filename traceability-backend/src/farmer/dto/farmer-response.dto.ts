@@ -2,7 +2,7 @@ import { FarmbookRecord } from '@prisma/client';
 import { Buyer } from '@prisma/client';
 
 export class FarmerResponseDTO {
-    farmerId: bigint;
+    farmerId: string;
     prefix: string;
     firstName: string;
     lastName: string;

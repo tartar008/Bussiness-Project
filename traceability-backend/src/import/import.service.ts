@@ -83,7 +83,7 @@ export class ImportService {
 
         // 2️⃣ สร้าง FarmbookRecord
         const farmbookRecordDTO: CreateFarmbookRecordDto = {
-            farmerId: String(farmer.farmerId),   // แปลง bigint → string ให้ตรง DTO
+            farmerId: farmer.farmerId.toString(),   // ✅ แปลงแล้ว
             farmbookType: row.farmerRegisterNumber || 'ทะเบียนเกษตร (เล่มเขียว)',
             farmbookNumber: row.farmbookNumber || '',
         };
@@ -101,7 +101,7 @@ export class ImportService {
 
         // 4️⃣ สร้าง FarmPlot
         const plotDTO: CreateFarmPlotDto = {
-            farmerId: farmer.farmerId,
+            farmerId: BigInt(farmer.farmerId),
             landDocumentId: landDoc.landDocumentId ?? null,
             areaRai: row.areaRai ?? 0,
             areaNgan: row.areaNgan ?? 0,
@@ -113,6 +113,7 @@ export class ImportService {
             isOwnedBefore2020: row.isOwnedBefore2020 || false,
         };
         const plot = await this.plotService.create(plotDTO);
+
 
         // 5️⃣ สร้าง PlotGeometry (ถ้ามี coords)
         if (row.coords?.length) {
@@ -128,11 +129,18 @@ export class ImportService {
 
         return {
             farmer,
-            farmbookRecord,
-            landDocId: landDoc.landDocumentId,
-            plot,
+            farmbookRecord: {
+                ...farmbookRecord,
+                farmbookId: farmbookRecord.farmbookId.toString(), // ✅ แปลง BigInt → string
+            },
+            landDocId: landDoc.landDocumentId.toString(), // ถ้า landDocId ก็เป็น BigInt ด้วย
+            plot: {
+                ...plot,
+                plotId: plot.plotId.toString(), // ถ้า plotId เป็น BigInt
+            },
             geometryCount: row.coords?.length ?? 0,
         };
+
     }
 
 
