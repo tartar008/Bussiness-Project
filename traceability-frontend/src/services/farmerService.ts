@@ -1,24 +1,35 @@
-import { Farmer } from "@/types/farmer";
+import { apiClient } from "@/utils/apiClient";
 
-let mockFarmers: Farmer[] = [];
-
-export const fetchFarmers = async (): Promise<Farmer[]> => {
-    return new Promise(res => setTimeout(() => res(mockFarmers), 300));
+export type Farmer = {
+    farmerId: string;
+    prefix: string;
+    firstName: string;
+    lastName: string;
+    citizenId: string;
+    phone?: string;
+    address?: string;
+    createdAt: string;
+    updatedAt: string;
 };
 
-export const createFarmer = async (data: Omit<Farmer, "id">): Promise<Farmer> => {
-    const newFarmer: Farmer = { ...data, id: Date.now().toString() };
-    mockFarmers.push(newFarmer);
-    return newFarmer;
+// services/farmerService.ts
+export const getFarmers = async () => {
+    try {
+        const res = await fetch("http://localhost:8081/farmers");
+        console.log("[Service] GET /farmers response status:", res.status);
+        const data = await res.json();
+        console.log("[Service] GET /farmers data:", data);
+        return data;
+    } catch (err) {
+        console.error("[Service] GET /farmers error:", err);
+        return [];
+    }
 };
 
-export const updateFarmer = async (id: string, data: Partial<Farmer>): Promise<Farmer> => {
-    const index = mockFarmers.findIndex(f => f.id === id);
-    if (index === -1) throw new Error("Farmer not found");
-    mockFarmers[index] = { ...mockFarmers[index], ...data };
-    return mockFarmers[index];
-};
 
-export const deleteFarmer = async (id: string): Promise<void> => {
-    mockFarmers = mockFarmers.filter(f => f.id !== id);
-};
+export const createFarmer = (data: Partial<Farmer>) => apiClient<Farmer>("/farmers", "POST", data);
+
+export const updateFarmer = (id: string, data: Partial<Farmer>) =>
+    apiClient<Farmer>(`/farmers/${id}`, "PUT", data);
+
+export const deleteFarmer = (id: string) => apiClient<void>(`/farmers/${id}`, "DELETE");

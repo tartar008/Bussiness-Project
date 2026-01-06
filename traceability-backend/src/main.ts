@@ -11,17 +11,8 @@ async function bootstrap() {
     logger: ['error', 'warn', 'log', 'verbose', 'debug'],
   });
 
-  // // ดึง PrismaService จาก DI container
-  // const prisma = app.get(PrismaService);
-
-
-  // try {
-  //   await prisma.$queryRaw`SELECT 1`;
-  //   console.log("Database connected ✅");
-  // } catch (err) {
-  //   console.error("Database connection failed ❌", err);
-  //   process.exit(1); // หยุด server ทันทีถ้า DB connect ไม่ได้
-  // }
+  // อนุญาตทุก origin
+  app.enableCors();
 
   const config = new DocumentBuilder()
     .setTitle('Import API')

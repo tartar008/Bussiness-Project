@@ -4,6 +4,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { DistrictModule } from './district/district.module';
 import { FarmPlotModule } from './farm-plot/farm-plot.module';
 import { FarmbookRecordModule } from './farmbook-record/farmbook-record.module';
+import { FarmerModule } from './farmer/farmer.module';
 
 @Module({
   imports: [
@@ -12,8 +13,8 @@ import { FarmbookRecordModule } from './farmbook-record/farmbook-record.module';
     ImportModule,
     DistrictModule,
     FarmPlotModule,
-    ImportModule
-
+    ImportModule,
+    FarmerModule,
   ],
 })
 export class AppModule { }

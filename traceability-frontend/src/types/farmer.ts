@@ -1,16 +1,16 @@
 export type Farmer = {
     id: string;
-    farmer_code: string;
-    first_name: string;
-    last_name: string;
-    id_card: string;
+    farmerId: string;
+    prefix: string;
+    firstName: string;
+    lastName: string;
+    citizenId: string;
     phone?: string;
     address?: string;
-    province?: string;
-    district?: string;
-    subdistrict?: string;
-    postal_code?: string;
+    createdAt?: string;
+    updatedAt?: string;
 };
+
 
 export type FarmBook = {
     id: string;
