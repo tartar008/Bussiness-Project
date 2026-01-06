@@ -15,4 +15,6 @@ bun dev
 ```
 npm i lucide-react
 npm install xlsx
+npm install @radix-ui/react-slot
+
 ```
