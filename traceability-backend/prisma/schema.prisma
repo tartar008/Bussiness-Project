@@ -1,330 +1,290 @@
 generator client {
-  provider = "prisma-client-js"
+  provider   = "prisma-client-js"
+  engineType = "binary"
 }
 
 datasource db {
   provider = "postgresql"
 }
 
-//
-// ========================= MASTER TABLES =========================
-//
-
 model Province {
   provinceId BigInt @id @default(autoincrement()) @map("province_id")
-  nameTh String? @map("name_th")
+  nameTh     String @unique @map("name_th")
 
-  districts District[]
-  farmPlots FarmPlot[]
+  districts  District[]
+  farmPlots  FarmPlot[]
 
   @@map("province")
 }
 
+
 model District {
-  districtId BigInt @id @default(autoincrement()) @map("district_id")
-  provinceId BigInt? @map("province_id")
-  nameTh String? @map("name_th")
+  districtId BigInt   @id @default(autoincrement()) @map("district_id")
+  provinceId BigInt   @map("province_id")
+  nameTh     String   @map("name_th")
 
-  province Province? @relation(fields: [provinceId], references: [provinceId])
-  farmPlots FarmPlot[]
+  province   Province @relation(fields: [provinceId], references: [provinceId])
+  farmPlots  FarmPlot[]
 
+  @@unique([nameTh, provinceId])
   @@map("district")
 }
 
-//
-// ========================= STATUS SYSTEM =========================
-//
-
 model PlotLifecycleStatus {
-  statusId BigInt @id @default(autoincrement()) @map("status_id")
-  farmbookId String? @map("farmbook_id")
-  plotId String? @map("plot_id")
-  addedAt String? @map("added_at")
-  nameTh String? @map("name_th")
-  description String?
-
+  statusId        BigInt           @id @default(autoincrement()) @map("status_id")
+  farmbookId      String           @map("farmbook_id")
+  plotId          String           @map("plot_id")
+  addedAt         String           @map("added_at")
+  nameTh          String           @map("name_th")
+  description     String
   plotStatusLinks PlotStatusLink[]
 
   @@map("status")
 }
 
 model ReceivingTransactionStatus {
-  statusReceivingId BigInt @id @default(autoincrement()) @map("status_receiving_id")
-  statusReceivingName String? @map("status_receiving_name")
-  description String?
+  statusReceivingId   BigInt @id @default(autoincrement()) @map("status_receiving_id")
+  statusReceivingName String @map("status_receiving_name")
+  description         String
 
   @@map("status_receiving_transaction")
 }
 
-model FarmbookType {
-  farmbookTypeId BigInt @id @default(autoincrement()) @map("farmbook_type_id")
-  nameTh String? @map("name_th")
-  description String?
+model LandDocumentType {
+  landDocumentTypeId BigInt @id @default(autoincrement()) @map("land_document_type_id")
+  nameTh             String @map("name_th")
+  description        String
 
-  farmbooks FarmbookRecord[]
-
-  @@map("farmbook_type")
+  @@map("land_document_type")
 }
 
-//
-// ========================= ENTITY TABLES =========================
-//
-
 model Buyer {
-  buyerId BigInt @id @default(autoincrement()) @map("buyer_id")
-  buyerName String? @map("buyer_name")
-  licenseNumber String? @map("license_number")
-  contactPerson String? @map("contact_person")
-  phone String?
-  address String?
-  provinceId BigInt? @map("province_id")
-  districtId BigInt? @map("district_id")
-  createdAt DateTime @default(now()) @map("created_at")
+  buyerId               BigInt @id @default(autoincrement()) @map("buyer_id")
+  buyerName             String @map("buyer_name")
+  licenseNumber         String @map("license_number")
+  contactPerson         String @map("contact_person")
+  phone                 String
+  address               String
+  provinceId            BigInt @map("province_id")
+  districtId            BigInt @map("district_id")
+  createdAt             DateTime @default(now()) @map("created_at")
 
-  farmers Farmer[]
-  vehicles Vehicle[]
-  drivers Driver[]
+  buyerFarmerRelations  BuyerFarmerRelation[]
+  drivers               Driver[]
+  vehicles              Vehicle[]
+  vehicleDriverLinks    VehicleDriverLink[]
   receivingTransactions RubberReceivingTransaction[]
-  buyerFarmerRelations BuyerFarmerRelation[]
-  vehicleDriverLinks VehicleDriverLink[]
 
   @@map("buyer")
 }
 
+
 model Farmer {
-  farmerId BigInt @id @default(autoincrement()) @map("farmer_id")
-  farmerName String? @map("farmer_name")
-  farmerSurname String? @map("farmer_surname")
-  citizenId String? @map("citizen_id")
-  phone String?
-  buyerId BigInt? @map("buyer_id")
-  address String?
-  createdAt DateTime? @map("created_at")
-  updatedAt DateTime? @map("updated_at")
+  farmerId      BigInt @id @default(autoincrement())
+  prefix        String
+  farmerName    String
+  farmerSurname String
+  citizenId     String
+  phone         String
+  address       String
 
-  buyer Buyer? @relation(fields: [buyerId], references: [buyerId])
-  farmPlots FarmPlot[]
-  farmbooks FarmbookRecord[]
-  buyerRelations BuyerFarmerRelation[]
-  receivingTransactions RubberReceivingTransaction[]
+  createdAt DateTime
+  updatedAt DateTime
 
-  @@map("farmer")
+  buyerRelations              BuyerFarmerRelation[]
+  farmbooks                   FarmbookRecord[]
+  farmPlots                   FarmPlot[]
+  rubberReceivingTransactions RubberReceivingTransaction[]
 }
 
+
+model BuyerFarmerRelation {
+  relationId BigInt   @id @default(autoincrement()) @map("buyer_farmer_id")
+  buyerId    BigInt   @map("buyer_id")
+  farmerId   BigInt   @map("farmer_id")
+  createdAt  DateTime @map("created_at")
+
+  buyer      Buyer  @relation(fields: [buyerId], references: [buyerId])
+  farmer     Farmer @relation(fields: [farmerId], references: [farmerId])
+
+  @@map("buyer_farmer")
+}
+
+
 model FarmPlot {
-  plotId BigInt @id @default(autoincrement()) @map("plot_id")
-  farmerId BigInt? @map("farmer_id")
-  landCode String? @map("land_code")
-  provinceId BigInt? @map("province_id")
-  districtId BigInt? @map("district_id")
-  landDocumentId BigInt? @map("land_document_id")
-  deedType String? @map("deed_type")
-  areaRai Int? @map("area_rai")
-  areaNgan Int? @map("area_ngan")
-  areaWah Int? @map("area_wah")
+  plotId     BigInt @id @default(autoincrement()) @map("plot_id")
+  farmerId   BigInt @map("farmer_id")
+  landCode   String @map("land_code")
+  provinceId BigInt @map("province_id")
+  districtId BigInt @map("district_id")
+
+  landDocumentId BigInt?             @map("land_document_id")
+  landDocument   LandDocumentRecord? @relation(fields: [landDocumentId], references: [landDocumentId])
+
+  areaRai  Int  @map("area_rai")
+  areaNgan Int  @map("area_ngan")
+  areaWah  Int  @map("area_wah")
   areaAcre Int? @map("area_acre")
-  geometryType String? @map("geometry_type")
-  isOwnedBefore2020 Boolean? @map("is_owned_before_2020")
-  createdAt DateTime? @map("created_at")
-  updatedAt DateTime? @map("updated_at")
 
-  farmer Farmer? @relation(fields: [farmerId], references: [farmerId])
-  province Province? @relation(fields: [provinceId], references: [provinceId])
-  district District? @relation(fields: [districtId], references: [districtId])
+  geometryType      String  @map("geometry_type")
+  isOwnedBefore2020 Boolean @map("is_owned_before_2020")
 
-  landDocument LandDocumentRecord? @relation(fields: [landDocumentId], references: [landDocumentId])
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  plotDocuments PlotDocument[]
-  geometry PlotGeometryPoint[]
-  farmbookOwnership FarmbookPlotOwnership[]
-  statusLinks PlotStatusLink[]
-  receivingTransactions RubberReceivingTransaction[]
-  verifications PlotVerificationRecord[]
+  district District @relation(fields: [districtId], references: [districtId])
+  farmer   Farmer   @relation(fields: [farmerId], references: [farmerId])
+  province Province @relation(fields: [provinceId], references: [provinceId])
+
+  plot_geometry               plot_geometry[]
+  plotDocuments               PlotDocument[]
+  farmbookPlotOwnerships      FarmbookPlotOwnership[]
+  rubberReceivingTransactions RubberReceivingTransaction[]
+  plotStatusLinks             PlotStatusLink[]
+  plotVerificationRecords     PlotVerificationRecord[]
 
   @@map("plot")
 }
 
 model LandDocumentRecord {
-  landDocumentId BigInt @id @default(autoincrement()) @map("land_document_id")
-  documentNumber String? @map("document_number")
-  documentType String? @map("document_type")
-  issuedDate DateTime? @map("issued_date")
-  createdAt DateTime? @map("created_at")
-
-  farmPlots FarmPlot[]
+  landDocumentId BigInt     @id @default(autoincrement()) @map("land_document_id")
+  documentNumber String     @map("document_number")
+  documentType   String     @map("document_type")
+  issuedDate     DateTime   @map("issued_date")
+  createdAt      DateTime   @map("created_at")
+  farmPlots      FarmPlot[]
 
   @@map("land_document")
 }
 
 model Vehicle {
-  vehicleId BigInt @id @default(autoincrement()) @map("vehicle_id")
-  buyerId BigInt? @map("buyer_id")
-  plateNumber String? @map("plate_number")
-  vehicleType String? @map("vehicle_type")
-  brand String?
-  model String?
-  createdAt DateTime? @map("created_at")
-
-  buyer Buyer? @relation(fields: [buyerId], references: [buyerId])
+  vehicleId             BigInt                       @id @default(autoincrement()) @map("vehicle_id")
+  buyerId               BigInt                       @map("buyer_id")
+  plateNumber           String                       @map("plate_number")
+  vehicleType           String                       @map("vehicle_type")
+  brand                 String
+  model                 String
+  createdAt             DateTime                     @map("created_at")
   receivingTransactions RubberReceivingTransaction[]
-  driverLinks VehicleDriverLink[]
+  buyer                 Buyer                        @relation(fields: [buyerId], references: [buyerId])
+  driverLinks           VehicleDriverLink[]
 
   @@map("vehicle")
 }
 
 model Driver {
-  driverId BigInt @id @default(autoincrement()) @map("driver_id")
-  buyerId BigInt? @map("buyer_id")
-  driverName String? @map("driver_name")
-  driverSurname String? @map("driver_surname")
-  licenseNumber String? @map("license_number")
-  phone String?
-  createdAt DateTime? @map("created_at")
-
-  buyer Buyer? @relation(fields: [buyerId], references: [buyerId])
-  driverLinks VehicleDriverLink[]
+  driverId              BigInt                       @id @default(autoincrement()) @map("driver_id")
+  buyerId               BigInt                       @map("buyer_id")
+  driverName            String                       @map("driver_name")
+  driverSurname         String                       @map("driver_surname")
+  licenseNumber         String                       @map("license_number")
+  phone                 String
+  createdAt             DateTime                     @map("created_at")
+  buyer                 Buyer                        @relation(fields: [buyerId], references: [buyerId])
   receivingTransactions RubberReceivingTransaction[]
+  driverLinks           VehicleDriverLink[]
 
   @@map("driver")
 }
 
-//
-// ========================= DOCUMENTS & GEOMETRY =========================
-//
-
 model PlotDocument {
-  documentId BigInt @id @default(autoincrement()) @map("doc_id")
-  plotId BigInt? @map("plot_id")
-  fileName String? @map("file_name")
-  fileType String? @map("file_type")
-  fileUrl String? @map("file_url")
-  createdAt DateTime? @map("created_at")
-
-  plot FarmPlot? @relation(fields: [plotId], references: [plotId])
+  documentId BigInt   @id @default(autoincrement()) @map("doc_id")
+  plotId     BigInt   @map("plot_id")
+  fileName   String   @map("file_name")
+  fileType   String   @map("file_type")
+  fileUrl    String   @map("file_url")
+  createdAt  DateTime @map("created_at")
+  plot       FarmPlot @relation(fields: [plotId], references: [plotId])
 
   @@map("plot_document")
 }
 
-model PlotGeometryPoint {
-  geometryId BigInt @id @default(autoincrement()) @map("geometry_id")
-  plotId BigInt? @map("plot_id")
-  coordinates String?
-  createdAt DateTime? @map("created_at")
-
-  plot FarmPlot? @relation(fields: [plotId], references: [plotId])
-
-  @@map("plot_geometry")
-}
-
-//
-// ========================= FARMBOOK DOMAIN =========================
-//
-
 model FarmbookRecord {
-  farmbookId BigInt @id @default(autoincrement()) @map("farmbook_id")
-  farmerId BigInt? @map("farmer_id")
-  farmbookTypeId BigInt? @map("farmbook_type_id")
-  farmbookNumber String? @map("farmbook_number")
-  createdAt DateTime? @map("created_at")
+  farmbookId     BigInt   @id @default(autoincrement()) @map("farmbook_id")
+  farmerId       BigInt   @map("farmer_id")
+  farmbookNumber String   @map("farmbook_number")
+  farmbookType   String?  @map("farmbook_type")
+  createdAt      DateTime @default(now()) @map("created_at")
 
-  farmer Farmer? @relation(fields: [farmerId], references: [farmerId])
-  farmbookType FarmbookType? @relation(fields: [farmbookTypeId], references: [farmbookTypeId])
-
+  farmer     Farmer                  @relation(fields: [farmerId], references: [farmerId])
   ownerships FarmbookPlotOwnership[]
 
   @@map("farmbook")
 }
 
 model FarmbookPlotOwnership {
-  farmbookPlotId BigInt @id @default(autoincrement()) @map("farmbook_plot_id")
-  farmbookId BigInt? @map("farmbook_id")
-  plotId BigInt? @map("plot_id")
-  createdAt DateTime? @map("created_at")
-
-  farmbook FarmbookRecord? @relation(fields: [farmbookId], references: [farmbookId])
-  farmPlot FarmPlot? @relation(fields: [plotId], references: [plotId])
+  farmbookPlotId BigInt         @id @default(autoincrement()) @map("farmbook_plot_id")
+  farmbookId     BigInt         @map("farmbook_id")
+  plotId         BigInt         @map("plot_id")
+  createdAt      DateTime       @map("created_at")
+  farmbook       FarmbookRecord @relation(fields: [farmbookId], references: [farmbookId])
+  farmPlot       FarmPlot       @relation(fields: [plotId], references: [plotId])
 
   @@map("farmbook_plot")
 }
 
-//
-// ========================= TRANSACTIONS =========================
-//
-
 model RubberReceivingTransaction {
-  transactionId BigInt @id @default(autoincrement()) @map("transaction_id")
-  transactionDate DateTime? @map("transaction_date")
-  buyerId BigInt? @map("buyer_id")
-  farmerId BigInt? @map("farmer_id")
-  plotId BigInt? @map("plot_id")
-  vehicleId BigInt? @map("vehicle_id")
-  driverId BigInt? @map("driver_id")
-  weightRaw Float? @map("weight_raw")
-  weightAfterCalc Float? @map("weight_after_calc")
-  qualityScore Float? @map("quality_score")
-  createdAt DateTime? @map("created_at")
-
-  buyer Buyer? @relation(fields: [buyerId], references: [buyerId])
-  farmer Farmer? @relation(fields: [farmerId], references: [farmerId])
-  plot FarmPlot? @relation(fields: [plotId], references: [plotId])
-  vehicle Vehicle? @relation(fields: [vehicleId], references: [vehicleId])
-  driver Driver? @relation(fields: [driverId], references: [driverId])
+  transactionId   BigInt   @id @default(autoincrement()) @map("transaction_id")
+  transactionDate DateTime @map("transaction_date")
+  buyerId         BigInt   @map("buyer_id")
+  farmerId        BigInt   @map("farmer_id")
+  plotId          BigInt   @map("plot_id")
+  vehicleId       BigInt   @map("vehicle_id")
+  driverId        BigInt   @map("driver_id")
+  weightRaw       Float    @map("weight_raw")
+  weightAfterCalc Float    @map("weight_after_calc")
+  qualityScore    Float    @map("quality_score")
+  createdAt       DateTime @map("created_at")
+  buyer           Buyer    @relation(fields: [buyerId], references: [buyerId])
+  driver          Driver   @relation(fields: [driverId], references: [driverId])
+  farmer          Farmer   @relation(fields: [farmerId], references: [farmerId])
+  plot            FarmPlot @relation(fields: [plotId], references: [plotId])
+  vehicle         Vehicle  @relation(fields: [vehicleId], references: [vehicleId])
 
   @@map("receiving_transaction")
 }
 
-//
-// ========================= LINKS =========================
-//
-
-model BuyerFarmerRelation {
-  relationId BigInt @id @default(autoincrement()) @map("buyer_farmer_id")
-  buyerId BigInt? @map("buyer_id")
-  farmerId BigInt? @map("farmer_id")
-  createdAt DateTime? @map("created_at")
-
-  buyer Buyer? @relation(fields: [buyerId], references: [buyerId])
-  farmer Farmer? @relation(fields: [farmerId], references: [farmerId])
-
-  @@map("buyer_farmer")
-}
-
 model VehicleDriverLink {
-  vehicleDriverId BigInt @id @default(autoincrement()) @map("vehicle_driver_id")
-  vehicleId BigInt? @map("vehicle_id")
-  driverId BigInt? @map("driver_id")
-  buyerId BigInt? @map("buyer_id")
-  assignedDate DateTime? @map("assigned_date")
-  releasedDate DateTime? @map("released_date")
-
-  vehicle Vehicle? @relation(fields: [vehicleId], references: [vehicleId])
-  driver Driver? @relation(fields: [driverId], references: [driverId])
-  buyer Buyer? @relation(fields: [buyerId], references: [buyerId])
+  vehicleDriverId BigInt   @id @default(autoincrement()) @map("vehicle_driver_id")
+  vehicleId       BigInt   @map("vehicle_id")
+  driverId        BigInt   @map("driver_id")
+  buyerId         BigInt   @map("buyer_id")
+  assignedDate    DateTime @map("assigned_date")
+  releasedDate    DateTime @map("released_date")
+  buyer           Buyer    @relation(fields: [buyerId], references: [buyerId])
+  driver          Driver   @relation(fields: [driverId], references: [driverId])
+  vehicle         Vehicle  @relation(fields: [vehicleId], references: [vehicleId])
 
   @@map("vehicle_driver")
 }
 
 model PlotStatusLink {
-  plotId BigInt @map("plot_id")
-  statusId BigInt @map("status_id")
-  statusValue Int? @map("status_value")
-
-  farmPlot FarmPlot @relation(fields: [plotId], references: [plotId])
-  status PlotLifecycleStatus @relation(fields: [statusId], references: [statusId])
+  plotId      BigInt              @map("plot_id")
+  statusId    BigInt              @map("status_id")
+  statusValue Int                 @map("status_value")
+  farmPlot    FarmPlot            @relation(fields: [plotId], references: [plotId])
+  status      PlotLifecycleStatus @relation(fields: [statusId], references: [statusId])
 
   @@id([plotId, statusId])
   @@map("plot_status_link")
 }
 
 model PlotVerificationRecord {
-  verificationId BigInt @id @default(autoincrement()) @map("validation_id")
-  plotId BigInt? @map("plot_id")
-  date DateTime?
-  validationResult String? @map("result")
-  officer String?
-  remark String?
-
-  farmPlot FarmPlot? @relation(fields: [plotId], references: [plotId])
+  verificationId   BigInt   @id @default(autoincrement()) @map("validation_id")
+  plotId           BigInt   @map("plot_id")
+  date             DateTime
+  validationResult String   @map("result")
+  officer          String
+  remark           String
+  farmPlot         FarmPlot @relation(fields: [plotId], references: [plotId])
 
   @@map("validations")
+}
+
+model plot_geometry {
+  geometry_id BigInt   @id @default(autoincrement())
+  plot_id     BigInt
+  coordinates String
+  created_at  DateTime
+  plot        FarmPlot @relation(fields: [plot_id], references: [plotId])
 }
