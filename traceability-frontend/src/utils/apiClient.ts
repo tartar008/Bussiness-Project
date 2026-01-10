@@ -11,11 +11,13 @@ export const apiClient = async <T>(
         ? "?" +
         Object.entries(query)
             .filter(([_, value]) => value !== undefined && value !== null)
-            .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+            .map(([key, value]) =>
+                `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`
+            )
             .join("&")
         : "";
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8081"}${endpoint}${queryString}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8082"}${endpoint}${queryString}`, {
         method,
         headers: {
             "Content-Type": "application/json",

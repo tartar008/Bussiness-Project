@@ -15,7 +15,7 @@ export type Farmer = {
 // services/farmerService.ts
 export const getFarmers = async () => {
     try {
-        const res = await fetch("http://localhost:8081/farmers");
+        const res = await fetch("http://localhost:8082/farmers");
         console.log("[Service] GET /farmers response status:", res.status);
         const data = await res.json();
         console.log("[Service] GET /farmers data:", data);

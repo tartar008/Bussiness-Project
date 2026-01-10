@@ -1,17 +1,19 @@
-import { 
-  LayoutDashboard, 
-  Users, 
-  Map, 
-  Building2, 
-  FileSpreadsheet, 
+"use client";
+
+import {
+  LayoutDashboard,
+  Users,
+  Map,
+  Building2,
+  FileSpreadsheet,
   BarChart3,
   Settings,
   HelpCircle,
   Leaf,
-  Truck
+  Truck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useRouter, usePathname } from "next/navigation";
 
 const navItems = [
   { id: "dashboard", path: "/", label: "Dashboard", labelTh: "หน้าหลัก", icon: LayoutDashboard },
@@ -34,37 +36,45 @@ interface SidebarProps {
 }
 
 export function Sidebar({ activeModule, onModuleChange }: SidebarProps) {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const router = useRouter();
+  const pathname = usePathname();
 
-  const handleNav = (item: typeof navItems[0]) => {
-    navigate(item.path);
+  const handleNav = (item: { id: string; path: string }) => {
+    router.push(item.path);          // ✅ Next.js navigation
     onModuleChange?.(item.id);
   };
 
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) =>
+    pathname === path || pathname.startsWith(path + "/");
 
   return (
     <aside className="flex h-screen w-64 flex-col border-r bg-sidebar">
+      {/* Logo */}
       <div className="flex h-16 items-center gap-3 border-b px-6">
         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
           <Leaf className="h-5 w-5 text-primary-foreground" />
         </div>
         <div>
-          <h1 className="text-base font-bold text-sidebar-foreground">RubberTrace</h1>
-          <p className="text-[10px] text-muted-foreground">EUDR Traceability</p>
+          <h1 className="text-base font-bold text-sidebar-foreground">
+            RubberTrace
+          </h1>
+          <p className="text-[10px] text-muted-foreground">
+            EUDR Traceability
+          </p>
         </div>
       </div>
 
+      {/* Main menu */}
       <nav className="flex-1 space-y-1 p-4">
         <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
           Main Menu
         </p>
+
         {navItems.map((item) => (
           <Button
             key={item.id}
             variant={isActive(item.path) ? "navActive" : "nav"}
-            className="w-full"
+            className="w-full justify-start"
             onClick={() => handleNav(item)}
           >
             <item.icon className="mr-3 h-4 w-4" />
@@ -73,12 +83,13 @@ export function Sidebar({ activeModule, onModuleChange }: SidebarProps) {
         ))}
       </nav>
 
+      {/* Bottom menu */}
       <div className="border-t p-4 space-y-1">
         {bottomNavItems.map((item) => (
           <Button
             key={item.id}
             variant="nav"
-            className="w-full"
+            className="w-full justify-start"
             onClick={() => handleNav(item)}
           >
             <item.icon className="mr-3 h-4 w-4" />

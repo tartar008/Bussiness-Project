@@ -1,43 +1,66 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import {
+    LayoutDashboard,
+    Map,
+    MapPin,
+    User,
+    Store,
+    Package,
+    FileText,
+    Settings,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-const menuItems = [
-    { label: "📊 Dashboard", href: "/dashboard" },
-    { label: "👤 Farmer", href: "/farmer" },
-    { label: "📍 Plot", href: "/plot" },
-    { label: "🗺️ GIS", href: "/gis" },
-    { label: "🏪 Buyer", href: "/buyer" },
-    { label: "📦 Receiving", href: "/receiving" },
-    { label: "📑 Reports", href: "/reports" },
-    { label: "⚙️ Initial Import", href: "/import" },
+type NavItem = {
+    id: string;
+    path: string;
+    label: string;
+    labelTh: string;
+    icon: React.ElementType;
+};
+
+const navItems: NavItem[] = [
+    { id: "dashboard", path: "/dashboard", label: "Dashboard", labelTh: "หน้าหลัก", icon: LayoutDashboard },
+    { id: "farmer", path: "/farmer", label: "Farmer", labelTh: "เกษตรกร", icon: User },
+    { id: "plot", path: "/plot", label: "Plot", labelTh: "แปลงปลูก", icon: MapPin },
+    { id: "gis", path: "/gis", label: "GIS", labelTh: "แผนที่", icon: Map },
+    { id: "buyer", path: "/buyer", label: "Buyer", labelTh: "ผู้ซื้อ", icon: Store },
+    { id: "receiving", path: "/receiving", label: "Receiving", labelTh: "รับผลผลิต", icon: Package },
+    { id: "reports", path: "/reports", label: "Reports", labelTh: "รายงาน", icon: FileText },
+    { id: "import", path: "/import", label: "Import", labelTh: "นำเข้าข้อมูล", icon: Settings },
 ];
 
 export default function Sidebar() {
     const pathname = usePathname();
+    const router = useRouter();
 
     return (
-        <div className="sidebar fixed left-0 top-0 w-[250px] h-screen bg-white border-r border-gray-200 overflow-y-auto">
-            <h2 className="text-center py-5 text-xl font-bold text-blue-600">
+        <aside className="w-64 h-screen bg-white border-r border-gray-200 fixed left-0 top-0">
+            <div className="p-6 text-xl font-bold text-blue-600">
                 TRACEABILITY
-            </h2>
+            </div>
 
-            {menuItems.map((item) => {
-                const isActive = pathname.startsWith(item.href);
+            <nav className="space-y-1 px-3">
+                {navItems.map((item) => {
+                    const isActive = pathname.startsWith(item.path);
+                    const Icon = item.icon;
 
-                return (
-                    <Link
-                        key={item.href}
-                        href={item.href}
-                        className={`block px-6 py-3 cursor-pointer transition 
-              ${isActive ? "bg-blue-100 text-blue-700 font-semibold" : "text-gray-800 hover:bg-gray-100"}
-            `}
-                    >
-                        {item.label}
-                    </Link>
-                );
-            })}
-        </div>
+                    return (
+                        <Button
+                            key={item.id}
+                            variant={isActive ? "secondary" : "ghost"}
+                            className="w-full justify-start gap-3"
+                            onClick={() => router.push(item.path)}
+                        >
+                            <Icon className="h-4 w-4" />
+                            <span>{item.labelTh}</span>
+                        </Button>
+                    );
+                })}
+            </nav>
+        </aside>
     );
 }
